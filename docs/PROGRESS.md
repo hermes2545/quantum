@@ -23,7 +23,15 @@ Orchestrator: session หลัก (Fable 5.1) · Reviewer: Opus 5 · Implemente
 - [ ] 6. interactives เขียนมือ (บท 1,2,3,4,9 ของเล่ม 1 อย่างน้อย)
 - [x] 7. build static + รัน proxy + ทดสอบ mobile 360/390/768/1280 — QA จริงด้วย Playwright 5 หน้า × 4 ขนาด (docs/qa/mobile-report.md + 29 ภาพ): ไม่มี horizontal scroll, AskPanel เต็มจอ, TermSheet ≤75vh, console error 0; ตกกฎข้อ 8 (ฟอนต์ 15px) → แก้แล้ว
 - [ ] 8. docker compose ทดสอบบนเครื่องนี้ — `docker compose config` ผ่าน; daemon (colima) ไม่ได้รัน → ทดสอบจริงบน Ubuntu ตาม spec
-- [~] 9. ตรวจรับโดย Opus ตาม §11 (12 ข้อ): ผ่าน 9 / ข้อสังเกต 3 — blocker: **B1 PDF ยังไม่มีในเครื่อง (ผู้ใช้)**, **B2 ANTHROPIC_API_KEY ว่างใน .env (ผู้ใช้)**, B3 config ของ ch05–08 ไม่ตรงโมดูล particles → กำลังแก้; ข้อควรแก้ 14 ข้อ → แก้แล้ว 10 (ask effort/max_tokens notice, XFF, root, isFile, README, bulletsAfter, hint, .msg, review-ch03) เหลือ: วิธีนับคำมาตรฐาน, บันทึกเหตุผลตัดเนื้อหา raw ch06/ch08, server-side fallbacks (ทางเลือก), .scroll-x
+- [~] 9. ตรวจรับโดย Opus ตาม §11 (12 ข้อ): ผ่าน 9 / ข้อสังเกต 3 — blocker: **B1 PDF ยังไม่มีในเครื่อง (ผู้ใช้)**, **B2 ANTHROPIC_API_KEY ว่างใน .env (ผู้ใช้)**, B3 config ของ ch05–08 ไม่ตรงโมดูล particles → **แก้แล้ว** (objects 5/5/6/5 + guard ใน normalize.mjs); ข้อควรแก้ 14 ข้อ → แก้แล้ว 11 (ask effort/max_tokens notice, XFF, root, isFile, README, bulletsAfter, hint, .msg, review-ch03, วิธีนับคำมาตรฐาน = `pipeline/wordcount.py`) เหลือที่ตั้งใจไม่ทำในเฟสนี้: บันทึกเหตุผลตัดเนื้อหา raw ch06/ch08 (จะทำตอนทำ interactive มือให้บทเหล่านั้น), server-side fallbacks (ทางเลือก ไม่อยู่ใน spec), .scroll-x (ยังไม่มีเนื้อหากว้าง)
+
+## สิ่งที่ผู้ใช้ต้องทำก่อนเปิดใช้เฟส 1 (ระบบทำแทนไม่ได้)
+1. วาง PDF 9 เล่มลง `content/source/` (ชื่อไฟล์ตาม `content/books/*/book.json → sourcePdf.file`) แล้ว `node content/schema/validate.mjs --strict-source`
+2. ใส่ `ANTHROPIC_API_KEY` ใน `.env` + ตั้ง spend limit ใน Anthropic Console
+3. บน Ubuntu: `docker compose up -d` → เปิด `http://<tailscale-host>:8080` จากมือถือ
+
+## ขั้นตอนเล่ม 2–9 (เมื่อ PDF มา)
+`python -m pipeline.run --book <slug> --skip-author` → ตรวจ raw/_split → workflow เขียนบท (แบบ `author-book1-ch03-09` แต่ใช้ fix 1 รอบ + Opus verify medium) → `normalize.mjs` → `validate.mjs` → `build.js` → push
 
 ## บันทึกการตัดสินใจ
 - เนื้อหาบทเขียนด้วย subagent ใน workflow (ไม่ใช่ pipeline/author.py เรียก API) เพราะไม่ต้องใช้ API key แยก
