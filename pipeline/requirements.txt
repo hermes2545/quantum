@@ -3,9 +3,16 @@
 #
 # extract.py ใช้ pdftotext (poppler) ผ่าน subprocess เป็นทางหลัก (ตาม §8 handoff-spec)
 # pymupdf เป็น fallback อัตโนมัติเมื่อไม่มี binary pdftotext ในเครื่อง (เช่นเครื่อง dev ที่ไม่ได้ลง poppler)
-anthropic>=1.0
+anthropic>=0.125,<1
 pymupdf>=1.24
 jsonschema>=4.20
+
+# terms.py ใช้ pythainlp.tokenize.word_tokenize (engine=newmm, ทำงานล้วนจาก dictionary ที่ฝังมากับ
+# แพ็กเกจ ไม่ต้องดาวน์โหลดโมเดลเพิ่ม/ไม่ต้องต่อเน็ต) เพื่อเช็คขอบเขตคำไทยจริงก่อนห่อ <dfn> — กันคำสั้น
+# ในรายการศัพท์ไปห่อกลางคำอื่นที่ยาวกว่า (เช่น "สติ" ใน "พลาสติก") แทนที่จะพึ่ง
+# pipeline/fixtures/term_exclusions.json (รายการที่แก้มือ) เพียงอย่างเดียว — ถ้าไม่ได้ติดตั้ง terms.py
+# ยังรันได้แต่จะพิมพ์คำเตือนและข้ามการเช็คนี้ (ดู terms.py: _get_word_tokenize)
+pythainlp>=5.3
 
 # หมายเหตุ: pdftotext ไม่ใช่ pip package — ติดตั้งจาก poppler-utils ของ OS
 #   macOS:  brew install poppler
