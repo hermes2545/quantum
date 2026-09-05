@@ -100,6 +100,14 @@ function normalizeBook(bookSlug) {
       }
     }
 
+    // 3b. guard: module "particles" ต้องมี config.objects ที่โมดูลอ่านได้จริง มิฉะนั้นหน้าเว็บโชว์ก้อนเดียว "สิ่งหนึ่ง"
+    //     (validate.mjs ไม่เช็ค — พบใน review ตรวจรับ B3)
+    if (ch.interactive?.module === 'particles') {
+      const objs = ch.interactive.config?.objects;
+      const ok = Array.isArray(objs) && objs.length >= 3 && objs.every((o) => o && (o.key || o.k) && o.name && o.lenses && ['a', 'd', 'n'].every((L) => typeof o.lenses[L] === 'string' && o.lenses[L].length));
+      if (!ok) { if (!unknown.has('__particles_config__')) unknown.set('__particles_config__', new Set()); unknown.get('__particles_config__').add(slug); }
+    }
+
     if (JSON.stringify(ch) !== before) writeJson(p, ch);
 
     // 5. sync book.json

@@ -1,14 +1,18 @@
-:80 {
+":80 {
+	# root ระดับ site เพื่อให้ handle_errors หา /404.html ได้แม้ error เกิดใน /api/*
+	root * /srv
+
 	# ผู้ช่วย API — ส่งตรงไปให้ proxy (ไม่ buffer SSE)
 	handle /api/* {
 		reverse_proxy proxy:8787 {
 			flush_interval -1
+			# ห้าม client ปลอม X-Forwarded-For มาเลี่ยง rate limit (§9.5) — ทับด้วย IP จริงของผู้เชื่อมต่อ
+			header_up X-Forwarded-For {remote_host}
 		}
 	}
 
 	# เนื้อหาและสินค้า
 	handle {
-		root * /srv
 		encode gzip
 
 		# Routing: ให้ URL จริง /b/x/ch01 (ไม่มี slash ท้าย) ไปชี้ที่ไฟล์ index.html

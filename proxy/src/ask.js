@@ -122,6 +122,11 @@ export function registerAsk(app, { store, env, client }) {
           logStatus = 'error';
           await stream.writeSSE({ event: 'error', data: JSON.stringify({ code: 'refusal', message: ERROR_MESSAGES.refusal.message }) });
         } else {
+          if (stopReason === 'max_tokens') {
+            // thinking token นับรวมใน max_tokens (§9.5 = 800) — ถ้าถูกตัดกลางประโยค ต้องบอกผู้ใช้ ไม่ปล่อยให้จบเงียบๆ
+            // (ตรวจรับ §11 ข้อ 9 ของ reviewer) ส่งเป็น delta เพื่อให้ client เดิม render ได้โดยไม่ต้องรู้ event ใหม่
+            await stream.writeSSE({ event: 'delta', data: JSON.stringify({ text: ' …(คำตอบถูกตัดเพราะยาวเกินกำหนด ลองถามให้เฉพาะเจาะจงขึ้นอีกนิด)' }) });
+          }
           await stream.writeSSE({
             event: 'done',
             data: JSON.stringify({

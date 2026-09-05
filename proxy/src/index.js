@@ -35,8 +35,8 @@ function positiveIntEnv(name, fallback) {
 const ASK_EFFORT_VALUES = new Set(['low', 'medium', 'high']);
 
 function readEnv() {
-  const askEffortRaw = process.env.ASK_EFFORT || 'medium';
-  const askEffort = ASK_EFFORT_VALUES.has(askEffortRaw) ? askEffortRaw : 'medium';
+  const askEffortRaw = process.env.ASK_EFFORT || 'low';
+  const askEffort = ASK_EFFORT_VALUES.has(askEffortRaw) ? askEffortRaw : 'low';
   if (askEffort !== askEffortRaw) {
     console.log(JSON.stringify({ ts: new Date().toISOString(), msg: 'ASK_EFFORT ผิดค่า ใช้ medium แทน', raw: askEffortRaw }));
   }

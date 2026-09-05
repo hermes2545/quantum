@@ -314,4 +314,4 @@ a.sf-item:hover .sf-title,.sf-current .sf-title{color:var(--gold)}
 /* §5 กฎข้อ 8 — ผู้อ่านหลายคนอายุ 50+: ข้อความที่ "อ่านเป็นเนื้อหา" ต้อง ≥16px/1.7 ทุกจอ
    (QA docs/qa/mobile-report.md พบ .three .c p 14.9px, .aside/.ex-intro/.sf-* 15.2px) — ป้ายกำกับสั้นๆ (.eyebrow, .bc-meta) ไม่นับ */
 .three .c p,.aside,.exercise .ex-intro,.qlist button,.night .readout,.howto,
-.source-footer .sf-author,.source-footer .sf-note,.source-footer .sf-credit{font-size:1rem;line-height:1.7}
+.source-footer .sf-author,.source-footer .sf-note,.source-footer .sf-credit,.ask .msg{font-size:1rem;line-height:1.7}

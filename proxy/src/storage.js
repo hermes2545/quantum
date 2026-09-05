@@ -201,6 +201,8 @@ export function createFsContentStore({ contentDir, sourceDir } = {}) {
     let stats;
     try {
       stats = await fsPromisesMod.stat(fullPath);
+      // ต้องเป็นไฟล์จริง — ถ้าเป็นไดเรกทอรีชื่อลงท้าย .pdf จะ stream ไม่ได้แล้วพังกลางคัน (ตรวจรับ §11 ข้อ 11)
+      if (!stats.isFile()) throw new ProxyError('not_found', 404);
     } catch {
       return null;
     }
