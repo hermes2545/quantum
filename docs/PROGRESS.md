@@ -17,7 +17,7 @@ Orchestrator: session หลัก (Fable 5.1) · Reviewer: Opus 5 · Implemente
 - [ ] 2. PDF 9 เล่ม → content/source/
 - [ ] 3. extract + clean + split ทั้ง 9 เล่ม → raw/chNN.txt   ← เล่ม 1 เสร็จ (9 บท + คำนำ, แก้คำ 467 จุด); เล่ม 2–9 รอ PDF
 - [ ] 4. author ทุกบท (agent เขียน → Opus ตรวจ → แก้) → chNN.json status ready   ← เล่ม 1 บท 1–2 จาก prototype ✓; บท 3–9 workflow `author-book1-ch03-09` กำลังรัน
-- [ ] 5. glossary + auto-link + index.json
+- [x] 5. glossary + auto-link + index.json — เล่ม 1: glossary 71 คำ (merge โดย normalize.mjs), validate ผ่าน 13 ไฟล์, build 13 หน้า, index.json 1 เล่ม
 - [ ] 6. interactives เขียนมือ (บท 1,2,3,4,9 ของเล่ม 1 อย่างน้อย)
 - [ ] 7. build static + รัน proxy + ทดสอบ mobile 360/390/768/1280
 - [ ] 8. docker compose ทดสอบบนเครื่องนี้
