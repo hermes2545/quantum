@@ -1,0 +1,721 @@
+<title>ไตรลักษณ์ในควอนตัม</title>  
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chonburi&family=Sarabun:ital,wght@0,300;0,400;0,500;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">  
+<style>  
+:root{  
+ --paper:#F5F1E8; --paper-2:#ECE6D8; --ink:#1C2040; --ink-2:#4A4E68; --ink-3:#7E819A;  
+ --line:#D9D2C2; --gold:#B8892B; --gold-soft:#F1E4C4; --teal:#1F8A85; --teal-soft:#D3EAE7;  
+ --night:#0F1230; --night-2:#1B1F3F; --star:#EAE6F5; --night-line:#2E3363; --night-mute:#9A9EC4;  
+ --focus:#1F8A85;  
+ color-scheme: light;  
+}  
+@media (prefers-color-scheme: dark){  
+ :root:not([data-theme="light"]){  
+ --paper:#12152B; --paper-2:#1A1E38; --ink:#ECE8F6; --ink-2:#BDBAD0; --ink-3:#8A8DAB;  
+ --line:#2C3054; --gold:#D9AE4D; --gold-soft:#2E2A1C; --teal:#4FB8B2; --teal-soft:#16332F;  
+ color-scheme: dark;  
+ }  
+}  
+:root[data-theme="dark"]{  
+ --paper:#12152B; --paper-2:#1A1E38; --ink:#ECE8F6; --ink-2:#BDBAD0; --ink-3:#8A8DAB;  
+ --line:#2C3054; --gold:#D9AE4D; --gold-soft:#2E2A1C; --teal:#4FB8B2; --teal-soft:#16332F;  
+ color-scheme: dark;  
+}  
+*{box-sizing:border-box}  
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Sarabun',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:17px;line-height:1.85;-webkit-font-smoothing:antialiased}  
+h1,h2,h3,h4{font-family:'Chonburi','Sarabun',serif;font-weight:400;line-height:1.35;text-wrap:balance;margin:0}  
+p{margin:0 0 1.1em}  
+a{color:var(--teal)}  
+button{font:inherit;cursor:pointer}  
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}  
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}  
+.eyebrow{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500}  
+  
+/* ---------- app frame ---------- */  
+.app{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:100vh}  
+.rail{border-right:1px solid var(--line);padding:26px 18px;position:sticky;top:0;height:100vh;overflow:auto;background:var(--paper)}  
+.brand{display:flex;flex-direction:column;gap:2px;margin-bottom:22px}  
+.brand .t{font-family:'Chonburi';font-size:1.15rem;color:var(--ink)}  
+.brand .s{font-size:.8rem;color:var(--ink-3)}  
+.rail nav{display:flex;flex-direction:column;gap:2px}  
+.rail nav button{display:grid;grid-template-columns:28px 1fr;align-items:baseline;gap:8px;text-align:left;background:none;border:0;color:var(--ink-2);padding:8px 10px;border-radius:6px;font-size:.92rem;line-height:1.4}  
+.rail nav button .n{font-family:'IBM Plex Mono';font-size:.78rem;color:var(--ink-3)}  
+.rail nav button[aria-current="page"]{background:var(--gold-soft);color:var(--ink)}  
+.rail nav button[aria-current="page"] .n{color:var(--gold)}  
+.rail nav button.soon{opacity:.55}  
+.rail nav button.soon .n::after{content:''}  
+.rail .home{margin-bottom:8px;padding-left:10px}  
+.rail .foot{margin-top:22px;font-size:.78rem;color:var(--ink-3);line-height:1.5;border-top:1px solid var(--line);padding-top:12px}  
+.main{min-width:0}  
+.page{max-width:72ch;margin:0 auto;padding:44px 28px 120px}  
+.page[hidden]{display:none}  
+  
+/* topbar for mobile */  
+.topbar{display:none;position:sticky;top:0;z-index:20;background:var(--paper);border-bottom:1px solid var(--line);padding:10px 14px;align-items:center;gap:10px}  
+.topbar .t{font-family:'Chonburi';font-size:1rem;flex:1}  
+.topbar select{font:inherit;font-size:.9rem;padding:6px 8px;border-radius:6px;border:1px solid var(--line);background:var(--paper-2);color:var(--ink);max-width:60%}  
+  
+/* ---------- home / map ---------- */  
+.hero{padding-bottom:26px;border-bottom:1px solid var(--line);margin-bottom:26px}  
+.hero h1{font-size:2.5rem;margin:6px 0 10px}  
+.hero .lead{font-size:1.12rem;color:var(--ink-2);max-width:60ch}  
+.hero .lead b{color:var(--ink);font-weight:500}  
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:26px 0}  
+.three .c{border:1px solid var(--line);border-radius:10px;padding:16px 16px 12px;background:var(--paper-2)}  
+.three .c .pali{font-family:'Chonburi';font-size:1.35rem}  
+.three .c .th{color:var(--ink-3);font-size:.8rem;letter-spacing:.08em;margin-bottom:6px}  
+.three .c p{font-size:.93rem;line-height:1.6;color:var(--ink-2);margin:0}  
+.mapgrid{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line)}  
+.maprow{display:grid;grid-template-columns:52px 1fr auto;gap:14px;align-items:center;padding:14px 4px;border-bottom:1px solid var(--line);background:none;border-left:0;border-right:0;text-align:left;color:var(--ink);width:100%}  
+.maprow .n{font-family:'IBM Plex Mono';color:var(--ink-3);font-size:.85rem}  
+.maprow .ti{font-weight:500;font-size:1.02rem}  
+.maprow .sub{font-size:.85rem;color:var(--ink-3);display:block}  
+.maprow .st{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:99px;border:1px solid var(--line);color:var(--ink-3);white-space:nowrap}  
+.maprow.ok{cursor:pointer}  
+.maprow.ok:hover{background:var(--paper-2)}  
+.maprow.ok .st{background:var(--teal-soft);border-color:transparent;color:var(--teal)}  
+.maprow.soon{opacity:.6;cursor:default}  
+.howto{margin-top:34px;padding:18px 20px;border-radius:10px;background:var(--gold-soft);font-size:.95rem;line-height:1.7}  
+.howto b{font-weight:500}  
+.howto .kbd{display:inline-block;border-bottom:2px dotted var(--gold);color:var(--ink);font-weight:500}  
+  
+/* ---------- chapter typography ---------- */  
+.ch-head{margin-bottom:28px}  
+.ch-head h1{font-size:2.1rem;margin:6px 0 12px}  
+.ch-head .goal{border-left:3px solid var(--gold);padding:4px 0 4px 14px;color:var(--ink-2);font-size:1rem}  
+.page h2{font-size:1.45rem;margin:44px 0 12px;padding-top:22px;border-top:1px solid var(--line)}  
+.page h3{font-size:1.1rem;margin:26px 0 8px;font-family:'Sarabun';font-weight:700}  
+.page ul{padding-left:1.2em}  
+.page li{margin-bottom:.35em}  
+dfn{font-style:normal;text-decoration:underline dotted var(--gold);text-underline-offset:4px;text-decoration-thickness:1.5px;cursor:help;color:inherit}  
+dfn:hover{background:var(--gold-soft)}  
+.quote{margin:26px 0;padding:18px 22px;border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);background:linear-gradient(180deg,transparent,var(--gold-soft) 50%,transparent)}  
+.quote .eyebrow{color:var(--gold);margin-bottom:6px}  
+.quote p{font-size:1.02rem;line-height:1.85;margin:0}  
+.quote .src{font-size:.8rem;color:var(--ink-3);margin-top:8px}  
+.aside{margin:20px 0;padding:14px 18px;border-radius:8px;background:var(--paper-2);font-size:.95rem;line-height:1.7}  
+.aside .eyebrow{margin-bottom:4px}  
+.aside p:last-child{margin:0}  
+.ask-inline{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:none;color:var(--teal);padding:4px 12px;border-radius:99px;font-size:.85rem;margin:4px 0}  
+.ask-inline:hover{background:var(--teal-soft)}  
+  
+/* ---------- night panel (interactives) ---------- */  
+.night{background:var(--night);color:var(--star);border-radius:14px;padding:22px 22px 18px;margin:26px -8px;box-shadow:0 20px 50px -30px rgba(0,0,0,.6)}  
+.night .eyebrow{color:var(--night-mute)}  
+.night h3{font-family:'Chonburi';font-weight:400;font-size:1.25rem;margin:4px 0 8px;color:var(--star)}  
+.night p{color:#CFD2EA}  
+.night .stage{position:relative;background:var(--night-2);border-radius:10px;overflow:hidden;border:1px solid var(--night-line)}  
+.night canvas{display:block;width:100%;height:auto}  
+.night .ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}  
+.night .ctl label{font-size:.85rem;color:var(--night-mute)}  
+.night input[type=range]{width:100%;accent-color:#D9AE4D}  
+.chip{border:1px solid var(--night-line);background:transparent;color:#CFD2EA;padding:6px 14px;border-radius:99px;font-size:.9rem}  
+.chip[aria-pressed="true"]{background:#D9AE4D;border-color:#D9AE4D;color:#1A1400;font-weight:500}  
+.chip.teal[aria-pressed="true"]{background:#4FB8B2;border-color:#4FB8B2}  
+.night .readout{margin-top:12px;padding:12px 14px;background:rgba(255,255,255,.04);border-radius:8px;font-size:.95rem;line-height:1.7;min-height:64px}  
+.night .readout b{color:#F3E2B3;font-weight:500}  
+.night .readout .k{color:#8FD3CE;font-weight:500}  
+.phase{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}  
+.phase div{text-align:center;font-size:.82rem;color:var(--night-mute);padding:6px 0;border-top:2px solid var(--night-line)}  
+.phase div.on{color:#F3E2B3;border-top-color:#D9AE4D}  
+.lens{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}  
+.lens button{background:rgba(255,255,255,.04);border:1px solid var(--night-line);color:#CFD2EA;border-radius:8px;padding:10px 8px;text-align:left;line-height:1.4}  
+.lens button .pali{font-family:'Chonburi';display:block;font-size:1.05rem;color:var(--star)}  
+.lens button .th{font-size:.78rem;color:var(--night-mute)}  
+.lens button[aria-pressed="true"]{border-color:#D9AE4D;background:rgba(217,174,77,.12)}  
+.lens button[aria-pressed="true"] .pali{color:#F3E2B3}  
+.zoomsteps{display:flex;justify-content:space-between;margin-top:6px;font-size:.72rem;color:var(--night-mute)}  
+.zoomsteps span.on{color:#F3E2B3}  
+  
+/* ---------- exercise ---------- */  
+.exercise{margin:30px 0;border:1px solid var(--line);border-radius:12px;padding:18px 20px}  
+.exercise .eyebrow{color:var(--teal)}  
+.exercise h3{margin-top:4px;font-family:'Chonburi';font-weight:400;font-size:1.2rem}  
+.exercise .pick{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}  
+.exercise .pick button{border:1px solid var(--line);background:var(--paper-2);color:var(--ink);border-radius:99px;padding:6px 14px;font-size:.9rem}  
+.exercise .pick button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}  
+.steps{display:grid;gap:10px}  
+.step{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:start;padding:12px 14px;border-radius:8px;background:var(--paper-2)}  
+.step .lab{font-family:'Chonburi';font-size:1rem}  
+.step .lab small{display:block;font-family:'Sarabun';font-size:.75rem;color:var(--ink-3);letter-spacing:.06em}  
+.step .txt{font-size:.95rem;line-height:1.7;color:var(--ink-2)}  
+.step .txt.empty{color:var(--ink-3);font-style:italic}  
+.reflect textarea{width:100%;min-height:90px;font:inherit;font-size:.95rem;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);resize:vertical}  
+.reflect .row{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap}  
+.btn{background:var(--ink);color:var(--paper);border:0;border-radius:8px;padding:9px 18px;font-weight:500}  
+.btn.ghost{background:none;color:var(--ink-2);border:1px solid var(--line)}  
+.btn:disabled{opacity:.5;cursor:default}  
+.feedback{margin-top:12px;padding:12px 14px;border-radius:8px;background:var(--teal-soft);font-size:.95rem;line-height:1.7;white-space:pre-wrap}  
+.feedback[hidden]{display:none}  
+.qlist{display:grid;gap:8px;margin:12px 0}  
+.qlist button{text-align:left;border:1px solid var(--line);background:none;color:var(--ink);padding:10px 14px;border-radius:8px;font-size:.95rem;line-height:1.5}  
+.qlist button:hover{background:var(--paper-2)}  
+.qlist button::before{content:'?';display:inline-block;width:20px;color:var(--teal);font-weight:700}  
+  
+.chnav{display:flex;justify-content:space-between;gap:12px;margin-top:50px;padding-top:20px;border-top:1px solid var(--line)}  
+.chnav button{background:none;border:1px solid var(--line);border-radius:8px;padding:10px 16px;color:var(--ink);text-align:left;line-height:1.4;max-width:48%}  
+.chnav button small{display:block;color:var(--ink-3);font-size:.75rem;letter-spacing:.06em}  
+.chnav button:disabled{opacity:.45}  
+  
+/* ---------- term sheet ---------- */  
+.sheet-bg{position:fixed;inset:0;background:rgba(10,12,30,.45);z-index:40}  
+.sheet-bg[hidden]{display:none}  
+.sheet{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(640px,100%);background:var(--paper);color:var(--ink);border-radius:16px 16px 0 0;padding:20px 22px 26px;z-index:41;box-shadow:0 -10px 40px rgba(0,0,0,.25);max-height:75vh;overflow:auto}  
+.sheet .eyebrow{color:var(--gold)}  
+.sheet h3{font-family:'Chonburi';font-weight:400;font-size:1.35rem;margin:2px 0 6px}  
+.sheet .alt{font-size:.85rem;color:var(--ink-3);margin-bottom:8px}  
+.sheet p{font-size:.98rem;line-height:1.75}  
+.sheet .row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}  
+  
+/* ---------- ask panel ---------- */  
+.fab{position:fixed;right:22px;bottom:22px;z-index:30;background:var(--ink);color:var(--paper);border:0;border-radius:99px;padding:12px 20px;font-weight:500;box-shadow:0 10px 30px -10px rgba(0,0,0,.5);display:flex;gap:8px;align-items:center}  
+.fab .dot{width:8px;height:8px;border-radius:99px;background:var(--gold)}  
+.fab[hidden]{display:none}  
+.ask{position:fixed;right:22px;bottom:22px;width:min(420px,calc(100% - 24px));height:min(600px,calc(100vh - 40px));z-index:45;background:var(--paper);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;box-shadow:0 30px 60px -20px rgba(0,0,0,.5)}  
+.ask[hidden]{display:none}  
+.ask header{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}  
+.ask header .t{font-family:'Chonburi';flex:1}  
+.ask header .ctx{font-size:.75rem;color:var(--ink-3)}  
+.ask header button{background:none;border:0;color:var(--ink-3);font-size:1.2rem;padding:4px 8px}  
+.ask .log{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px}  
+.msg{max-width:92%;padding:9px 13px;border-radius:12px;font-size:.93rem;line-height:1.65;white-space:pre-wrap}  
+.msg.u{align-self:flex-end;background:var(--ink);color:var(--paper);border-bottom-right-radius:3px}  
+.msg.a{align-self:flex-start;background:var(--paper-2);border-bottom-left-radius:3px}  
+.msg.a.think{color:var(--ink-3);font-style:italic}  
+.ask .sugg{display:flex;gap:6px;flex-wrap:wrap;padding:0 14px 8px}  
+.ask .sugg button{border:1px solid var(--line);background:none;color:var(--ink-2);border-radius:99px;padding:4px 10px;font-size:.8rem}  
+.ask form{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}  
+.ask input{flex:1;font:inherit;font-size:.95rem;padding:9px 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper-2);color:var(--ink)}  
+.ask form button{background:var(--ink);color:var(--paper);border:0;border-radius:8px;padding:0 16px}  
+.ask .note{font-size:.75rem;color:var(--ink-3);padding:0 14px 8px}  
+  
+@media (max-width:860px){  
+ .app{grid-template-columns:1fr}  
+ .rail{display:none}  
+ .topbar{display:flex}  
+ .page{padding:26px 18px 120px}  
+ .hero h1{font-size:1.9rem}  
+ .three{grid-template-columns:1fr}  
+ .night{margin:22px -6px;padding:16px 14px 14px}  
+ .lens{grid-template-columns:1fr}  
+ .step{grid-template-columns:1fr;gap:4px}  
+ .fab{right:14px;bottom:14px}  
+ .ask{right:12px;bottom:12px}  
+}  
+@media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }  
+</style>  
+  
+<div class="topbar">  
+ <div class="t">ไตรลักษณ์ในควอนตัม</div>  
+ <select id="mobnav" aria-label="ไปที่บท"></select>  
+</div>  
+  
+<div class="app">  
+ <aside class="rail">  
+ <div class="brand"><div class="t">ไตรลักษณ์ในควอนตัม</div><div class="s">คู่มือเดินทางแบบโต้ตอบ</div></div>  
+ <div class="home"><button class="ask-inline" data-go="home">แผนที่การเดินทาง</button></div>  
+ <nav id="railnav" aria-label="บทเรียน"></nav>  
+ <div class="foot">อ้างอิงจากหนังสือ <i>ไตรลักษณ์ในควอนตัม</i> โดย สิรวิชญ์ รัตน์จินดา<br>เนื้อหาในคู่มือนี้เรียบเรียงใหม่เพื่อการเรียนรู้</div>  
+ </aside>  
+  
+ <main class="main" id="main">  
+  
+<!-- ===================== HOME ===================== -->  
+<article class="page" id="p-home">  
+ <div class="hero">  
+ <div class="eyebrow">คู่มือเดินทางแบบโต้ตอบ · จากหนังสือของ สิรวิชญ์ รัตน์จินดา</div>  
+ <h1>ไตรลักษณ์ในควอนตัม</h1>  
+ <p class="lead">หนังสือเล่มนี้ตั้งคำถามเดียวซ้ำ ๆ ในทุกบท: <b>ถ้าเรามองสิ่งใดก็ตามให้ใกล้พอ นานพอ หรือไกลพอ เราจะยังเห็น "ตัวมัน" อยู่ไหม?</b> แล้วพาเราไปหาคำตอบทั้งในร่างกาย ในใจ ในดวงดาว ในอนุภาคที่เล็กกว่าอะตอม และในเซลล์ที่กำลังเกิดดับอยู่ตอนนี้</p>  
+ </div>  
+  
+ <div class="eyebrow">กฎสามข้อที่หนังสือตามหา</div>  
+ <div class="three">  
+ <div class="c"><div class="th">ไม่เที่ยง</div><div class="pali">อนิจจัง</div><p>ทุกสิ่งเกิดขึ้น ตั้งอยู่ แล้วดับไป ไม่มีอะไรหยุดนิ่ง แค่บางอย่างเปลี่ยนช้าจนเรามองไม่ทัน</p></div>  
+ <div class="c"><div class="th">ทนอยู่เดิมไม่ได้</div><div class="pali">ทุกขัง</div><p>ไม่ได้แปลว่า "ทุกข์ใจ" แต่แปลว่าถูกเหตุปัจจัยบีบให้ต้องเปลี่ยน ยึดให้อยู่เดิมเมื่อไหร่ ทุกข์ใจเมื่อนั้น</p></div>  
+ <div class="c"><div class="th">ไม่มีตัวตนแท้จริง</div><div class="pali">อนัตตา</div><p>แยกส่วนออกมาดูทีละชิ้น จะหา "ตัวมัน" ไม่เจอ มีแต่ส่วนประกอบที่มารวมกันชั่วคราว</p></div>  
+ </div>  
+  
+ <div class="eyebrow" style="margin-top:34px">เส้นทาง 9 บท · อ่านตามลำดับหรือข้ามไปบทที่สนใจก็ได้</div>  
+ <div class="mapgrid" id="mapgrid"></div>  
+  
+ <div class="howto">  
+ <b>วิธีใช้คู่มือนี้</b><br>  
+ คำที่มี<span class="kbd">เส้นประสีทองข้างใต้</span> กดได้ทันที จะมีคำอธิบายภาษาคนธรรมดาขึ้นมาโดยไม่ต้องรอ · แต่ละบทมี "หน้าต่างสู่จักรวาล" สีน้ำเงินเข้มที่เลื่อนเล่นได้ เพราะเรื่องพวกนี้ต้องเห็นมันเคลื่อนไหวถึงจะเข้าใจ · สงสัยตรงไหน กดปุ่ม <b>"ถามตรงนี้"</b> มุมขวาล่าง ผู้ช่วยรู้เนื้อหาทั้งเล่มและจะบอกว่าเรื่องนั้นอยู่บทไหน  
+ </div>  
+</article>  
+  
+<!-- ===================== CHAPTER 1 ===================== -->  
+<article class="page" id="p-c1" hidden>  
+ <header class="ch-head">  
+ <div class="eyebrow">บทที่ ๑</div>  
+ <h1>ความลับแห่งไตรลักษณ์</h1>  
+ <p class="goal">จบบทนี้ คุณจะมองของชิ้นเดียวกันแล้วเห็นสามอย่างที่ไม่เคยเห็น และเข้าใจว่าทำไมหนังสือถึงบอกว่าการเห็นแบบนี้ทำให้ทุกข์น้อยลง</p>  
+ </header>  
+  
+ <h2>ไตรลักษณ์ของคนธรรมดา</h2>  
+ <p>ถ้าถามว่าเคยเห็นความไม่เที่ยงไหม แทบทุกคนตอบว่าเคย เห็นคนแก่ เห็นคนป่วย เห็นงานศพ เห็นของพัง แต่ผู้เขียนชี้ว่านั่นคือการเห็น <dfn>ไตรลักษณ์</dfn> แบบ "เส้นผมบังภูเขา" คือเห็นแต่ตอนที่มันชัดจนปฏิเสธไม่ได้ แล้วก็ลืมไปในวันรุ่งขึ้น</p>  
+ <p>ความลับที่หนังสือจะเปิดคือ กฎสามข้อนี้ไม่ได้ทำงานแค่ตอนคนตายหรือของพัง มันทำงานอยู่ <b>ตลอดเวลา ในทุกสิ่ง ทุกขนาด</b> ตั้งแต่โทรศัพท์ในมือ ไปจนถึงดวงอาทิตย์ และเล็กลงไปถึงอนุภาคที่ประกอบเป็นตัวเรา เพียงแต่มันเปลี่ยนช้าเกินไปหรือเร็วเกินไปสำหรับสายตาปกติ วิทยาศาสตร์สมัยใหม่คือกล้องที่ช่วยให้เรามองเห็นในย่านที่ตาเปล่ามองไม่ถึง</p>  
+  
+ <h2>ความจริง ๓ ประการ</h2>  
+ <p>ก่อนไปไกล ต้องจับความหมายของทั้งสามคำให้แม่นก่อน เพราะคำหนึ่งในนั้นคนมักเข้าใจผิด</p>  
+ <p><dfn>อนิจจัง</dfn> คือ ไม่เที่ยง ตรงตัวที่สุด ทุกอย่างเกิดขึ้น ตั้งอยู่ ดับไป</p>  
+ <p><dfn>ทุกขัง</dfn> คือคำที่มักถูกเข้าใจผิดว่าแปลว่า "เป็นทุกข์" ในความหมายเศร้าเสียใจ แต่ในไตรลักษณ์ ทุกขัง หมายถึง <b>ทนอยู่ในสภาพเดิมไม่ได้</b> ก้อนหินก็เป็นทุกขัง ไม่ใช่เพราะมันเศร้า แต่เพราะมันถูกลม ฝน อุณหภูมิ บีบให้ผุกร่อนไปเรื่อยๆ ความทุกข์ใจของเราเป็นอีกเรื่องหนึ่งที่ตามมา คือเกิดตอนที่เราเอาใจไปยึดของที่ทนอยู่เดิมไม่ได้ให้มันอยู่เดิม</p>  
+ <p><dfn>อนัตตา</dfn> คือ ไม่มีตัวตนที่แท้จริง ข้อนี้เข้าใจยากที่สุดแต่หนังสือมีวิธีอธิบายที่เห็นภาพ คือ <b>ลองแยกส่วนดู</b> โทรศัพท์แยกเป็นจอ แบตเตอรี่ แผงวงจร ตัวเครื่อง แล้ว "โทรศัพท์" อยู่ตรงไหน ไม่มีชิ้นไหนเป็นโทรศัพท์ มีแต่ชิ้นส่วนที่มาประกอบกันชั่วคราว แล้วเราตั้งชื่อรวมๆ ให้มัน</p>  
+  
+ <div class="aside"><div class="eyebrow">สังเกตลำดับ</div><p>สามข้อนี้ผูกกันเป็นเหตุผลต่อเนื่อง: เพราะประกอบจากส่วนย่อย (อนัตตา) มันจึงเปลี่ยนตามส่วนย่อย (อนิจจัง) และเพราะเปลี่ยนตลอด มันจึงทนอยู่เดิมไม่ได้ (ทุกขัง) พุทธพจน์ที่หนังสือยกมาก็เรียงแบบนี้: "สิ่งใดไม่เที่ยง สิ่งนั้นเป็นทุกข์ สิ่งใดเป็นทุกข์ สิ่งนั้นเป็นอนัตตา"</p></div>  
+  
+ <!-- interactive 1 -->  
+ <section class="night" id="ix1">  
+ <div class="eyebrow">หน้าต่างสู่จักรวาล · บทที่ ๑</div>  
+ <h3>ของหนึ่งชิ้น มองผ่านแว่นสามชั้น</h3>  
+ <p>เลือกสิ่งหนึ่ง แล้วเลื่อนแถบ "เวลา" ดูมันเกิดขึ้น ตั้งอยู่ ดับไป จากนั้นกดแว่นแต่ละอันเพื่ออ่านว่ากฎแต่ละข้อทำงานกับสิ่งนั้นอย่างไร</p>  
+ <div class="ctl" id="ix1-pick"></div>  
+ <div class="stage"><canvas id="ix1-cv" width="900" height="360"></canvas></div>  
+ <div class="ctl" style="display:block"><label for="ix1-t">เวลา</label><input type="range" id="ix1-t" min="0" max="1000" value="380"></div>  
+ <div class="phase" id="ix1-phase"><div>เกิดขึ้น</div><div class="on">ตั้งอยู่</div><div>ดับไป</div></div>  
+ <div class="lens" id="ix1-lens">  
+ <button data-l="a" aria-pressed="false"><span class="pali">อนิจจัง</span><span class="th">ไม่เที่ยง</span></button>  
+ <button data-l="d" aria-pressed="false"><span class="pali">ทุกขัง</span><span class="th">ทนอยู่เดิมไม่ได้</span></button>  
+ <button data-l="n" aria-pressed="false"><span class="pali">อนัตตา</span><span class="th">ไม่มีตัวตนแท้จริง</span></button>  
+ </div>  
+ <div class="readout" id="ix1-out">เลือกแว่นสักอันด้านบน</div>  
+ </section>  
+  
+ <h2>เห็นไตรลักษณ์ พบความสุข</h2>  
+ <p>ตรงนี้คือหัวใจของหนังสือ และเป็นจุดที่ต้องระวังไม่ให้เข้าใจผิดว่าเป็นการมองโลกในแง่ร้าย</p>  
+ <p>ผู้เขียนอธิบายว่าความทุกข์ทั้งหลายเกิดจาก <b>การไม่รู้ตามความเป็นจริง</b> เราเห็นดอกไม้ ก็รู้สึกว่าสวย ชอบ เพลิดเพลิน แล้วใจก็ไปยึดความสวยนั้นไว้ อยากเห็นอีก อยากได้มา พอดอกไม้เหี่ยว หรือไม่ได้มา ก็ทุกข์ กระบวนการนี้เกิดเร็วมากจนเราไม่ทันรู้ตัว และเกิดผ่านทั้ง 6 ช่องทาง คือ ตา หู จมูก ลิ้น กาย และใจ (ใจนึกถึงภาพเก่าก็นับเป็นช่องทางหนึ่ง)</p>  
+ <p>ทีนี้ถ้าเราเห็นดอกไม้ตามที่มันเป็นจริงๆ คือเห็นว่ามันประกอบจากเซลล์ที่กำลังเสื่อม ความสวยเป็นภาพที่สมองปรุงขึ้น และมันจะเหี่ยวแน่นอน การเห็นแบบนี้ไม่ได้ทำให้ดอกไม้สวยน้อยลง แต่ทำให้ <b>ใจไม่กระโดดไปยึด</b> ความอยากจึงเบาลงเอง โดยไม่ต้องบังคับใจ</p>  
+ <p>หนังสือยกตัวอย่างที่ใกล้ตัวมาก คือสมาร์ตโฟน เมื่อเห็นว่าเครื่องที่ถืออยู่เป็นอณูโลหะและพลาสติกที่กำลังเสื่อมไปตามความร้อนและการกระทบ ความสวยของมันไม่มีตัวตนอยู่จริง ความร้อนใจอยากได้รุ่นใหม่ก็อ่อนกำลังลง เราจะพอใจกับเครื่องที่ใช้อยู่ ไม่เป็นหนี้ ไม่ทุกข์เพราะรายจ่ายเกินรายรับ ผลของธรรมะระดับสูงจึงลงมาถึงเรื่องในกระเป๋าเงินได้ตรงๆ</p>  
+ <p>แต่มีเงื่อนไขหนึ่งที่หนังสือย้ำ: การ "รู้" ว่าไตรลักษณ์แปลว่าอะไรกับการ "เห็น" มันเป็นคนละเรื่อง การเห็นต้องอาศัย<dfn>สมาธิ</dfn>หรือความสงบของใจพอสมควร ความรู้จากหนังสือเป็นแค่แผนที่ ยังต้องเดินเอง</p>  
+  
+ <div class="quote"><div class="eyebrow">พุทธพจน์ที่หนังสือยกมา</div><p>"สิ่งใดไม่เที่ยง สิ่งนั้นเป็นทุกข์ สิ่งใดเป็นทุกข์ สิ่งนั้นเป็นอนัตตา สิ่งใดเป็นอนัตตา เธอทั้งหลายพึงเห็นสิ่งนั้นด้วยปัญญาอันชอบตามความเป็นจริงอย่างนี้ว่า นั่นไม่ใช่ของเรา นั่นไม่เป็นเรา นั่นไม่เป็นตัวตนของเรา"</p><div class="src">พระไตรปิฎก · หนังสือยกมาปิดท้ายบทว่าด้วยขันธ์ ๕</div></div>  
+  
+ <section class="exercise" id="ex1">  
+ <div class="eyebrow">ลองมองรอบตัว</div>  
+ <h3>ทำแบบเดียวกับที่หนังสือทำกับสมาร์ตโฟน</h3>  
+ <p style="font-size:.95rem;color:var(--ink-2)">เลือกของใกล้ตัวหนึ่งอย่าง แล้วไล่ดูทีละข้อ ข้อความจะขึ้นเป็นตัวอย่างให้ก่อน จากนั้นลองเขียนของคุณเองด้านล่าง</p>  
+ <div class="pick" id="ex1-pick"></div>  
+ <div class="steps" id="ex1-steps"></div>  
+ <div class="reflect" style="margin-top:16px">  
+ <label class="eyebrow" for="ex1-ta">เขียนของคุณเอง: เลือกของที่คุณยึดติดจริงๆ แล้วไล่สามข้อ</label>  
+ <textarea id="ex1-ta" placeholder="เช่น รถคันแรกของฉัน — อนิจจัง: … ทุกขัง: … อนัตตา: …"></textarea>  
+ <div class="row"><button class="btn" data-ai-feedback="ex1-ta" data-ch="1">ให้ผู้ช่วยช่วยดู</button><span class="eyebrow" style="text-transform:none;letter-spacing:0">ผู้ช่วยจะบอกว่าข้อไหนยังเป็นแค่ "ความรู้" ข้อไหนเริ่มเป็น "การเห็น"</span></div>  
+ <div class="feedback" hidden></div>  
+ </div>  
+ </section>  
+  
+ <h2>คำถามที่มักเกิดตอนอ่านบทนี้</h2>  
+ <div class="qlist" data-ch="1">  
+ <button>ถ้าทุกอย่างไม่เที่ยง แล้วจะตั้งใจทำอะไรไปทำไม ไม่กลายเป็นคนไม่แคร์อะไรเลยหรือ?</button>  
+ <button>ทุกขัง กับ ความทุกข์ในอริยสัจ ๔ เป็นคำเดียวกันไหม ต่างกันตรงไหน?</button>  
+ <button>อนัตตา แปลว่า "ฉันไม่มีอยู่จริง" หรือเปล่า แล้วใครกำลังอ่านอยู่ตอนนี้?</button>  
+ <button>หนังสือบอกว่าต้องมีสมาธิถึงจะเห็น แล้วคนที่ไม่เคยนั่งสมาธิเลยจะเริ่มยังไง?</button>  
+ </div>  
+  
+ <nav class="chnav"><button disabled><small>ก่อนหน้า</small>แผนที่</button><button data-go="c2"><small>บทถัดไป</small>๒ · ไตรลักษณ์ในขันธ์ ๕ (กาย)</button></nav>  
+</article>  
+  
+<!-- ===================== CHAPTER 2 ===================== -->  
+<article class="page" id="p-c2" hidden>  
+ <header class="ch-head">  
+ <div class="eyebrow">บทที่ ๒</div>  
+ <h1>ไตรลักษณ์ในขันธ์ ๕ (กาย)</h1>  
+ <p class="goal">บทนี้เอาแว่นสามชั้นจากบทที่แล้วมาส่องสิ่งที่เรายึดว่าเป็น "ตัวฉัน" มากที่สุด คือร่างกาย แล้วซูมลงไปเรื่อยๆ จนถึงระดับที่ฟิสิกส์บอกว่าแทบไม่มีอะไรอยู่ตรงนั้นเลย</p>  
+ </header>  
+  
+ <h2>องค์ประกอบแห่งมนุษย์</h2>  
+ <p>พระพุทธเจ้าไม่ได้บอกว่ามนุษย์คือ "วิญญาณดวงหนึ่งอยู่ในร่างหนึ่ง" แต่บอกว่ามนุษย์คือ <dfn>ขันธ์ ๕</dfn> แปลตรงตัวว่า "กองห้ากอง" ที่มารวมกัน กองแรกคือ<dfn>รูปขันธ์</dfn>หรือกาย อีกสี่กองคือ<dfn>นามขันธ์</dfn>หรือฝั่งจิตใจ (เวทนา สัญญา สังขาร วิญญาณ) ซึ่งจะว่ากันในบทที่ 3</p>  
+ <p>คำว่า "กอง" สำคัญมาก เพราะกองทรายไม่มี "ตัวกอง" มีแต่เม็ดทราย ชื่อ "กอง" เป็นแค่ชื่อเรียกรวมที่เราตั้งให้ การเรียกมนุษย์ว่ากองห้ากองจึงเป็นการบอกใบ้คำตอบเรื่อง<dfn>อนัตตา</dfn>ไว้ตั้งแต่ชื่อ</p>  
+  
+ <h2>รูปขันธ์</h2>  
+ <p>รากศัพท์ของคำว่า "รูป" ไม่ได้แปลว่ารูปร่างหน้าตา แต่แปลว่า <b>สิ่งที่ต้องสลายไปเพราะเหตุปัจจัย</b> เช่น ร้อน เย็น กระทบกระแทก ชื่อของกองแรกจึงบอกชะตากรรมของมันไว้แล้วเช่นกัน</p>  
+ <p>วิธีที่พระพุทธเจ้าใช้แยกส่วนร่างกายเมื่อ 2,500 ปีก่อนคือ<dfn>ธาตุ ๔</dfn> ผู้เขียนชี้ว่านี่ไม่ใช่วิทยาศาสตร์โบราณที่ผิด แต่เป็นการจัดกลุ่มตาม "คุณสมบัติ" ซึ่งยังใช้ได้ดี</p>  
+ <ul>  
+ <li><b>ธาตุดิน</b> คือส่วนที่แข็ง กินที่ ได้แก่ กระดูก เอ็น เนื้อ หนัง ผม เล็บ</li>  
+ <li><b>ธาตุน้ำ</b> คือส่วนที่เหลว เกาะกุม ได้แก่ เลือด น้ำเหลือง น้ำย่อย น้ำลาย</li>  
+ <li><b>ธาตุไฟ</b> คือความร้อนและการเผาผลาญ อุณหภูมิร่างกาย การย่อยอาหาร</li>  
+ <li><b>ธาตุลม</b> คือการเคลื่อนไหวและแก๊ส ลมหายใจ ออกซิเจนในเลือด ลมในลำไส้</li>  
+ </ul>  
+ <p>แล้วผู้เขียนก็ต่อสะพานไปหาวิทยาศาสตร์: ธาตุทั้งสี่นี้ประกอบจากหน่วยเล็กที่คัมภีร์เรียกว่า<dfn>ปรมาณู</dfn> ซึ่งวิทยาศาสตร์วันนี้เรียกว่า<dfn>อะตอม</dfn> และเล็กลงไปอีกคือ<dfn>ควาร์ก</dfn> ประเด็นที่หนังสือต้องการให้เห็นไม่ใช่ชื่อ แต่คือ <b>ร่างกายไม่ใช่ก้อนทึบตันอย่างที่เรารู้สึก</b> มันเป็นส่วนเล็กๆ จำนวนมหาศาลที่มาเกาะกันชั่วคราว จึงแปรเปลี่ยนและสลายได้เป็นธรรมดา ให้คงอยู่ตลอดไปไม่ได้</p>  
+  
+ <div class="aside"><div class="eyebrow">ทำไมพระพุทธเจ้าไม่พูดเรื่องอะตอมไปเลย</div><p>ผู้เขียนตอบไว้ในคำนำว่า ถ้าเมื่อสองพันห้าร้อยปีก่อนตรัสว่าร่างกายประกอบด้วยคาร์บอน ออกซิเจน ไฮโดรเจน และควาร์ก คงไม่มีใครเข้าใจ และอาจถูกกล่าวหาไปในทางไม่ดี การสอนด้วยธาตุ ๔ จึงเป็นการเลือกภาษาให้เหมาะกับผู้ฟัง ไม่ใช่ความรู้ที่ผิด</p></div>  
+  
+ <!-- interactive 2 -->  
+ <section class="night" id="ix2">  
+ <div class="eyebrow">หน้าต่างสู่จักรวาล · บทที่ ๒</div>  
+ <h3>ซูมเข้าไปในร่างกาย</h3>  
+ <p>เลื่อนแถบเพื่อซูมจากร่างกายทั้งตัวลงไปทีละชั้น ในแต่ละชั้นถามคำถามเดียวกัน: "ตัวฉัน" อยู่ตรงนี้ไหม</p>  
+ <div class="stage"><canvas id="ix2-cv" width="900" height="380"></canvas></div>  
+ <div class="ctl" style="display:block"><label for="ix2-z">ระดับการซูม</label><input type="range" id="ix2-z" min="0" max="5" step="1" value="0">  
+ <div class="zoomsteps" id="ix2-steps"><span class="on">ร่างกาย</span><span>ธาตุ ๔</span><span>เซลล์</span><span>โมเลกุล</span><span>อะตอม</span><span>ควาร์ก</span></div></div>  
+ <div class="readout" id="ix2-out"></div>  
+ </section>  
+  
+ <h2>สิ่งที่ฟิสิกส์เติมให้กับธาตุ ๔</h2>  
+ <p>หนังสือทิ้งรายละเอียดเรื่องอะตอมและควาร์กไว้ให้บทที่ 6 แต่มีข้อเท็จจริงสองข้อที่ช่วยให้บทนี้ "เห็น" ได้ทันที</p>  
+ <p>ข้อแรก อะตอมเกือบทั้งหมดเป็นที่ว่าง ถ้าขยาย<dfn>นิวเคลียส</dfn>ให้ใหญ่เท่าเม็ดถั่ววางกลางสนามฟุตบอล <dfn>อิเล็กตรอน</dfn>จะอยู่แถวอัฒจันทร์ ระหว่างนั้นไม่มีอะไรเลย ร่างกายที่เรารู้สึกว่าหนักแน่นจึงเป็นที่ว่างมากกว่า 99.99% ความ "ตัน" ที่เรารู้สึกคือแรงผลักระหว่างอิเล็กตรอน ไม่ใช่เนื้อสสารชนกัน</p>  
+ <p>ข้อสอง ส่วนประกอบเหล่านี้ไม่ได้อยู่กับเราถาวร อะตอมในร่างกายถูกแลกเปลี่ยนกับอาหาร อากาศ และน้ำอยู่ตลอด (บทที่ 9 จะพูดถึงเซลล์ที่เกิดใหม่แทนเก่าทั้งร่าง) ร่างกายจึงเหมือนแม่น้ำมากกว่าก้อนหิน ชื่อเดิม รูปร่างคล้ายเดิม แต่น้ำที่ไหลผ่านไม่ใช่น้ำเดิมสักหยด</p>  
+  
+ <div class="quote"><div class="eyebrow">พุทธพจน์ที่หนังสือยกมา</div><p>"ผู้ใดมีปัญญาพิจารณาจนจิตเห็นความจริงว่า ร่างกายนี้เป็นอนิจจัง ทุกขัง อนัตตา ไม่ใช่ตัว ไม่ใช่ตน คน สัตว์ แม้จะนานเพียงชั่วช้างยกหูขึ้นกระดิก ก็ยังดีเสียกว่าผู้ที่มีอายุยืนนานถึง ๑๐๐ ปี แต่ไม่มีปัญญาเห็นความเป็นจริงดังกล่าว"</p><div class="src">พระไตรปิฎก · หนังสือใช้เปิดหัวข้อรูปขันธ์</div></div>  
+ <p>สังเกตว่าพุทธพจน์นี้ให้น้ำหนักกับ "การเห็นชั่วขณะ" มากกว่า "เวลาที่มีชีวิตอยู่" 100 ปี นั่นคือเหตุผลที่คู่มือนี้ใช้ภาพเคลื่อนไหวและแบบฝึกแทนการอ่านอย่างเดียว เพราะเป้าหมายไม่ใช่รู้เยอะ แต่คือเห็นสักครั้ง</p>  
+  
+ <section class="exercise" id="ex2">  
+ <div class="eyebrow">ลองมองรอบตัว</div>  
+ <h3>ส่องร่างกายตัวเองด้วยธาตุ ๔</h3>  
+ <p style="font-size:.95rem;color:var(--ink-2)">เลือกส่วนของร่างกายที่คุณกังวลหรือภูมิใจมากที่สุด แล้วดูว่ามันเป็นธาตุอะไร และกำลังเปลี่ยนอย่างไรอยู่ตอนนี้</p>  
+ <div class="pick" id="ex2-pick"></div>  
+ <div class="steps" id="ex2-steps"></div>  
+ <div class="reflect" style="margin-top:16px">  
+ <label class="eyebrow" for="ex2-ta">เขียนของคุณเอง: ส่วนไหนของร่างกายที่คุณรู้สึกว่า "นี่คือฉัน" ที่สุด แล้วลองแยกมันเป็นส่วนย่อยดู</label>  
+ <textarea id="ex2-ta" placeholder="เช่น ใบหน้าของฉัน — เป็นธาตุดิน (ผิว กล้ามเนื้อ) ธาตุน้ำ (…) กำลังเปลี่ยนเพราะ …"></textarea>  
+ <div class="row"><button class="btn" data-ai-feedback="ex2-ta" data-ch="2">ให้ผู้ช่วยช่วยดู</button></div>  
+ <div class="feedback" hidden></div>  
+ </div>  
+ </section>  
+  
+ <h2>คำถามที่มักเกิดตอนอ่านบทนี้</h2>  
+ <div class="qlist" data-ch="2">  
+ <button>ถ้าร่างกายเป็นที่ว่าง 99.99% ทำไมเราเดินทะลุกำแพงไม่ได้?</button>  
+ <button>ธาตุ ๔ กับตารางธาตุ 118 ธาตุของวิทยาศาสตร์ ขัดกันไหม?</button>  
+ <button>ถ้าร่างกายไม่ใช่ตัวเรา แล้วเราควรดูแลมันไหม หรือปล่อยไปเลย?</button>  
+ <button>"ชั่วช้างกระดิกหู" ในพุทธพจน์หมายความว่าอะไร ทำไมถึงเทียบกับ 100 ปีได้?</button>  
+ </div>  
+  
+ <nav class="chnav"><button data-go="c1"><small>ก่อนหน้า</small>๑ · ความลับแห่งไตรลักษณ์</button><button data-go="c3"><small>บทถัดไป</small>๓ · ไตรลักษณ์ในขันธ์ ๕ (จิต)</button></nav>  
+</article>  
+  
+<!-- ===================== PLACEHOLDER ===================== -->  
+<article class="page" id="p-soon" hidden>  
+ <header class="ch-head"><div class="eyebrow" id="soon-n"></div><h1 id="soon-t"></h1><p class="goal" id="soon-s"></p></header>  
+ <p>บทนี้กำลังสร้างอยู่ ตอนนี้เปิดให้อ่านบทที่ ๑ และ ๒ ก่อนเพื่อดูรูปแบบ แต่ผู้ช่วยรู้เนื้อหาของบทนี้แล้ว ถามได้เลย</p>  
+ <div class="qlist" id="soon-q"></div>  
+ <nav class="chnav"><button data-go="home"><small>กลับ</small>แผนที่การเดินทาง</button><span></span></nav>  
+</article>  
+  
+ </main>  
+</div>  
+  
+<button class="fab" id="fab"><span class="dot"></span>ถามตรงนี้</button>  
+  
+<section class="ask" id="ask" hidden aria-label="ถามผู้ช่วย">  
+ <header><div><div class="t">ถามได้ทุกจุด</div><div class="ctx" id="askctx">บริบท: แผนที่</div></div><button id="askclose" aria-label="ปิด">×</button></header>  
+ <div class="log" id="asklog"></div>  
+ <div class="sugg" id="asksugg"></div>  
+ <div class="note">ผู้ช่วยตอบจากเนื้อหาในหนังสือ และบอกว่าเรื่องนั้นอยู่บทไหน · ใช้บัญชี Claude ของผู้ถาม</div>  
+ <form id="askform"><input id="askin" placeholder="พิมพ์คำถาม…" autocomplete="off"><button type="submit">ถาม</button></form>  
+</section>  
+  
+<div class="sheet-bg" id="sheetbg" hidden></div>  
+<section class="sheet" id="sheet" hidden aria-label="คำอธิบายศัพท์">  
+ <div class="eyebrow" id="sh-kind">ศัพท์</div>  
+ <h3 id="sh-term"></h3>  
+ <div class="alt" id="sh-alt"></div>  
+ <p id="sh-def"></p>  
+ <div class="row"><button class="btn ghost" id="sh-ask">ถามเพิ่มเกี่ยวกับคำนี้</button><button class="btn" id="sh-close">เข้าใจแล้ว</button></div>  
+</section>  
+  
+<script>  
+/* ==================== DATA ==================== */  
+const GLOSS = {  
+ "ไตรลักษณ์":{kind:"ธรรมะ",alt:"ติ-ลักขณะ · Three Marks of Existence",def:"ลักษณะ 3 อย่างที่ทุกสิ่งมีร่วมกัน คือ ไม่เที่ยง (อนิจจัง) ทนอยู่ในสภาพเดิมไม่ได้ (ทุกขัง) และไม่มีตัวตนที่แท้จริง (อนัตตา) หนังสือทั้งเล่มคือการตามหากฎ 3 ข้อนี้ในทุกที่ ตั้งแต่ร่างกายจนถึงจักรวาล"},  
+ "อนิจจัง":{kind:"ธรรมะ",alt:"อนิจจตา · impermanence",def:"ความไม่เที่ยง ทุกสิ่งมีการเกิดขึ้น ตั้งอยู่ แล้วดับไป ไม่มีอะไรหยุดนิ่ง แม้แต่ก้อนหินก็กำลังเปลี่ยนอยู่ เพียงแต่ช้าจนเราไม่ทันสังเกต"},  
+ "ทุกขัง":{kind:"ธรรมะ",alt:"ทุกขตา · unsatisfactoriness",def:"ในความหมายของไตรลักษณ์ ทุกขัง ไม่ได้แปลว่า 'ทุกข์ใจ' แต่แปลว่า 'ทนอยู่ในสภาพเดิมไม่ได้' ถูกบีบคั้นด้วยเหตุปัจจัยให้ต้องเปลี่ยนไป ความทุกข์ใจของเราเกิดตามมาเมื่อเราไปยึดให้มันคงเดิม ซึ่งเป็นไปไม่ได้"},  
+ "อนัตตา":{kind:"ธรรมะ",alt:"อนัตตตา · non-self",def:"ความไม่มีตัวตนที่แท้จริง สิ่งที่เราเรียกว่า 'ฉัน' หรือ 'โทรศัพท์' เป็นเพียงกองของส่วนประกอบเล็กๆ ที่มารวมกันชั่วคราวตามเหตุปัจจัย เมื่อแยกส่วนออกก็หา 'ตัวมัน' ไม่เจอ"},  
+ "กิเลสตัณหา":{kind:"ธรรมะ",alt:"defilements & craving",def:"กิเลส คือสิ่งที่ทำให้ใจเศร้าหมอง เช่น โลภ โกรธ หลง ส่วนตัณหา คือความอยาก อยากได้ อยากเป็น อยากไม่เป็น หนังสือบอกว่าเมื่อเห็นไตรลักษณ์ชัด ความอยากพวกนี้จะเบาลงเอง"},  
+ "นิพพาน":{kind:"ธรรมะ",alt:"Nibbāna",def:"สภาวะที่ดับกิเลสและความทุกข์ได้สิ้นเชิง หลุดพ้นจากการเวียนว่ายตายเกิด หนังสือวางไว้เป็นปลายทางสุดท้ายของการมองเห็นไตรลักษณ์"},  
+ "ยึดมั่นถือมั่น":{kind:"ธรรมะ",alt:"อุปาทาน · clinging",def:"อาการที่ใจไปจับสิ่งใดสิ่งหนึ่งไว้แน่นว่า 'นี่ของฉัน นี่คือฉัน' ยิ่งยึดแน่น เมื่อสิ่งนั้นเปลี่ยนไปก็ยิ่งเจ็บ"},  
+ "สมาธิ":{kind:"ธรรมะ",alt:"concentration",def:"ความตั้งมั่นสงบของจิต หนังสือบอกว่าการจะมองเห็นไตรลักษณ์ได้จริง (ไม่ใช่แค่เข้าใจด้วยความคิด) ต้องอาศัยความสงบของใจพอสมควร"},  
+ "ปัญญา":{kind:"ธรรมะ",alt:"wisdom",def:"ความรู้ความเข้าใจตามความเป็นจริง ในหนังสือ ปัญญา คือการ 'มองเห็น' ว่าสิ่งต่างๆ เป็นไตรลักษณ์ ซึ่งต่างจากการ 'รู้จำ' ว่าไตรลักษณ์แปลว่าอะไร"},  
+ "สติ":{kind:"ธรรมะ",alt:"mindfulness",def:"ความระลึกได้ รู้ตัวว่ากำลังเกิดอะไรขึ้นในกายและใจ ณ ขณะนี้ เป็นเครื่องมือหลักที่ใช้เบรกกระบวนการของขันธ์ ๕ ก่อนจะกลายเป็นการกระทำ"},  
+ "ขันธ์ ๕":{kind:"ธรรมะ",alt:"ปัญจขันธ์ · five aggregates",def:"ส่วนประกอบ 5 กองที่รวมกันเป็น 'คน' คือ รูป (กาย) เวทนา (ความรู้สึกสุข-ทุกข์-เฉย) สัญญา (จำได้หมายรู้) สังขาร (ความคิดปรุงแต่ง) และวิญญาณ (การรับรู้ผ่านตา หู จมูก ลิ้น กาย ใจ)"},  
+ "รูปขันธ์":{kind:"ธรรมะ",alt:"form",def:"กองรูป คือร่างกายและสิ่งที่เป็นวัตถุทั้งหมด รากศัพท์ของคำว่า 'รูป' แปลว่า สิ่งที่ต้องสลายไปเพราะเหตุปัจจัย เช่น ร้อน เย็น กระทบกระแทก"},  
+ "นามขันธ์":{kind:"ธรรมะ",alt:"mental aggregates",def:"กองที่เป็นจิตใจ 4 กอง คือ เวทนา สัญญา สังขาร วิญญาณ อธิบายละเอียดในบทที่ 3"},  
+ "ธาตุ ๔":{kind:"ธรรมะ",alt:"มหาภูตรูป · four great elements",def:"ดิน (ส่วนที่แข็ง) น้ำ (ส่วนที่เหลว) ไฟ (ความร้อน การเผาผลาญ) ลม (การเคลื่อนไหว แก๊ส) เป็นวิธีที่พระพุทธเจ้าใช้อธิบายว่าร่างกายไม่ใช่ก้อนเดียว แต่เป็นของหลายอย่างมาประกอบกัน"},  
+ "ปรมาณู":{kind:"ธรรมะ",alt:"paramāṇu",def:"หน่วยที่เล็กที่สุดของรูปตามคัมภีร์พุทธ หนังสือเทียบว่าใกล้เคียงกับ 'อะตอม' หรือเล็กกว่านั้นคือ 'ควาร์ก' ในฟิสิกส์ปัจจุบัน"},  
+ "พุทธพจน์":{kind:"ธรรมะ",alt:"Buddha's words",def:"คำที่พระพุทธเจ้าตรัสไว้ ซึ่งบันทึกอยู่ในพระไตรปิฎก หนังสือยกมาปิดท้ายทุกบทเพื่อยืนยันว่าสิ่งที่วิทยาศาสตร์เพิ่งค้นพบ สอดคล้องกับที่ตรัสไว้เมื่อ 2,500 ปีก่อน"},  
+ "เหตุปัจจัย":{kind:"ธรรมะ",alt:"causes & conditions",def:"สิ่งที่ทำให้อีกสิ่งเกิดขึ้นหรือเปลี่ยนไป ทุกอย่างในหนังสือนี้ 'เป็นไปตามเหตุปัจจัย' คือไม่มีอะไรตั้งอยู่ได้ด้วยตัวเองโดดๆ"},  
+ "อะตอม":{kind:"วิทยาศาสตร์",alt:"atom",def:"หน่วยพื้นฐานของสสาร มีนิวเคลียส (โปรตอน+นิวตรอน) อยู่ตรงกลาง และอิเล็กตรอนวิ่งอยู่รอบนอก ที่น่าทึ่งคือ อะตอมเกือบทั้งหมดเป็นที่ว่าง ถ้านิวเคลียสใหญ่เท่าเม็ดถั่ว อิเล็กตรอนจะอยู่ห่างออกไปเป็นสนามฟุตบอล"},  
+ "ควาร์ก":{kind:"วิทยาศาสตร์",alt:"quark",def:"อนุภาคที่เล็กกว่าโปรตอนและนิวตรอน โปรตอน 1 ตัวเกิดจากควาร์ก 3 ตัวจับกันด้วยแรงมหาศาล ปัจจุบันถือเป็นหน่วยเล็กที่สุดที่รู้จัก ควาร์กไม่เคยอยู่โดดๆ และเปลี่ยนสภาพได้ตลอด"},  
+ "อิเล็กตรอน":{kind:"วิทยาศาสตร์",alt:"electron",def:"อนุภาคประจุลบที่วิ่งวนรอบนิวเคลียส สิ่งที่เรา 'สัมผัส' ได้ทั้งหมด แท้จริงคือแรงผลักระหว่างอิเล็กตรอนของมือเรากับอิเล็กตรอนของวัตถุ เราไม่เคยแตะเนื้อของสสารจริงๆ เลย"},  
+ "นิวเคลียส":{kind:"วิทยาศาสตร์",alt:"nucleus",def:"แกนกลางของอะตอม ประกอบด้วยโปรตอนและนิวตรอน มีมวลเกือบทั้งหมดของอะตอมอยู่ตรงนี้ แต่ขนาดเล็กมากเมื่อเทียบกับอะตอมทั้งอะตอม"},  
+ "เซลล์":{kind:"วิทยาศาสตร์",alt:"cell",def:"หน่วยพื้นฐานของสิ่งมีชีวิต ร่างกายคนมีเซลล์ราว 30–100 ล้านล้านเซลล์ แต่ละเซลล์มีอายุของมัน เกิดใหม่และตายไปตลอดเวลา (รายละเอียดในบทที่ 9)"},  
+ "โมเลกุล":{kind:"วิทยาศาสตร์",alt:"molecule",def:"กลุ่มอะตอมที่จับกัน เช่น น้ำ 1 โมเลกุล = ไฮโดรเจน 2 + ออกซิเจน 1 ร่างกายเราคือโมเลกุลจำนวนมหาศาลที่จับกันเป็นเซลล์"},  
+ "พลังงาน":{kind:"วิทยาศาสตร์",alt:"energy",def:"ความสามารถในการทำให้เกิดการเปลี่ยนแปลง หนังสือย้ำว่าสสารทั้งหมดคือ 'รูปแบบหนึ่งของพลังงาน' ที่ไม่มีตัวตนคงที่และเปลี่ยนแปลงตลอดเวลา"},  
+ "บิ๊กแบง":{kind:"วิทยาศาสตร์",alt:"Big Bang",def:"ทฤษฎีกำเนิดจักรวาลที่ได้รับการยอมรับมากที่สุด บอกว่าจักรวาลเริ่มจากจุดที่ร้อนและหนาแน่นสุดขีดเมื่อราว 13,800 ล้านปีก่อน แล้วขยายตัวมาตลอด (บทที่ 4)"},  
+ "หลุมดำ":{kind:"วิทยาศาสตร์",alt:"black hole",def:"ซากของดาวฤกษ์มวลมากที่ยุบตัวจนแรงโน้มถ่วงสูงถึงขั้นแสงหนีไม่ออก หนังสือใช้เป็นตัวอย่างว่าแม้ดาวที่ดูถาวรก็มีจุดจบ (บทที่ 4)"},  
+ "ทฤษฎีวิวัฒนาการ":{kind:"วิทยาศาสตร์",alt:"theory of evolution",def:"คำอธิบายว่าสิ่งมีชีวิตทุกชนิดเปลี่ยนแปลงสืบต่อกันมาจากบรรพบุรุษร่วม ผ่านการคัดเลือกตามธรรมชาติ หนังสือใช้ชี้ว่า 'สายพันธุ์' ก็ไม่เที่ยง (บทที่ 8–9)"},  
+ "ฟิสิกส์ควอนตัม":{kind:"วิทยาศาสตร์",alt:"quantum physics",def:"วิชาที่ศึกษาพฤติกรรมของสิ่งเล็กระดับอะตอมและอนุภาค ซึ่งประหลาดกว่าโลกที่เราคุ้นเคย เช่น สิ่งเดียวกันเป็นได้ทั้งคลื่นและอนุภาค (บทที่ 6–7)"},  
+ "แรงโน้มถ่วง":{kind:"วิทยาศาสตร์",alt:"gravity",def:"แรงดึงดูดระหว่างมวล เป็นตัวกำหนดชะตากรรมของดาวฤกษ์และของจักรวาลทั้งจักรวาลว่าจะขยายตัวไปเรื่อยๆ หรือหดกลับ"},  
+ "จักรวาลวิทยา":{kind:"วิทยาศาสตร์",alt:"cosmology",def:"วิชาที่ศึกษาว่าจักรวาลเกิดมาอย่างไร เป็นอย่างไร และจะจบลงอย่างไร"},  
+ "สสาร":{kind:"วิทยาศาสตร์",alt:"matter",def:"สิ่งที่มีมวลและกินที่ ทุกอย่างที่จับต้องได้ หนังสือชวนให้เห็นว่าสสารที่ดู 'ตัน' แท้จริงเป็นอนุภาคเล็กๆ ที่มีที่ว่างมหาศาลระหว่างกัน"},  
+};  
+  
+const BOOK\_KNOWLEDGE = `หนังสือ "ไตรลักษณ์ในควอนตัม" โดย สิรวิชญ์ รัตน์จินดา  
+จุดยืน: ไม่ได้อ้างว่าพระพุทธเจ้ารู้วิทยาศาสตร์มาก่อน แต่ใช้ความรู้วิทยาศาสตร์สมัยใหม่เป็น "แว่น" ช่วยให้มองเห็นไตรลักษณ์ (อนิจจัง=ไม่เที่ยง, ทุกขัง=ทนอยู่สภาพเดิมไม่ได้, อนัตตา=ไม่มีตัวตนแท้จริง) ได้ชัดขึ้น ผลคือลดความยึดมั่นถือมั่น กิเลสตัณหาเบาบาง ใจสงบสุข และเป็นฐานสู่นิพพาน ทุกบทจบด้วยพุทธพจน์และคำถามว่า "คุณมองเห็นไตรลักษณ์ใน...ได้มากน้อยเพียงใด"  
+บทที่ 1 ความลับแห่งไตรลักษณ์: คนธรรมดามักเห็นแค่ผิวเผิน (แก่ เจ็บ ตาย) แต่ไตรลักษณ์อยู่ในทุกสิ่งทุกขณะ ตัวอย่างสมาร์ตโฟน: ประกอบจากอณูโลหะ/พลาสติกที่เสื่อมไปตามความร้อน/กระแทก ความสวยงามไม่มีตัวตน เมื่อเห็นเช่นนี้ความอยากได้เครื่องใหม่จะเบาลง พอใจของที่มี ไม่เป็นหนี้ ความทุกข์เกิดจากไม่รู้ตามจริง (อวิชชา) การมองเห็นต้องอาศัยสมาธิ อธิบายว่าสิ่งกระตุ้นเข้ามาทาง ตา หู จมูก ลิ้น กาย ใจ แล้วเกิดชอบ/ไม่ชอบ/เฉย → ยึด → อยาก → กระทำ  
+บทที่ 2 ขันธ์ ๕ (กาย): มนุษย์ = รูป (กาย) + นาม (จิต 4 กอง) รูปขันธ์: รากศัพท์ "รูป" = สิ่งที่ต้องสลายไปเพราะเหตุปัจจัย กายประกอบจากปรมาณูซึ่งเป็นธาตุ 4: ดิน(กระดูก เอ็น เนื้อ หนัง ผม), น้ำ(เลือด น้ำเหลือง น้ำย่อย), ไฟ(อุณหภูมิ การเผาผลาญ), ลม(ลมหายใจ แก๊สในเลือด/ลำไส้) วิทยาศาสตร์เรียกปรมาณูว่าอะตอม หรือเล็กกว่าคือควาร์ก ร่างกายไม่ใช่ก้อนทึบตัน แต่เป็นส่วนเล็กๆ จำนวนมากมารวมกัน จึงแปรเปลี่ยนสลายได้เป็นธรรมดา พุทธพจน์: ผู้มีปัญญาเห็นกายเป็นอนิจจัง ทุกขัง อนัตตา แม้ชั่วช้างกระดิกหู ยังดีกว่าอยู่นาน 100 ปีโดยไม่เห็น / "รูปไม่เที่ยง สิ่งใดไม่เที่ยงสิ่งนั้นเป็นทุกข์ สิ่งใดเป็นทุกข์สิ่งนั้นเป็นอนัตตา... นั่นไม่ใช่ของเรา นั่นไม่เป็นเรา นั่นไม่เป็นตัวตนของเรา"  
+บทที่ 3 ขันธ์ ๕ (จิต): นามขันธ์ 4 = วิญญาณ(รับรู้ผ่าน 6 ทวาร: ตา หู จมูก ลิ้น กาย ใจ; ธรรมารมณ์=สิ่งที่ใจนึกถึง), สัญญา(จำได้หมายรู้ว่านี่คือสุนัข นี่คือเสียงแมว), เวทนา(รู้สึกสุข ทุกข์ เฉย), สังขาร(สิ่งปรุงแต่งจิตให้คิดดี ชั่ว กลางๆ เช่น โลภ โกรธ หลง อดทน เมตตา อิจฉา สติ ปัญญา → เกิดเจตนา → คำพูด/การกระทำ) ลำดับ: วิญญาณ→สัญญา→เวทนา→สังขาร→กรรม ทุกกองเกิดแล้วดับในเวลาสั้นๆ จึงเป็นไตรลักษณ์ การหยุดกิเลส = หยุดกระบวนการนามขันธ์ โดยรับรู้สิ่งกระตุ้นว่าไม่เที่ยง ไม่เป็นตัวตน หรืออย่างน้อยใช้สติปัญญาเบรกที่สังขารก่อนเป็นกรรม พุทธพจน์: "เรากล่าวซึ่งเจตนาว่าเป็นกรรม" ผลคือรับความพลัดพรากและความตายได้  
+บทที่ 4 จักรวาลวิทยา (1): บิ๊กแบงจากจุดซิงกูลาริตี้ (ร้อน หนาแน่นสุดขีด) ~13,800 ล้านปีก่อน (หนังสือเขียน 15,000 ล้านปี) ขยายตัว เย็นลง เกิดควาร์ก โฟตอน อิเล็กตรอน นิวทริโน → โปรตอน นิวตรอน → นิวเคลียสไฮโดรเจน/ฮีเลียม → หลายแสนปีต่อมาเกิดอะตอม → ธาตุหนัก (คาร์บอน ออกซิเจน) เกิดในใจกลางดาวฤกษ์รุ่นแรกแล้วระเบิดกระจาย → ระบบสุริยะ กาแล็กซี หลักฐาน: กาแล็กซีเคลื่อนห่างเร็วขึ้นตามระยะ, รังสีไมโครเวฟพื้นหลัง สสารคือรูปแบบหนึ่งของพลังงาน วัฏจักรดาวฤกษ์: เกิดจากกลุ่มก๊าซไฮโดรเจน ฟิวชันเป็นฮีเลียม สีบอกอายุ (ฟ้า=ใหม่ร้อน → ขาว เหลือง แดง) จุดจบขึ้นกับมวล: ดาวมวลน้อย→ดาวยักษ์แดง→ดาวแคระขาว (ดวงอาทิตย์อีก ~5,000 ล้านปีจะเป็นยักษ์แดงกลืนโลก); ดาวมวลมาก→เผาธาตุเป็นชั้นๆ ถึงเหล็ก→แกนยุบ→ซูเปอร์โนวา→ดาวนิวตรอน (มวล<25 เท่าดวงอาทิตย์) หรือหลุมดำ (>25 เท่า) ซากระเบิดกลายเป็นดาวรุ่นใหม่และตัวเรา  
+บทที่ 5 จักรวาลวิทยา (2): จุดจบจักรวาล 3 แบบตามแรงโน้มถ่วง: (1) มวลน้อย ขยายตลอด เย็นตาย (2) มวลมาก หดกลับ หลุมดำรวมกัน ระเบิดใหม่ เป็นวัฏจักร ตรงกับที่พระพุทธเจ้าตรัสว่าจักรวาลเกิดดับเป็นวัฏจักร (3) สมดุล หยุดนิ่ง วิทยาศาสตร์ยังสรุปไม่ได้ ทฤษฎีสตริงว่ามี 10-11 มิติ มนุษย์รับรู้ได้ 4 องค์ประกอบจักรวาล: สสารปกติ ~4% สสารมืด ~21% พลังงานมืด ~75% ทุกอย่างซับซ้อน แปรเปลี่ยน ไม่มีตัวตน  
+บทที่ 6 ฟิสิกส์ควอนตัม (1): ควาร์ก 6 ชนิด (อัพ ดาวน์ ชาร์ม สเตรนจ์ ท็อป บอตทอม) โปรตอน=อัพ2ดาวน์1 นิวตรอน=อัพ1ดาวน์2 ยึดด้วยกลูออน อนุภาคเกิด-ดับ-เปลี่ยนชนิดตลอด วัฏจักรสสารธาตุ: คาร์บอนหมุนเวียนจากอากาศ→พืช(สังเคราะห์แสง)→สัตว์/คน→หายใจ/ย่อยสลาย/เผาไหม้→อากาศ ร่างกายเรายืมธาตุมาใช้ชั่วคราว โลกแห่งมายาภาพ: เราไม่ได้เห็นสิ่งต่างๆ อย่างที่มันเป็น แต่เห็นผ่านแสงสะท้อนจากอิเล็กตรอน→ตา→สมอง→ใจปรุงเป็นภาพ นิวทริโนทะลุร่างกายเราวินาทีละหลายล้านล้านตัวโดยเราไม่รู้สึก แสดงว่า "ความตัน" เป็นเพียงการรับรู้  
+บทที่ 7 ฟิสิกส์ควอนตัม (2): ทวิภาวะคลื่น-อนุภาค: อนุภาคปรากฏเป็นคลื่นหรืออนุภาคขึ้นกับวิธีสังเกต โลกคนละใบ: สัตว์แต่ละชนิดเห็นโลกต่างกัน (ผึ้งเห็นอัลตราไวโอเลต สุนัขแยกสีได้น้อยแต่ดมได้ดีกว่าร้อยเท่า งูเห็นความร้อน นกพิราบเห็นเฉดสีนับล้าน ฉลามรับคลื่นไฟฟ้า) ดังนั้นโลกที่เรารับรู้เป็นสิ่งสัมพัทธ์ ไม่ใช่ความจริงสัมบูรณ์ ควอนตัม สมอง จิต: ไมโครทิวบูลในเซลล์สมองมีอิเล็กตรอนทำงานตามกลไกควอนตัม สั่นเป็นสัญญาณนับล้านต่อวินาที จิตสำนึกเกี่ยวข้องกับคลื่น-อนุภาคที่เปลี่ยนแปลงตลอด ความฝันคือช่วงที่จิตสำนึกหยุดแต่ความคิดยังทำงาน สรุป: จิตก็ไม่มีตัวตนคงที่ (หมายเหตุ: ทฤษฎีจิตควอนตัมยังเป็นสมมติฐานที่นักวิทยาศาสตร์ถกเถียงกันอยู่)  
+บทที่ 8 วิวัฒนาการ (1): สรรพสิ่งไม่เคยหยุดนิ่ง กำเนิดโลก ~4,600 ล้านปี สิ่งมีชีวิตแรกเป็นเซลล์เดียว วิวัฒนาการเป็นหลายเซลล์ พืช สัตว์ มนุษย์ ชีวิตและวิญญาณเกิดจากเหตุปัจจัย ไม่ได้มีมาแต่แรกอย่างคงที่  
+บทที่ 9 วิวัฒนาการ (2): สายพันธุ์เปลี่ยนแปลงตามการคัดเลือกตามธรรมชาติ ไม่มีสายพันธุ์ใดเที่ยง การเกิดดับของเซลล์: ร่างกายมี 60-100 ล้านล้านเซลล์ แต่ละเซลล์มีอายุขัย เกิดใหม่แทนเก่าตลอดเวลา (เม็ดเลือดแดง ~120 วัน ผิวหนัง ~2-4 สัปดาห์ เยื่อบุลำไส้ไม่กี่วัน) ธาตุในร่างกาย 28 ชนิด (คาร์บอน ออกซิเจน ไฮโดรเจน ไนโตรเจน แคลเซียม ฟอสฟอรัส เป็นหลัก) ร่างกายที่เรายึดว่า "ตัวฉัน" จึงเปลี่ยนไปเกือบทั้งตัวในไม่กี่ปี`;  
+  
+const CHAPTERS = [  
+ {id:"c1",n:"๑",title:"ความลับแห่งไตรลักษณ์",sub:"กฎสามข้อที่ซ่อนอยู่ในทุกสิ่ง",ready:true},  
+ {id:"c2",n:"๒",title:"ไตรลักษณ์ในขันธ์ ๕ (กาย)",sub:"ซูมเข้าไปในร่างกายจนหาตัวตนไม่เจอ",ready:true},  
+ {id:"c3",n:"๓",title:"ไตรลักษณ์ในขันธ์ ๕ (จิต)",sub:"สายโซ่ 5 ข้อจากการเห็นจนถึงการกระทำ",ready:false},  
+ {id:"c4",n:"๔",title:"จักรวาลวิทยาสมัยใหม่ (๑)",sub:"บิ๊กแบงและลมหายใจสุดท้ายของดวงดาว",ready:false},  
+ {id:"c5",n:"๕",title:"จักรวาลวิทยาสมัยใหม่ (๒)",sub:"จักรวาลเกิด-ดับ และสิ่งที่มองไม่เห็น 96%",ready:false},  
+ {id:"c6",n:"๖",title:"ฟิสิกส์ควอนตัม (๑)",sub:"ควาร์ก วัฏจักรธาตุ และโลกแห่งมายาภาพ",ready:false},  
+ {id:"c7",n:"๗",title:"ฟิสิกส์ควอนตัม (๒)",sub:"โลกคนละใบ และควอนตัมในสมอง",ready:false},  
+ {id:"c8",n:"๘",title:"ทฤษฎีวิวัฒนาการ (๑)",sub:"กำเนิดโลก ชีวิต และวิญญาณ",ready:false},  
+ {id:"c9",n:"๙",title:"ทฤษฎีวิวัฒนาการ (๒)",sub:"สายพันธุ์ที่เปลี่ยน และเซลล์ที่เกิดดับ",ready:false},  
+];  
+</script>  
+<script>  
+/* ==================== NAV ==================== */  
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];  
+let current="home";  
+const railnav=$("#railnav"), mobnav=$("#mobnav"), mapgrid=$("#mapgrid");  
+mobnav.innerHTML=`<option value="home">แผนที่การเดินทาง</option>`+CHAPTERS.map(c=>`<option value="${c.id}">${c.n} · ${c.title}${c.ready?"":" (กำลังสร้าง)"}</option>`).join("");  
+railnav.innerHTML=CHAPTERS.map(c=>`<button data-go="${c.id}" class="${c.ready?"":"soon"}"><span class="n">${c.n}</span><span>${c.title}</span></button>`).join("");  
+mapgrid.innerHTML=CHAPTERS.map(c=>`<button class="maprow ${c.ready?"ok":"soon"}" data-go="${c.id}"><span class="n">${c.n}</span><span><span class="ti">${c.title}</span><span class="sub">${c.sub}</span></span><span class="st">${c.ready?"อ่านได้":"กำลังสร้าง"}</span></button>`).join("");  
+  
+function go(id){  
+ const ch=CHAPTERS.find(c=>c.id===id);  
+ let pageId = id==="home" ? "p-home" : (ch&&ch.ready ? "p-"+id : "p-soon");  
+ if(pageId==="p-soon"&&ch){ $("#soon-n").textContent="บทที่ "+ch.n; $("#soon-t").textContent=ch.title; $("#soon-s").textContent=ch.sub;  
+ const qs=SOON\_Q[id]||[]; $("#soon-q").innerHTML=qs.map(q=>`<button>${q}</button>`).join(""); $("#soon-q").dataset.ch=id.slice(1); }  
+ $$(".page").forEach(p=>p.hidden=(p.id!==pageId));  
+ $$("#railnav button").forEach(b=>b.toggleAttribute("aria-current",false));  
+ const rb=$(`#railnav button[data-go="${id}"]`); if(rb) rb.setAttribute("aria-current","page");  
+ mobnav.value=id; current=id;  
+ $("#askctx").textContent="บริบท: "+(ch?("บทที่ "+ch.n+" "+ch.title):"แผนที่");  
+ renderSugg();  
+ window.scrollTo({top:0,behavior:"instant"});  
+ try{localStorage.setItem("tl-page",id)}catch(e){}  
+ if(id==="c1") ix1.draw(); if(id==="c2") ix2.draw();  
+}  
+document.addEventListener("click",e=>{const b=e.target.closest("[data-go]"); if(b){go(b.dataset.go)}});  
+mobnav.addEventListener("change",()=>go(mobnav.value));  
+  
+const SOON\_Q={  
+ c3:["วิญญาณ สัญญา เวทนา สังขาร ต่างกันยังไง ยกตัวอย่างตอนได้ยินคนด่า","จะเบรกกระบวนการขันธ์ ๕ ตรงไหนได้บ้าง"],  
+ c4:["ดวงอาทิตย์จะตายยังไง แล้วโลกจะเป็นอย่างไร","ธาตุในร่างกายเรามาจากดาวที่ระเบิดจริงหรือ"],  
+ c5:["จักรวาลจะจบแบบไหน หนังสือบอกว่าตรงกับพุทธแบบไหน","สสารมืดกับพลังงานมืดคืออะไร"],  
+ c6:["ควาร์กคืออะไร โปรตอนทำจากอะไร","ทำไมหนังสือบอกว่าโลกที่เราเห็นเป็นมายาภาพ"],  
+ c7:["สัตว์เห็นโลกต่างจากเราอย่างไร แล้วมันบอกอะไรเรื่องอนัตตา","ไมโครทิวบูลกับจิตเกี่ยวกันจริงไหม นักวิทยาศาสตร์เชื่อไหม"],  
+ c8:["ชีวิตเซลล์เดียวกลายเป็นคนได้อย่างไร","หนังสืออธิบายกำเนิด 'วิญญาณ' ว่าอย่างไร"],  
+ c9:["เซลล์ในร่างกายเปลี่ยนใหม่หมดในกี่ปี","ถ้าเซลล์เปลี่ยนหมด ทำไมเรายังจำได้ว่าเป็นคนเดิม"],  
+};  
+  
+/* ==================== GLOSSARY ==================== */  
+$$("dfn").forEach(d=>{ if(!d.dataset.term) d.dataset.term=d.textContent.trim(); d.tabIndex=0; d.setAttribute("role","button");  
+ const open=()=>openTerm(d.dataset.term); d.addEventListener("click",open); d.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}}); });  
+let lastTerm="";  
+function openTerm(t){ const g=GLOSS[t]; if(!g) return; lastTerm=t;  
+ $("#sh-kind").textContent="ศัพท์"+g.kind; $("#sh-term").textContent=t; $("#sh-alt").textContent=g.alt; $("#sh-def").textContent=g.def;  
+ $("#sheet").hidden=false; $("#sheetbg").hidden=false; $("#sh-close").focus(); }  
+function closeTerm(){ $("#sheet").hidden=true; $("#sheetbg").hidden=true; }  
+$("#sh-close").onclick=closeTerm; $("#sheetbg").onclick=closeTerm;  
+$("#sh-ask").onclick=()=>{ closeTerm(); openAsk(`ช่วยอธิบายคำว่า "${lastTerm}" ให้ละเอียดขึ้น พร้อมตัวอย่างในชีวิตประจำวัน`); };  
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ closeTerm(); $("#ask").hidden=true; $("#fab").hidden=false; } });  
+  
+/* ==================== INTERACTIVE 1 ==================== */  
+const IX1\_OBJ=[  
+ {k:"phone",name:"สมาร์ตโฟน",col:"#8FD3CE",  
+ a:"เครื่องนี้เมื่อวานกับวันนี้ไม่ใช่เครื่องเดียวกันแล้ว แบตเตอรี่เสื่อมไปอีกนิด รอยขีดเพิ่มอีกเส้น ซอฟต์แวร์เปลี่ยน มันกำลัง<b>เปลี่ยนอยู่ทุกวินาที</b> เพียงแต่ช้ากว่าที่ตาจะจับได้",  
+ d:"มัน<b>ทนอยู่สภาพเดิมไม่ได้</b> เพราะถูกความร้อน การชาร์จ การกระแทก บีบให้เสื่อมไปเรื่อยๆ ไม่มีทางรักษาให้อยู่ในสภาพวันแกะกล่องได้ ความทุกข์ใจของเราเกิดตอนที่เราคาดหวังให้มันอยู่เดิม",  
+ n:"แยกส่วนดู: จอ แบตเตอรี่ แผงวงจร ตัวเครื่อง ลึกลงไปคืออณูโลหะและพลาสติก <b>ไม่มีชิ้นไหนเป็น \"โทรศัพท์\"</b> ความสวยงามน่าถือของมันก็เป็นภาพที่ใจปรุงขึ้น เมื่อเห็นแบบนี้ ความอยากได้รุ่นใหม่ก็อ่อนกำลังลงเอง"},  
+ {k:"flower",name:"ดอกไม้",col:"#F0A3C8",  
+ a:"ดอกไม้ที่บานตอนเช้า ตอนเย็นก็ไม่ใช่ดอกเดิม เซลล์ในกลีบกำลังเสื่อม น้ำกำลังระเหย ความบานเป็น<b>ช่วงสั้นๆ ของกระบวนการเหี่ยว</b>ที่เริ่มตั้งแต่วินาทีแรกที่บาน",  
+ d:"ไม่มีวิธีทำให้ดอกไม้บานตลอดไป แช่เย็น ใส่น้ำ ก็แค่ยืดเวลา มัน<b>ถูกเหตุปัจจัยบีบให้เปลี่ยน</b> ทุกข์ใจของเราเกิดตอนอยากให้มันสวยเท่าเมื่อวาน",  
+ n:"กลีบ เกสร ก้าน เซลล์ โมเลกุลของสีและกลิ่น <b>\"ความสวย\" ไม่ได้อยู่ในดอกไม้</b> มันเกิดตอนแสงสะท้อนเข้าตาแล้วสมองปรุงเป็นความรู้สึกชอบ ดอกไม้ดอกเดียวกัน ผึ้งเห็นคนละสี"},  
+ {k:"body",name:"ร่างกายของฉัน",col:"#F3E2B3",  
+ a:"ร่างกายเมื่อสิบปีก่อนกับวันนี้แทบไม่มีเซลล์เดิมเหลืออยู่ ผิวหนังเปลี่ยนใหม่ทุกไม่กี่สัปดาห์ เม็ดเลือดแดงทุกสี่เดือน <b>เรากำลังถูกสร้างใหม่และรื้อทิ้งพร้อมกันตลอดเวลา</b>",  
+ d:"ร่างกายเจ็บป่วย แก่ และตาย ไม่ใช่เพราะเราดูแลไม่ดีพอ แต่เพราะมัน<b>ทนอยู่สภาพเดิมไม่ได้โดยธรรมชาติ</b> การออกกำลังกายและกินดีเป็นเรื่องควรทำ แต่เป็นการชะลอ ไม่ใช่การหยุด",  
+ n:"ธาตุดิน น้ำ ไฟ ลม → เซลล์ → โมเลกุล → อะตอม → ควาร์ก และที่ว่างมหาศาล <b>ไล่ลงไปทุกชั้นแล้วหา \"ฉัน\" ไม่เจอ</b> มีแต่ส่วนประกอบที่ยืมมาจากอาหาร อากาศ และดาวที่ระเบิดไปแล้ว (บทที่ 2 จะซูมให้ดู)"},  
+ {k:"star",name:"ดวงดาว",col:"#FFD98A",  
+ a:"ดาวที่ดูนิ่งบนฟ้ากำลังเผาไฮโดรเจนวินาทีละหลายร้อยล้านตัน มันเปลี่ยนสีตามอายุ ฟ้า ขาว เหลือง แดง <b>ดาวคือไฟกองหนึ่งที่กำลังไหม้</b> ไม่ใช่เพชรที่ติดอยู่บนฟ้า",  
+ d:"เมื่อเชื้อเพลิงหมด ดาวจะยุบหรือระเบิด ไม่มีดาวดวงไหนเลี่ยงได้ แม้แต่ดวงอาทิตย์ (อีกราว 5,000 ล้านปี) <b>สิ่งที่ใหญ่และเก่าแก่ที่สุดที่เรามองเห็นก็ทนอยู่เดิมไม่ได้</b>",  
+ n:"ดาวคือกลุ่มก๊าซที่แรงโน้มถ่วงดึงมารวมกันจนร้อนพอจะจุดไฟ <b>ไม่มี \"ตัวดาว\" แยกจากก๊าซและแรง</b> เมื่อระเบิด ธาตุของมันกลายเป็นดาวดวงใหม่ และเป็นแคลเซียมในกระดูกเรา"},  
+ {k:"anger",name:"ความโกรธ",col:"#FF8C7A",  
+ a:"ความโกรธที่รู้สึกว่าท่วมท้น ถ้าลองจับเวลาจริงๆ มันขึ้นสุดแล้วลงภายในไม่กี่นาที ที่รู้สึกว่านานเพราะเรา<b>นึกถึงเรื่องเดิมซ้ำแล้วจุดมันใหม่</b> ความโกรธที่เกิดครั้งที่สองไม่ใช่ครั้งแรก",  
+ d:"ใจไม่สามารถถือความโกรธไว้นิ่งๆ ได้ มันต้องเปลี่ยน ถ้าไม่ระบายก็ค่อยๆ จาง ถ้าเติมก็ลุก <b>อารมณ์ทุกชนิดถูกบีบให้เปลี่ยน</b> นี่คือข่าวดี เพราะแปลว่าไม่มีความรู้สึกไหนอยู่ถาวร",  
+ n:"ความโกรธเป็นการรวมกันของ การได้ยิน (วิญญาณ) จำได้ว่าคำนี้คือคำด่า (สัญญา) รู้สึกไม่ชอบ (เวทนา) แล้วปรุงต่อ (สังขาร) <b>ไม่มี \"ก้อนความโกรธ\" อยู่ที่ไหน</b> มีแต่สายโซ่ที่เกิดต่อกันเร็วมาก (บทที่ 3 จะแยกให้ดู)"},  
+];  
+const ix1=(()=>{  
+ const cv=$("#ix1-cv"),ctx=cv.getContext("2d"),W=cv.width,H=cv.height,N=900;  
+ let obj=IX1\_OBJ[0],t=.38,lens=null,pts=[],seed=1;  
+ const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};  
+ const inside={  
+ phone:(x,y)=>{const body=Math.abs(x)<.32&&Math.abs(y)<.66;const screen=Math.abs(x)<.27&&y>-.56&&y<.52;const btn=Math.hypot(x,y-.6)<.035;return body&&(!screen||Math.hypot(x,y)<.12||Math.abs(y+.3)<.02||Math.abs(y-.3)<.02)||btn},  
+ flower:(x,y)=>{const r=Math.hypot(x,y),a=Math.atan2(y,x);return r<.18||(r<.42+.18*Math.cos(6*a)&&r>.2)||(Math.abs(x)<.03&&y>0.2&&y<.75)},  
+ body:(x,y)=>{const head=Math.hypot(x,y+.62)<.15;const torso=Math.abs(x)<.18&&y>-.45&&y<.1;const arms=Math.abs(y+.3)<.06&&Math.abs(x)<.42;const legs=y>.1&&y<.7&&(Math.abs(x-.1)<.07||Math.abs(x+.1)<.07);return head||torso||arms||legs},  
+ star:(x,y)=>{const r=Math.hypot(x,y),a=Math.atan2(y,x);return r<.25+.32*Math.max(0,Math.cos(5*a))**3},  
+ anger:(x,y)=>{const r=Math.hypot(x,y),a=Math.atan2(y,x);return r<.38+.12*Math.sin(9*a)+.08*Math.sin(3*a+1)},  
+ };  
+ function build(){ seed=7; pts=[]; const f=inside[obj.k];  
+ while(pts.length<N){const x=rnd()*2-1,y=rnd()*2-1; if(f(x,y)) pts.push({x,y,rx:rnd()*2-1,ry:rnd()*2-1,ph:rnd()*6.28,sp:.5+rnd()});}  
+ }  
+ const ease=u=>u<.5?2*u*u:-1+(4-2*u)*u;  
+ function draw(){  
+ ctx.fillStyle="#1B1F3F"; ctx.fillRect(0,0,W,H);  
+ // faint grid  
+ ctx.strokeStyle="rgba(255,255,255,.04)"; ctx.lineWidth=1;  
+ for(let i=0;i<W;i+=60){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,H);ctx.stroke()}  
+ const cx=W/2,cy=H/2,S=150;  
+ let assemble, wear=0;  
+ if(t<.3) assemble=ease(t/.3); else if(t<.65){assemble=1; wear=(t-.3)/.35;} else assemble=1-ease((t-.65)/.35);  
+ const tm=performance.now()/1000;  
+ for(const p of pts){  
+ const jitter=(1-assemble)*1.2+wear*.05;  
+ const fx=p.x*S, fy=p.y*S;  
+ const dx=p.rx*W*.55, dy=p.ry*H*.55;  
+ const x=cx+fx*assemble+dx*(1-assemble)+Math.sin(tm*p.sp+p.ph)*3*jitter*10;  
+ const y=cy+fy*assemble+dy*(1-assemble)+Math.cos(tm*p.sp+p.ph)*3*jitter*10;  
+ const alpha=.25+.7*assemble*(1-wear*.5);  
+ ctx.fillStyle=obj.col; ctx.globalAlpha=alpha;  
+ ctx.beginPath(); ctx.arc(x,y,1.6+assemble*1.2,0,6.28); ctx.fill();  
+ }  
+ ctx.globalAlpha=1;  
+ ctx.fillStyle="rgba(234,230,245,.75)"; ctx.font="500 15px Sarabun,sans-serif"; ctx.textAlign="left";  
+ const label = t<.3?"กำลังรวมตัวจากส่วนประกอบ": t<.65?"ดูเหมือนคงที่ แต่กำลังสึกหรอ":"ส่วนประกอบแยกจากกัน";  
+ ctx.fillText(obj.name+" · "+label,18,H-18);  
+ ctx.textAlign="right"; ctx.fillStyle="rgba(154,158,196,.8)"; ctx.font="13px 'IBM Plex Mono',monospace"; ctx.fillText("t = "+(t*100|0)+"%",W-18,H-18);  
+ $$("#ix1-phase div").forEach((d,i)=>d.classList.toggle("on",i===(t<.3?0:t<.65?1:2)));  
+ }  
+ function readout(){ const o=$("#ix1-out"); if(!lens){o.innerHTML="เลือกแว่นสักอันด้านบน";return}  
+ const name={a:"อนิจจัง",d:"ทุกขัง",n:"อนัตตา"}[lens]; o.innerHTML=`<span class="k">${name}</span> · ${obj[lens]}`; }  
+ $("#ix1-pick").innerHTML=IX1\_OBJ.map((o,i)=>`<button class="chip" data-i="${i}" aria-pressed="${i===0}">${o.name}</button>`).join("");  
+ $("#ix1-pick").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;obj=IX1\_OBJ[+b.dataset.i];$$("#ix1-pick button").forEach(x=>x.setAttribute("aria-pressed",x===b));build();readout();});  
+ $("#ix1-t").addEventListener("input",e=>{t=e.target.value/1000});  
+ $("#ix1-lens").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;lens=b.dataset.l;$$("#ix1-lens button").forEach(x=>x.setAttribute("aria-pressed",x===b));readout();});  
+ build();  
+ const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;  
+ (function loop(){ if(!$("#p-c1").hidden) draw(); if(!reduce) requestAnimationFrame(loop); else setTimeout(loop,200); })();  
+ return {draw};  
+})();  
+  
+/* ==================== INTERACTIVE 2 ==================== */  
+const IX2\_LV=[  
+ {name:"ร่างกาย",q:"มองจากข้างนอก ดูเป็น \"คนหนึ่งคน\" ชัดเจน มีชื่อ มีหน้าตา นี่คือระดับที่เรายึดว่าเป็น \"ฉัน\" มากที่สุด",ans:"ยังหา \"ฉัน\" ได้อยู่ในระดับนี้ เพราะเรายังไม่ได้แยกส่วน"},  
+ {name:"ธาตุ ๔",q:"พระพุทธเจ้าแยกร่างกายเป็น 4 คุณสมบัติ: <b>ดิน</b> (แข็ง: กระดูก เนื้อ หนัง) <b>น้ำ</b> (เหลว: เลือด น้ำเหลือง) <b>ไฟ</b> (ร้อน: การเผาผลาญ) <b>ลม</b> (เคลื่อนไหว: ลมหายใจ)",ans:"\"ฉัน\" เป็นดินหรือ? เป็นน้ำหรือ? ไม่มีธาตุไหนที่เป็นฉัน แต่ถ้าเอาธาตุใดออก \"ฉัน\" ก็อยู่ไม่ได้"},  
+ {name:"เซลล์",q:"ร่างกายคือเซลล์ราว 30–100 ล้านล้านเซลล์ แต่ละเซลล์เกิด ทำงาน แล้วตาย มีเซลล์ใหม่มาแทน ผิวหนังเปลี่ยนใหม่ทุก 2–4 สัปดาห์ เม็ดเลือดแดงทุก ~120 วัน",ans:"เซลล์ที่คุณเกิดมาด้วย ตอนนี้แทบไม่เหลือแล้ว ถ้า \"ฉัน\" อยู่ในเซลล์ ฉันคนไหนคือฉัน"},  
+ {name:"โมเลกุล",q:"เซลล์สร้างจากโมเลกุล: น้ำ โปรตีน ไขมัน DNA ทั้งหมดคือ<b>อะตอมที่จับกันเป็นโครง</b> และถูกแลกเปลี่ยนกับอาหาร น้ำ อากาศ อยู่ตลอด",ans:"โมเลกุลน้ำในตัวคุณเมื่อเช้า อาจเป็นฝนเมื่อเดือนก่อน และจะเป็นทะเลในเดือนหน้า ไม่มีโมเลกุลไหนเป็น \"ของฉัน\" ถาวร"},  
+ {name:"อะตอม",q:"อะตอมหนึ่งอะตอมมีนิวเคลียสเล็กจิ๋วตรงกลาง และอิเล็กตรอนอยู่ห่างออกไปมาก <b>ระหว่างนั้นคือที่ว่าง 99.99%</b> ความ \"ตัน\" ที่เรารู้สึกคือแรงผลักของอิเล็กตรอน",ans:"ร่างกายที่รู้สึกว่าหนักแน่น ส่วนใหญ่คือที่ว่าง ถ้าบีบที่ว่างออกหมด มนุษย์ทั้งโลกจะเล็กเท่าก้อนน้ำตาล"},  
+ {name:"ควาร์ก",q:"โปรตอนและนิวตรอนในนิวเคลียสยังแยกได้อีก เป็น<b>ควาร์ก 3 ตัว</b>ที่แรงมหาศาลยึดไว้ ควาร์กไม่เคยอยู่นิ่ง ไม่เคยอยู่โดดๆ และเปลี่ยนสภาพได้ ฟิสิกส์ยังไม่รู้ว่ามีอะไรเล็กกว่านี้",ans:"ไล่ลงมาถึงชั้นล่างสุดที่มนุษย์รู้จัก ก็ยังไม่เจอ \"ฉัน\" เจอแต่พลังงานที่กำลังสั่นไหว นี่คือสิ่งที่หนังสือเรียกว่า \"อนัตตาที่ซ่อนอยู่ในรูปขันธ์\""},  
+];  
+const ix2=(()=>{  
+ const cv=$("#ix2-cv"),ctx=cv.getContext("2d"),W=cv.width,H=cv.height; let z=0;  
+ const gold="#D9AE4D",teal="#4FB8B2",pink="#F0A3C8",star="#EAE6F5";  
+ function body(cx,cy,s,fill){ ctx.fillStyle=fill; ctx.beginPath(); ctx.arc(cx,cy-.62*s,.15*s,0,6.28); ctx.fill();  
+ ctx.fillRect(cx-.18*s,cy-.45*s,.36*s,.55*s); ctx.fillRect(cx-.42*s,cy-.36*s,.84*s,.11*s); ctx.fillRect(cx-.17*s,cy+.1*s,.14*s,.6*s); ctx.fillRect(cx+.03*s,cy+.1*s,.14*s,.6*s); }  
+ function txt(s,x,y,c="rgba(234,230,245,.8)",f="14px Sarabun,sans-serif",al="center"){ctx.fillStyle=c;ctx.font=f;ctx.textAlign=al;ctx.fillText(s,x,y)}  
+ function draw(){ const tm=performance.now()/1000; ctx.fillStyle="#1B1F3F"; ctx.fillRect(0,0,W,H); const cx=W/2,cy=H/2;  
+ if(z===0){ body(cx,cy+10,200,"#E9E4F2"); txt("\"ฉัน\"",cx,cy-170,"#F3E2B3","400 22px Chonburi,serif"); }  
+ else if(z===1){ body(cx,cy+10,200,"rgba(233,228,242,.15)");  
+ const parts=[["ดิน","กระดูก เนื้อ หนัง",cx-260,cy-90,"#C9A26B"],["น้ำ","เลือด น้ำเหลือง",cx+260,cy-90,teal],["ไฟ","ความร้อน เผาผลาญ",cx-260,cy+80,"#FF8C7A"],["ลม","ลมหายใจ แก๊ส",cx+260,cy+80,"#B9C3FF"]];  
+ const anchors=[[cx-20,cy-20],[cx+20,cy-40],[cx,cy-10],[cx,cy-110]];  
+ parts.forEach((p,i)=>{ ctx.strokeStyle=p[4]; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(p[2]+(p[2]<cx?70:-70),p[3]); ctx.lineTo(anchors[i][0],anchors[i][1]); ctx.stroke();  
+ ctx.fillStyle=p[4]; ctx.beginPath(); ctx.arc(anchors[i][0],anchors[i][1],5+2*Math.sin(tm*2+i),0,6.28); ctx.fill();  
+ txt(p[0],p[2],p[3]-4,p[4],"400 24px Chonburi,serif"); txt(p[1],p[2],p[3]+20,"rgba(234,230,245,.7)","13px Sarabun,sans-serif"); }); }  
+ else if(z===2){ for(let r=0;r<5;r++)for(let c=0;c<11;c++){ const x=80+c*74+(r%2)*37,y=50+r*70; const age=((tm*.25+r*.37+c*.11)%1); const a=age<.8?1:1-(age-.8)/.2;  
+ ctx.globalAlpha=.25+.6*a; ctx.fillStyle=teal; ctx.beginPath(); ctx.ellipse(x,y,30,26,0,0,6.28); ctx.fill(); ctx.globalAlpha=a; ctx.fillStyle="#1B1F3F"; ctx.beginPath(); ctx.arc(x,y,9,0,6.28); ctx.fill(); ctx.fillStyle=gold; ctx.beginPath(); ctx.arc(x,y,6,0,6.28); ctx.fill(); }  
+ ctx.globalAlpha=1; txt("เซลล์ที่จางลง = กำลังตาย · เซลล์ที่เข้มขึ้น = เพิ่งเกิด",cx,H-16); }  
+ else if(z===3){ const mol=[[0,0,"O",teal,16],[-52,30,"H",star,10],[52,30,"H",star,10]]; const grid=[[cx-260,cy-60],[cx,cy-70],[cx+260,cy-60],[cx-130,cy+80],[cx+130,cy+80]];  
+ grid.forEach((g,i)=>{ const rot=tm*.3+i; mol.forEach(m=>{ const x=g[0]+m[0]*Math.cos(rot)-m[1]*Math.sin(rot)*.4,y=g[1]+m[0]*Math.sin(rot)*.4+m[1]*Math.cos(rot); if(m[2]==="H"){ctx.strokeStyle="rgba(234,230,245,.35)";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(g[0],g[1]);ctx.lineTo(x,y);ctx.stroke()} ctx.fillStyle=m[3]; ctx.beginPath(); ctx.arc(x,y,m[4],0,6.28); ctx.fill(); txt(m[2],x,y+4,"#1B1F3F","bold 11px 'IBM Plex Mono',monospace"); }); });  
+ txt("โมเลกุลน้ำ (H₂O) · ราว 60% ของร่างกาย และไม่มีโมเลกุลไหนอยู่กับเรานาน",cx,H-16); }  
+ else if(z===4){ ctx.strokeStyle="rgba(79,184,178,.25)"; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(cx,cy,170,0,6.28); ctx.stroke();  
+ for(let i=0;i<3;i++){ const a=tm*(1.2+i*.3)+i*2.1; const x=cx+170*Math.cos(a),y=cy+170*Math.sin(a)*.98; ctx.fillStyle=teal; ctx.globalAlpha=.9; ctx.beginPath(); ctx.arc(x,y,4,0,6.28); ctx.fill(); }  
+ ctx.globalAlpha=1; ctx.fillStyle=gold; ctx.beginPath(); ctx.arc(cx,cy,3,0,6.28); ctx.fill();  
+ txt("นิวเคลียส (จุดทอง) · เล็กจนต้องขยายให้เห็น",cx,cy+28,"rgba(243,226,179,.9)","13px Sarabun,sans-serif"); txt("อิเล็กตรอน",cx+200,cy-150,"rgba(143,211,206,.9)","13px Sarabun,sans-serif");  
+ txt("ระหว่างนี้: ที่ว่าง 99.99%",cx,cy-90,"rgba(234,230,245,.55)","italic 15px Sarabun,sans-serif"); txt("ในสัดส่วนจริง ถ้านิวเคลียสเท่านี้ อิเล็กตรอนจะอยู่ห่างออกไปเกือบ 1 กิโลเมตร",cx,H-16); }  
+ else { const q=[[cx-70,cy-40,"u",gold],[cx+70,cy-40,"u",gold],[cx,cy+60,"d",teal]];  
+ ctx.strokeStyle="rgba(240,163,200,.5)"; ctx.lineWidth=2; for(let i=0;i<3;i++){ const a=q[i],b=q[(i+1)%3]; ctx.beginPath(); ctx.moveTo(a[0],a[1]); const mx=(a[0]+b[0])/2+Math.sin(tm*6+i)*18,my=(a[1]+b[1])/2+Math.cos(tm*5+i)*18; ctx.quadraticCurveTo(mx,my,b[0],b[1]); ctx.stroke(); }  
+ q.forEach((p,i)=>{ const x=p[0]+Math.sin(tm*3+i)*6,y=p[1]+Math.cos(tm*2.5+i)*6; ctx.fillStyle=p[3]; ctx.beginPath(); ctx.arc(x,y,22,0,6.28); ctx.fill(); txt(p[2],x,y+7,"#1B1F3F","bold 20px 'IBM Plex Mono',monospace"); });  
+ txt("โปรตอน 1 ตัว = ควาร์กอัพ 2 + ควาร์กดาวน์ 1 · เส้นสีชมพูคือกลูออนที่ยึดไว้",cx,H-16); txt("ไม่มีอะไรนิ่งเลยในระดับนี้",cx,cy-120,"rgba(234,230,245,.55)","italic 15px Sarabun,sans-serif"); }  
+ ctx.globalAlpha=1;  
+ }  
+ function readout(){ const l=IX2\_LV[z]; $("#ix2-out").innerHTML=`<b>${l.name}</b> · ${l.q}<br><span class="k">ตัวฉันอยู่ตรงนี้ไหม?</span> ${l.ans}`; $$("#ix2-steps span").forEach((s,i)=>s.classList.toggle("on",i===z)); }  
+ $("#ix2-z").addEventListener("input",e=>{z=+e.target.value;readout()});  
+ readout();  
+ const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;  
+ (function loop(){ if(!$("#p-c2").hidden) draw(); if(!reduce) requestAnimationFrame(loop); else setTimeout(loop,200); })();  
+ return {draw};  
+})();  
+  
+/* ==================== EXERCISES ==================== */  
+function mountExercise(pickId,stepsId,items,labels){  
+ const pick=$("#"+pickId),steps=$("#"+stepsId);  
+ pick.innerHTML=items.map((it,i)=>`<button aria-pressed="${i===0}" data-i="${i}">${it.name}</button>`).join("");  
+ const render=i=>{ const it=items[i]; steps.innerHTML=labels.map((l,k)=>`<div class="step"><div class="lab">${l[0]}<small>${l[1]}</small></div><div class="txt">${it.s[k]}</div></div>`).join(""); };  
+ pick.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;$$("#"+pickId+" button").forEach(x=>x.setAttribute("aria-pressed",x===b));render(+b.dataset.i)});  
+ render(0);  
+}  
+mountExercise("ex1-pick","ex1-steps",[  
+ {name:"รถยนต์",s:["ยางสึกทุกกิโลเมตร น้ำมันเครื่องเสื่อมทุกวัน สีซีดลงทุกครั้งที่โดนแดด รถวันนี้ไม่ใช่รถเมื่อวาน","ไม่ว่าจะจอดในโรงรถหรือขับ มันก็เสื่อมทั้งคู่ แค่คนละแบบ ทุกข์ใจเกิดตอนรอยขีดแรก ไม่ใช่เพราะรอย แต่เพราะเราคาดว่ามันจะไม่มีรอย","เครื่องยนต์ ตัวถัง ล้อ ไฟ ถอดออกทีละชิ้น \"รถ\" หายไปตอนไหน? ไม่มีจุดไหนเลย เพราะ \"รถ\" เป็นแค่ชื่อที่เราตั้งให้กองชิ้นส่วน"]},  
+ {name:"บ้าน",s:["หลังคาผุ ท่อรั่ว สีลอก ปลวก บ้านกำลังกลับไปเป็นดินอย่างช้าๆ ตั้งแต่วันที่สร้างเสร็จ","ซ่อมเท่าไหร่ก็ต้องซ่อมอีก เพราะบ้านถูกฝน แดด และเวลาบีบให้เปลี่ยนตลอด ทุกข์ใจเกิดตอนอยากให้บ้าน \"เสร็จ\" สักที ซึ่งไม่มีวันเสร็จ","อิฐ ปูน ไม้ กระเบื้อง ถ้ารื้อกองไว้ข้างๆ กันก็ยังเป็นวัสดุเดิมทุกชิ้น แต่ \"บ้าน\" หายไปแล้ว บ้านจึงอยู่ที่การจัดเรียง ไม่ได้อยู่ในวัสดุ"]},  
+ {name:"ชื่อเสียง",s:["คนที่ชมเราวันนี้ พรุ่งนี้ลืม ความคิดเห็นของคนอื่นเปลี่ยนเร็วกว่าอากาศ","ชื่อเสียงรักษาไว้ไม่ได้ เพราะมันอยู่ในใจคนอื่นซึ่งเราควบคุมไม่ได้เลย ทุกข์ใจเกิดตอนพยายามควบคุมสิ่งที่อยู่นอกตัว","ชื่อเสียงคือ ความคิดของคนหลายคน + ความจำของเขา + สิ่งที่เขาพูดต่อ ไม่มีก้อน \"ชื่อเสียง\" อยู่ที่ไหน มันไม่ได้อยู่กับเราด้วยซ้ำ"]},  
+ {name:"ความสัมพันธ์",s:["คนที่เรารักเมื่อสิบปีก่อนกับวันนี้ไม่ใช่คนเดิม ตัวเราก็ไม่ใช่ ความสัมพันธ์จึงเปลี่ยนตามทั้งสองฝ่ายตลอด","บังคับให้เหมือนวันแรกไม่ได้ เพราะทั้งสองคนกำลังเปลี่ยน ทุกข์ใจเกิดตอนเอาความรู้สึกวันแรกมาเป็นมาตรฐาน","ความสัมพันธ์คือ การกระทำหลายพันครั้ง + ความจำของสองคน + ความคาดหวัง ไม่มีชิ้นไหนเป็น \"ความสัมพันธ์\" มันเกิดใหม่ทุกครั้งที่เจอกัน"]},  
+],[["อนิจจัง","ไม่เที่ยง"],["ทุกขัง","ทนอยู่เดิมไม่ได้"],["อนัตตา","ไม่มีตัวตนแท้จริง"]]);  
+mountExercise("ex2-pick","ex2-steps",[  
+ {name:"ใบหน้า",s:["ธาตุดิน (ผิว กล้ามเนื้อ กระดูก) ธาตุน้ำ (ความชุ่มชื้น เลือดใต้ผิว) ธาตุไฟ (อุณหภูมิผิว) ธาตุลม (ลมหายใจผ่านจมูก)","เซลล์ผิวหน้าชั้นนอกตายและหลุดออกวันละหลายหมื่นเซลล์ ผิวที่คุณล้างเมื่อเช้าไม่ใช่ผิวชุดเดิมกับเดือนก่อน","หน้าที่เห็นในกระจกคือแสงสะท้อนจากอิเล็กตรอนบนผิว ที่สมองปรุงเป็นภาพแล้วใส่ความรู้สึก \"สวย/ไม่สวย\" ลงไป ไม่มี \"หน้าฉัน\" นอกเหนือจากนี้"]},  
+ {name:"หัวใจ",s:["ธาตุดิน (กล้ามเนื้อหัวใจ) ธาตุน้ำ (เลือดที่ไหลผ่าน) ธาตุไฟ (พลังงานที่ใช้เต้น) ธาตุลม (การขยาย-หด และออกซิเจนในเลือด)","เต้นวันละราวแสนครั้ง ไม่เคยหยุดพักตั้งแต่ก่อนเกิด และมันจะหยุดวันหนึ่งแน่นอน ไม่ว่าจะดูแลดีแค่ไหน","หัวใจคือเซลล์กล้ามเนื้อหลายพันล้านเซลล์ที่ส่งสัญญาณไฟฟ้าต่อกัน ไม่มี \"ตัวหัวใจ\" นอกจากการทำงานร่วมกันนั้น ความรู้สึกว่า \"รักจากใจ\" ยิ่งไม่ได้อยู่ในกล้ามเนื้อนี้เลย"]},  
+ {name:"สมอง",s:["ธาตุดิน (เนื้อสมอง) ธาตุน้ำ (น้ำไขสันหลัง เลือด ราว 75% ของสมองเป็นน้ำ) ธาตุไฟ (ใช้พลังงาน 20% ของทั้งร่าง) ธาตุลม (ออกซิเจนที่ขาดไม่ได้เกิน 4 นาที)","เซลล์ประสาทตายทุกวันและการเชื่อมต่อเปลี่ยนทุกครั้งที่เรียนรู้ สมองที่อ่านประโยคนี้ไม่ใช่สมองก่อนอ่าน","ความคิดที่รู้สึกว่า \"เป็นฉันคิด\" คือสัญญาณไฟฟ้าเคมีที่วิ่งผ่านเซลล์นับแสนล้าน ไม่มีจุดไหนในสมองที่เป็น \"ผู้คิด\" (บทที่ 7 จะลงไปถึงระดับควอนตัมของเรื่องนี้)"]},  
+ {name:"มือ",s:["ธาตุดิน (กระดูก 27 ชิ้น เอ็น ผิว) ธาตุน้ำ (เหงื่อ เลือด) ธาตุไฟ (ความอุ่นของฝ่ามือ) ธาตุลม (การเคลื่อนไหวของนิ้ว)","ลายมือสึก ข้อนิ้วเสื่อม ผิวเหี่ยว มือที่จับโทรศัพท์อยู่นี้กำลังแก่ลงโดยไม่มีวันหยุดพัก","ตอน \"มือแตะโต๊ะ\" ไม่มีเนื้อสสารแตะกันจริง มีแต่อิเล็กตรอนของมือผลักอิเล็กตรอนของโต๊ะ ความรู้สึก \"แข็ง\" ถูกปรุงขึ้นในสมอง"]},  
+],[["ธาตุ ๔","ประกอบจากอะไร"],["อนิจจัง","กำลังเปลี่ยนอย่างไร"],["อนัตตา","แยกแล้วเจอ \"ฉัน\" ไหม"]]);  
+  
+/* ==================== ASK (sample capability) ==================== */  
+let sampleFn=null, sampleReady=(async()=>{ try{ if(window.claude&&claude.use){ sampleFn=await claude.use("sample"); } }catch(e){ sampleFn=null } return sampleFn; })();  
+const turns=[]; const askEl=$("#ask"),fab=$("#fab"),log=$("#asklog"),askin=$("#askin");  
+const RULES=`คุณคือผู้ช่วยอธิบายหนังสือ "ไตรลักษณ์ในควอนตัม" ให้คนทั่วไปที่ไม่มีพื้นฐานทั้งธรรมะและวิทยาศาสตร์  
+กติกา:  
+- ตอบเป็นภาษาไทยที่อ่านง่าย เหมือนเพื่อนที่รู้เรื่องนี้เล่าให้ฟัง ไม่ใช้ศัพท์โดยไม่อธิบาย  
+- ยาวไม่เกิน 6-8 ประโยค เว้นแต่ถูกขอให้ละเอียด ห้ามใช้ bullet หรือหัวข้อ ให้เขียนเป็นย่อหน้า  
+- อ้างอิงว่าเรื่องนี้อยู่ "บทที่ X" ของหนังสือเสมอเมื่อเกี่ยวข้อง  
+- ยึดเนื้อหาและจุดยืนของหนังสือเป็นหลัก ถ้าคำถามเกินขอบเขตหนังสือหรือเป็นเรื่องที่วิทยาศาสตร์ยังถกเถียง ให้บอกตรงๆ ว่าหนังสือว่าอย่างไร และวิทยาศาสตร์ปัจจุบันว่าอย่างไร  
+- ปิดท้ายด้วยการโยงกลับมาที่ชีวิตประจำวันของผู้ถาม 1 ประโยค เมื่อทำได้อย่างเป็นธรรมชาติ  
+- ห้ามแต่งพุทธพจน์ขึ้นเอง ถ้าไม่แน่ใจให้บอกว่าไม่แน่ใจ  
+  
+เนื้อหาหนังสือโดยสรุป:  
+${BOOK\_KNOWLEDGE}`;  
+function ctxLine(){ const ch=CHAPTERS.find(c=>c.id===current); return ch?`(ผู้ถามกำลังอ่านบทที่ ${ch.n} ${ch.title})`:"(ผู้ถามอยู่หน้าแผนที่)"; }  
+function addMsg(cls,text){ const d=document.createElement("div"); d.className="msg "+cls; d.textContent=text; log.appendChild(d); log.scrollTop=log.scrollHeight; return d; }  
+const SUGG={home:["หนังสือเล่มนี้ต่างจากหนังสือธรรมะทั่วไปยังไง","ต้องเชื่อพุทธก่อนไหมถึงจะอ่านได้","ควรอ่านบทไหนก่อนถ้ามีเวลาน้อย"],c1:["ทุกขัง กับ ทุกข์ใจ ต่างกันยังไง","อนัตตา แปลว่าฉันไม่มีอยู่จริงหรือ","เห็นไตรลักษณ์แล้วจะหมดไฟทำงานไหม"],c2:["ทำไมเดินทะลุกำแพงไม่ได้ถ้าเป็นที่ว่าง","ธาตุ ๔ ผิดไหมเทียบกับตารางธาตุ","ถ้ากายไม่ใช่เรา ต้องดูแลไหม"]};  
+function renderSugg(){ const s=SUGG[current]||(SOON\_Q[current]||[]).slice(0,2); $("#asksugg").innerHTML=s.map(q=>`<button>${q}</button>`).join(""); }  
+$("#asksugg").addEventListener("click",e=>{const b=e.target.closest("button");if(b) send(b.textContent)});  
+function openAsk(prefill){ askEl.hidden=false; fab.hidden=true; if(prefill){ send(prefill); } else askin.focus(); }  
+fab.onclick=()=>openAsk(); $("#askclose").onclick=()=>{askEl.hidden=true;fab.hidden=false};  
+$("#askform").addEventListener("submit",e=>{e.preventDefault(); const q=askin.value.trim(); if(q){askin.value="";send(q)}});  
+document.addEventListener("click",e=>{ const b=e.target.closest(".qlist button"); if(b) openAsk(b.textContent); });  
+let busy=false;  
+async function send(q){  
+ if(busy) return; addMsg("u",q);  
+ const fn=await sampleReady;  
+ if(!fn){ addMsg("a","ฟีเจอร์ถามผู้ช่วยใช้ได้เมื่อเปิดหน้านี้ผ่าน claude.ai เท่านั้น ตอนนี้ยังกดคำศัพท์เส้นประเพื่ออ่านคำอธิบายได้ตามปกติ"); return; }  
+ busy=true; const a=addMsg("a think","กำลังคิด…");  
+ turns.push({role:"user",content:ctxLine()+" "+q});  
+ try{  
+ const {text}=await fn([{role:"user",content:RULES},{role:"assistant",content:"เข้าใจแล้ว พร้อมตอบตามกติกา"},...turns.slice(-8)],{cache:false,modelTier:"default",onText:({text})=>{a.className="msg a";a.textContent=text;log.scrollTop=log.scrollHeight}});  
+ a.className="msg a"; a.textContent=text; turns.push({role:"assistant",content:text});  
+ }catch(e){ a.className="msg a"; a.textContent=e.text||({not\_granted:"ยังไม่ได้อนุญาตให้หน้านี้ถาม Claude — กดอนุญาตแล้วลองใหม่ได้ครับ",rate\_limited:"ถามถี่ไปนิด รอสักครู่แล้วลองใหม่",cancelled:"ยกเลิกแล้ว"}[e.code]||"ตอบไม่ได้ในตอนนี้ ลองใหม่อีกครั้ง"); turns.pop(); }  
+ busy=false; log.scrollTop=log.scrollHeight;  
+}  
+document.addEventListener("click",async e=>{  
+ const b=e.target.closest("[data-ai-feedback]"); if(!b) return;  
+ const ta=$("#"+b.dataset.aiFeedback), out=b.closest(".reflect").querySelector(".feedback"); const v=ta.value.trim();  
+ if(!v){ out.hidden=false; out.textContent="ลองเขียนสักสองสามบรรทัดก่อน แล้วค่อยกดให้ช่วยดู"; return; }  
+ const fn=await sampleReady; if(!fn){ out.hidden=false; out.textContent="ฟีเจอร์นี้ใช้ได้เมื่อเปิดผ่าน claude.ai"; return; }  
+ b.disabled=true; out.hidden=false; out.textContent="กำลังอ่าน…";  
+ const ch=b.dataset.ch;  
+ try{ const {text}=await fn(`${RULES}\n\nงาน: ผู้อ่านทำแบบฝึก "ลองมองรอบตัว" ของบทที่ ${ch} โดยเลือกสิ่งหนึ่งแล้วไล่ไตรลักษณ์ (หรือธาตุ ๔) ด้วยตัวเอง ข้อความของเขา:\n"""${v}"""\nให้ feedback สั้นๆ 4-6 ประโยค แบบเพื่อนที่อบอุ่น: ชมสิ่งที่เขาเห็นได้จริง แล้วชี้ 1 จุดที่ยังเป็น "ความรู้ที่ท่องมา" มากกว่า "การเห็น" พร้อมคำถามชวนให้มองลึกอีกขั้น ห้ามใช้ bullet`,{modelTier:"default",onText:({text})=>{out.textContent=text}}); out.textContent=text; }  
+ catch(e){ out.textContent=e.text||"ตอบไม่ได้ในตอนนี้ ลองใหม่อีกครั้ง"; }  
+ b.disabled=false;  
+});  
+  
+/* ==================== START ==================== */  
+let start="home"; try{ const s=localStorage.getItem("tl-page"); if(s&&(s==="home"||CHAPTERS.some(c=>c.id===s))) start=s; }catch(e){}  
+go(start);  
+</script>  

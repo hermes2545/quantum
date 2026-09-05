@@ -1,0 +1,21 @@
+# ต้นฉบับหนังสือ — ห้าม commit เด็ดขาด (§11 ข้อห้าม #2, A-01 ข้อ 1)
+content/source/
+*.pdf
+
+# ความลับ
+.env
+.env.local
+
+# build output
+web/public/b/
+web/public/glossary/
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+
+# ระบบ
+.DS_Store
+
+# ข้อความเต็มของหนังสือ (สกัดจาก PDF) — ใช้เฉพาะ pipeline/ฝั่ง server ห้ามขึ้น repo สาธารณะ (§11 ข้อห้าม #2)
+content/books/*/raw/
