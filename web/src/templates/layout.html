@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<meta name="description" content="{{DESCRIPTION}}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chonburi&family=Sarabun:ital,wght@0,300;0,400;0,500;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="/assets/css/base.css">
+</head>
+<body{{BODY_ATTRS}}>
+<script type="application/json" id="page-data">{{PAGE_DATA_JSON}}</script>
+{{TOPBAR}}
+<div class="app">
+{{RAIL}}
+<main class="main" id="main">
+{{ARTICLE}}
+</main>
+</div>
+<button class="fab" id="fab" type="button"><span class="dot"></span>ถามตรงนี้</button>
+{{ASK_PARTIAL}}
+{{SHEET_PARTIAL}}
+<script type="module" src="/assets/js/app.js"></script>
+</body>
+</html>

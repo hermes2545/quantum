@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dhamma-science-learning.local/schema/chapter.schema.json",
+  "title": "Chapter",
+  "description": "content/books/{bookSlug}/chNN.json ตาม §A.2 ของสัญญาระหว่างโมดูล — ทุกบทต้องมีไฟล์นี้แม้ status เป็น building. field ที่บังคับเพิ่มเมื่อ status ∈ {draft, ready} ผูกด้วย if/then ด้านล่าง (คู่กับ book.json.chapters[i].status ที่ต้องเท่ากับ status ในไฟล์นี้เสมอ — เป็น cross-file check ทำใน validate.mjs ไม่ใช่ในสคีมานี้)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "book", "slug", "order", "thaiNum", "title", "sub", "status",
+    "summary", "keyPoints", "keywords", "suggestions"
+  ],
+  "properties": {
+    "book": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "slug": { "type": "string", "pattern": "^ch[0-9]{2}$" },
+    "order": { "type": "integer", "minimum": 1 },
+    "thaiNum": { "type": "string", "pattern": "^[๐-๙]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "sub": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["draft", "ready", "building"] },
+    "goal": {
+      "type": "string",
+      "minLength": 1,
+      "description": "1 ประโยค 'จบบทนี้คุณจะ…' — ห้ามว่าง (ChapterHeader .goal)"
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "2-3 ประโยค plain text ไม่มี HTML — ไปอยู่ใน index.json"
+    },
+    "keyPoints": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 8,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "keywords": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 15,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "sections": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 4,
+      "items": { "$ref": "#/$defs/Section" }
+    },
+    "interactive": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["module", "position", "title", "intro", "config"],
+      "properties": {
+        "module": {
+          "type": "string",
+          "description": "'particles' (กลาง) หรือ '{bookSlug}/chNN' → web/src/js/interactives/{module}.js",
+          "minLength": 1
+        },
+        "position": { "type": "integer", "minimum": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "intro": { "type": "string", "minLength": 1 },
+        "config": {
+          "type": "object",
+          "description": "shape ขึ้นกับ module (§E.4) — สคีมานี้ตรวจแค่ว่าเป็น object เท่านั้น ไม่ตรวจ shape ภายใน"
+        }
+      }
+    },
+    "quote": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "source"],
+      "properties": {
+        "text": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1 },
+        "after": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/InnerHtml" }
+        }
+      }
+    },
+    "exercise": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "intro", "columns", "options", "prompt", "placeholder"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "intro": { "type": "string", "minLength": 1 },
+        "columns": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label", "sub"],
+            "properties": {
+              "label": { "type": "string", "minLength": 1 },
+              "sub": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "options": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "steps"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "steps": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": { "type": "string", "minLength": 1 }
+              }
+            }
+          }
+        },
+        "prompt": { "type": "string", "minLength": 1 },
+        "placeholder": { "type": "string", "minLength": 1 },
+        "hint": { "type": "string" }
+      }
+    },
+    "questions": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "suggestions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "terms": {
+      "type": "array",
+      "description": "subset ของ glossary.json ที่ปรากฏเป็น <dfn> ในบทนี้ — terms.py เป็นผู้เขียนค่าสุดท้าย",
+      "items": { "$ref": "#/$defs/Term" }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "enum": ["draft", "ready"] } }, "required": ["status"] },
+      "then": {
+        "required": ["goal", "sections", "interactive", "exercise", "questions", "terms"]
+      }
+    },
+    {
+      "if": { "properties": { "status": { "const": "building" } }, "required": ["status"] },
+      "then": {
+        "properties": { "suggestions": { "minItems": 2 } }
+      },
+      "else": {
+        "properties": { "suggestions": { "minItems": 3, "maxItems": 3 } }
+      }
+    }
+  ],
+  "$defs": {
+    "InnerHtml": {
+      "type": "string",
+      "description": "inner HTML ของ <p>/<li> — อนุญาตเฉพาะ <b> <i> <dfn data-term=\"…\" data-kind=\"ธรรมะ|วิทยาศาสตร์\"> เท่านั้น ห้ามแท็กอื่น (บังคับโดย pattern นี้ และตรวจซ้ำแบบเข้มงวดกว่าใน validate.mjs)",
+      "pattern": "^(?:[^<]|<\\/?(?:b|i)>|<dfn data-term=\"[^\"]*\" data-kind=\"(?:ธรรมะ|วิทยาศาสตร์)\">|<\\/dfn>)*$"
+    },
+    "Section": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["h2", "paragraphs"],
+      "properties": {
+        "h2": { "type": "string", "minLength": 1 },
+        "paragraphs": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 5,
+          "items": { "$ref": "#/$defs/InnerHtml" }
+        },
+        "bullets": {
+          "type": "array",
+          "description": "optional — ใช้ได้เฉพาะรายการธาตุ/ชนิด (§9.1 ข้อ 8, ข้อยกเว้นเดียวที่อนุญาต bullet)",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/InnerHtml" }
+        },
+        "bulletsAfter": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "จำนวนย่อหน้าที่ render ก่อน bullets (default = paragraphs.length คือท้าย section)"
+        },
+        "callout": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["label", "text"],
+          "properties": {
+            "label": { "type": "string", "minLength": 1 },
+            "text": { "$ref": "#/$defs/InnerHtml" }
+          }
+        }
+      }
+    },
+    "Term": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["term", "kind", "alt", "def", "books"],
+      "properties": {
+        "term": { "type": "string", "minLength": 1 },
+        "kind": { "type": "string", "enum": ["ธรรมะ", "วิทยาศาสตร์"] },
+        "alt": { "type": "string" },
+        "def": { "type": "string", "minLength": 1 },
+        "books": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" }
+        }
+      }
+    }
+  }
+}

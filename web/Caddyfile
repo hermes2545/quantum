@@ -1,0 +1,35 @@
+:80 {
+	# ผู้ช่วย API — ส่งตรงไปให้ proxy (ไม่ buffer SSE)
+	handle /api/* {
+		reverse_proxy proxy:8787 {
+			flush_interval -1
+		}
+	}
+
+	# เนื้อหาและสินค้า
+	handle {
+		root * /srv
+		encode gzip
+
+		# Routing: ให้ URL จริง /b/x/ch01 (ไม่มี slash ท้าย) ไปชี้ที่ไฟล์ index.html
+		try_files {path} {path}/index.html {path}.html =404
+
+		# Serve ไฟล์จากดิสก์
+		file_server
+
+		# Cache assets นานๆ (CSS/JS รุ่นเป่า hash)
+		@assets {
+			path /assets/*
+		}
+		header @assets Cache-Control "public, max-age=3600"
+
+		# HTML: ไม่ cache ให้ดึงใหม่ทุกครั้ง
+		header Cache-Control "no-cache"
+	}
+
+	# 404 handling
+	handle_errors {
+		rewrite * /404.html
+		file_server
+	}
+}

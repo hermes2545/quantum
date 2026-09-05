@@ -1,0 +1,16 @@
+<section class="ask" id="ask" hidden aria-label="ถามผู้ช่วย">
+  <header>
+    <div>
+      <div class="t">ถามได้ทุกจุด</div>
+      <div class="ctx" id="askctx">{{ASKCTX}}</div>
+    </div>
+    <button id="askclose" type="button" aria-label="ปิด">×</button>
+  </header>
+  <div class="log" id="asklog" aria-live="polite"></div>
+  <div class="sugg" id="asksugg"></div>
+  <div class="note">ผู้ช่วยตอบจากเนื้อหาในหนังสือ และบอกว่าเรื่องนั้นอยู่เล่มไหนบทไหน · จำกัดวันละ 30 คำถาม</div>
+  <form id="askform">
+    <input id="askin" placeholder="พิมพ์คำถาม…" autocomplete="off" maxlength="1000">
+    <button type="submit">ถาม</button>
+  </form>
+</section>

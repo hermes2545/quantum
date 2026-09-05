@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dhamma-science-learning.local/schema/glossary.schema.json",
+  "title": "Glossary",
+  "description": "content/books/{bookSlug}/glossary.json ตาม §A.3 — เขียนโดย pipeline/terms.py เท่านั้น ห้ามมี term ซ้ำภายในไฟล์เดียวกัน (dedupe เป็นหน้าที่ terms.py / build.js §9.2)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["book", "terms"],
+  "properties": {
+    "book": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "terms": {
+      "type": "array",
+      "description": "เรียงตามลำดับที่ปรากฏครั้งแรกในเล่ม",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["term", "kind", "alt", "def", "books"],
+        "properties": {
+          "term": { "type": "string", "minLength": 1 },
+          "kind": { "type": "string", "enum": ["ธรรมะ", "วิทยาศาสตร์"] },
+          "alt": { "type": "string" },
+          "def": { "type": "string", "minLength": 1 },
+          "books": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" }
+          }
+        }
+      }
+    }
+  }
+}

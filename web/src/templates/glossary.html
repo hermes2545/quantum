@@ -1,0 +1,19 @@
+<article class="page glossary-page">
+  <div class="hero">
+    <div class="eyebrow">ศัพท์ทั้งชุด</div>
+    <h1>ศัพท์รวม</h1>
+  </div>
+  <div class="gloss-tools">
+    <input id="gloss-q" type="search" placeholder="ค้นหาศัพท์…" aria-label="ค้นหาศัพท์">
+    <div class="gloss-filter" role="group">
+      <button type="button" data-kind="all" aria-pressed="true">ทั้งหมด</button>
+      <button type="button" data-kind="ธรรมะ" aria-pressed="false">ธรรมะ</button>
+      <button type="button" data-kind="วิทยาศาสตร์" aria-pressed="false">วิทยาศาสตร์</button>
+    </div>
+  </div>
+  <div class="gloss-list" id="gloss-list">
+{{GLOSS_ITEMS}}
+  </div>
+  <p class="gloss-empty" hidden>ไม่พบศัพท์ที่ค้นหา</p>
+{{SOURCE_FOOTER}}
+</article>

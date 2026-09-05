@@ -1,0 +1,38 @@
+services:
+  web:
+    image: caddy:2-alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./web/public:/srv:ro
+      - ./web/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    depends_on:
+      - proxy
+    networks:
+      - dhamma-network
+
+  proxy:
+    build: ./proxy
+    env_file: .env
+    environment:
+      CONTENT_DIR: /content
+      PORT: "8787"
+    volumes:
+      - ./content:/content:ro
+    expose:
+      - "8787"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8787/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - dhamma-network
+
+volumes:
+  caddy_data: {}
+
+networks:
+  dhamma-network:
+    driver: bridge

@@ -1,0 +1,40 @@
+# Git
+.git
+.gitignore
+
+# Development
+.venv
+.env.local
+*.log
+node_modules
+__pycache__
+*.pyc
+.DS_Store
+
+# Documentation
+docs/
+README.md
+
+# Build outputs (not needed in container, will be copied fresh)
+web/public/b/
+web/public/glossary/
+
+# Source content (will be mounted as volume)
+content/source/
+content/books/*/raw/
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Other
+*.pem
+*.key
+.env.*.local

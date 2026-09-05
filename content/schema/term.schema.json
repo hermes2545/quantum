@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dhamma-science-learning.local/schema/term.schema.json",
+  "title": "Term",
+  "description": "หนึ่งคำศัพท์ในพจนานุกรม ตาม §A.3 ของสัญญาระหว่างโมดูล — ปรากฏทั้งใน glossary.json และใน chNN.json.terms (subset)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["term", "kind", "alt", "def", "books"],
+  "properties": {
+    "term": { "type": "string", "minLength": 1 },
+    "kind": {
+      "type": "string",
+      "enum": ["ธรรมะ", "วิทยาศาสตร์"]
+    },
+    "alt": {
+      "type": "string",
+      "description": "บาลี/อังกฤษ — key ต้องมีเสมอ ค่าว่างได้"
+    },
+    "def": {
+      "type": "string",
+      "minLength": 1,
+      "description": "2-4 ประโยค plain text ภาษาคนธรรมดา ประโยคสุดท้ายโยงกับหนังสือหรือชีวิตจริง (§9.2)"
+    },
+    "books": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+      }
+    }
+  }
+}

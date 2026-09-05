@@ -1,0 +1,12 @@
+# pipeline/requirements.txt — Python 3.11
+# ติดตั้ง: python3 -m venv .venv && source .venv/bin/activate && pip install -r pipeline/requirements.txt
+#
+# extract.py ใช้ pdftotext (poppler) ผ่าน subprocess เป็นทางหลัก (ตาม §8 handoff-spec)
+# pymupdf เป็น fallback อัตโนมัติเมื่อไม่มี binary pdftotext ในเครื่อง (เช่นเครื่อง dev ที่ไม่ได้ลง poppler)
+anthropic>=1.0
+pymupdf>=1.24
+jsonschema>=4.20
+
+# หมายเหตุ: pdftotext ไม่ใช่ pip package — ติดตั้งจาก poppler-utils ของ OS
+#   macOS:  brew install poppler
+#   Ubuntu: apt-get install poppler-utils
