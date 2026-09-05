@@ -13,8 +13,8 @@ Orchestrator: session หลัก (Fable 5.1) · Reviewer: Opus 5 · Implemente
 - [x] 0. เอกสาร: handoff-spec, prototype, book01 txt, addendum, agent-team
 - [ ] 1. โครง infra/proxy/pipeline/web/content  ← workflow `quantum-book-phase1` กำลังรัน
 - [ ] 2. PDF 9 เล่ม → content/source/
-- [ ] 3. extract + clean + split ทั้ง 9 เล่ม → raw/chNN.txt
-- [ ] 4. author ทุกบท (agent เขียน → Opus ตรวจ → แก้) → chNN.json status ready
+- [ ] 3. extract + clean + split ทั้ง 9 เล่ม → raw/chNN.txt   ← เล่ม 1 เสร็จ (9 บท + คำนำ, แก้คำ 467 จุด); เล่ม 2–9 รอ PDF
+- [ ] 4. author ทุกบท (agent เขียน → Opus ตรวจ → แก้) → chNN.json status ready   ← เล่ม 1 บท 1–2 จาก prototype ✓; บท 3–9 workflow `author-book1-ch03-09` กำลังรัน
 - [ ] 5. glossary + auto-link + index.json
 - [ ] 6. interactives เขียนมือ (บท 1,2,3,4,9 ของเล่ม 1 อย่างน้อย)
 - [ ] 7. build static + รัน proxy + ทดสอบ mobile 360/390/768/1280

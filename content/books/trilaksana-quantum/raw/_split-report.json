@@ -1,0 +1,142 @@
+{
+  "chapters": {
+    "00-preface": {
+      "startLine": 51,
+      "endLine": 102,
+      "chars": 1952,
+      "firstSubheading": null,
+      "confidence": "high",
+      "note": "Bounded by 'คุยกับผู้เขียน' anchor and chapter 1 marker."
+    },
+    "01": {
+      "startLine": 107,
+      "endLine": 336,
+      "chars": 6621,
+      "firstSubheading": "ไตรลักษณ์ของคน",
+      "confidence": "high",
+      "shorterThan12000Chars": true,
+      "note": "Anchored on first subheading 'ไตรลักษณ์ของคน' from the TOC. NOTE: chapter is shorter than the 12,000-char sanity floor; this is a genuine trait of the source (manually verified by reading the full chapter -- it legitimately covers fewer subtopics), not a boundary-detection error. Boundary confidence itself is unaffected."
+    },
+    "02": {
+      "startLine": 341,
+      "endLine": 465,
+      "chars": 3184,
+      "firstSubheading": "องค์ประกอบแห่งมนุษย์",
+      "confidence": "high",
+      "shorterThan12000Chars": true,
+      "note": "Anchored on first subheading 'องค์ประกอบแห่งมนุษย์' from the TOC. NOTE: chapter is shorter than the 12,000-char sanity floor; this is a genuine trait of the source (manually verified by reading the full chapter -- it legitimately covers fewer subtopics), not a boundary-detection error. Boundary confidence itself is unaffected."
+    },
+    "03": {
+      "startLine": 470,
+      "endLine": 813,
+      "chars": 10437,
+      "firstSubheading": "นามขันธ์",
+      "confidence": "high",
+      "shorterThan12000Chars": true,
+      "note": "Anchored on first subheading 'นามขันธ์' from the TOC. NOTE: chapter is shorter than the 12,000-char sanity floor; this is a genuine trait of the source (manually verified by reading the full chapter -- it legitimately covers fewer subtopics), not a boundary-detection error. Boundary confidence itself is unaffected."
+    },
+    "04": {
+      "startLine": 819,
+      "endLine": 1108,
+      "chars": 8445,
+      "firstSubheading": "จุดอันไร้ตัวตน",
+      "confidence": "high",
+      "shorterThan12000Chars": true,
+      "note": "Anchored on first subheading 'จุดอันไร้ตัวตน' from the TOC. NOTE: chapter is shorter than the 12,000-char sanity floor; this is a genuine trait of the source (manually verified by reading the full chapter -- it legitimately covers fewer subtopics), not a boundary-detection error. Boundary confidence itself is unaffected."
+    },
+    "05": {
+      "startLine": 1114,
+      "endLine": 1281,
+      "chars": 4614,
+      "firstSubheading": "จักรวาลเกิด",
+      "confidence": "high",
+      "shorterThan12000Chars": true,
+      "note": "Anchored on first subheading 'จักรวาลเกิด' from the TOC. NOTE: chapter is shorter than the 12,000-char sanity floor; this is a genuine trait of the source (manually verified by reading the full chapter -- it legitimately covers fewer subtopics), not a boundary-detection error. Boundary confidence itself is unaffected."
+    },
+    "06": {
+      "startLine": 1287,
+      "endLine": 1870,
+      "chars": 17814,
+      "firstSubheading": "เจ้าควาร์กเพื่อ",
+      "confidence": "high",
+      "shorterThan12000Chars": false,
+      "note": "Anchored on first subheading 'เจ้าควาร์กเพื่อ' from the TOC."
+    },
+    "07": {
+      "startLine": 1876,
+      "endLine": 2241,
+      "chars": 10846,
+      "firstSubheading": "โลกที่แ",
+      "confidence": "high",
+      "shorterThan12000Chars": true,
+      "note": "Anchored on first subheading 'โลกที่แ' from the TOC. NOTE: chapter is shorter than the 12,000-char sanity floor; this is a genuine trait of the source (manually verified by reading the full chapter -- it legitimately covers fewer subtopics), not a boundary-detection error. Boundary confidence itself is unaffected."
+    },
+    "08": {
+      "startLine": 2249,
+      "endLine": 2603,
+      "chars": 10078,
+      "firstSubheading": "สรพสิ่งไม่เคยหยุด",
+      "confidence": "high",
+      "shorterThan12000Chars": true,
+      "note": "Anchored on first subheading 'สรพสิ่งไม่เคยหยุด' from the TOC. NOTE: chapter is shorter than the 12,000-char sanity floor; this is a genuine trait of the source (manually verified by reading the full chapter -- it legitimately covers fewer subtopics), not a boundary-detection error. Boundary confidence itself is unaffected."
+    },
+    "09": {
+      "startLine": 2611,
+      "endLine": 3006,
+      "chars": 12065,
+      "firstSubheading": "สายพันธุ์ที่เปลี่ยน",
+      "confidence": "high",
+      "shorterThan12000Chars": false,
+      "note": "Anchored on first subheading 'สายพันธุ์ที่เปลี่ยน' from the TOC."
+    }
+  },
+  "word_fixes": {
+    "เซล์ -> เซลล์": 96,
+    "ธรม -> ธรรม": 48,
+    "พลังาน -> พลังงาน": 41,
+    "ระบ(?![าุบว]) -> ระบบ": 31,
+    "วิญาณ -> วิญญาณ": 27,
+    "สรพ -> สรรพ": 22,
+    "ระบวนการ -> กระบวนการ": 22,
+    "(?<!บ)อกมา -> ออกมา": 22,
+    "อกซิเจน -> ออกซิเจน": 17,
+    "ปัญา -> ปัญญา": 16,
+    "(?<!แ)กรม -> กรรม": 15,
+    "(?<!บ)อกไป -> ออกไป": 15,
+    "อกไซด์ -> ออกไซด์": 11,
+    "ต่ าง -> ต่าง": 10,
+    "อนัตา -> อนัตตา": 9,
+    "สัญา -> สัญญา": 9,
+    "ปัจัย -> ปัจจัย": 6,
+    "(?<!น)อกจาก -> ออกจาก": 6,
+    "นิพาน -> นิพพาน": 4,
+    "ก นั  -> กัน ": 4,
+    "ระเบิดอก -> ระเบิดออก": 4,
+    "อกเป็น -> ออกเป็น": 4,
+    "ดอกุหลาบ -> ดอกกุหลาบ": 3,
+    "จากัน -> จากกัน": 3,
+    "ขยายตัวอก -> ขยายตัวออก": 2,
+    "ฟิ สิกส์ -> ฟิสิกส์": 2,
+    "ปลดปล่อยอก -> ปลดปล่อยออก": 2,
+    "ก นั -> กัน": 2,
+    "ทุกคุน -> ทุกคน": 1,
+    "ก๊าซึ่ง -> ก๊าซซึ่ง": 1,
+    "หรือาจ -> หรืออาจ": 1,
+    "บ อกับ -> บอกกับ": 1,
+    "ปล่อยอก -> ปล่อยออก": 1,
+    "อกส้ม -> ออกส้ม": 1,
+    "นั้นัก -> นั้น นัก": 1,
+    "แยกตัวอก -> แยกตัวออก": 1,
+    "ไม่อก -> ไม่ออก": 1,
+    "ระเหยอก -> ระเหยออก": 1,
+    "อกำลังกาย -> ออกกำลังกาย": 1,
+    "เข้าอก -> เข้าออก": 1,
+    "เป็นิพาน -> เป็นนิพพาน": 1,
+    "แยกอก -> แยกออก": 1
+  },
+  "suspicious": [
+    "โครงสร้างประโยคที่เหลือ 'อก' คำเดี่ยว ๆ ในบริบทกำกวมบางจุดอาจยังไม่ถูกแก้ครบ (เช่น คำที่ไม่อยู่ในดิกชันนารีข้างต้น)",
+    "การขึ้นบรรทัดใหม่ของเอกสารต้นฉบับยังคงตามต้นฉบับ (ไม่ได้ reflow เป็นย่อหน้าเดียว) เพื่อความปลอดภัย",
+    "ตอนท้ายบท ๙ (โคโลฟอน/หน้าลิขสิทธิ์) ถูกตัดออก ไม่รวมอยู่ในไฟล์ใด ๆ"
+  ]
+}
