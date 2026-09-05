@@ -111,6 +111,11 @@ function normalizeBook(bookSlug) {
     }
   }
 
+  // 6. book.status อนุมานจากบท: มีบท ready อย่างน้อย 1 → "ready" (ชั้นหนังสือขึ้น "อ่านได้") ไม่งั้น "building"
+  const anyReady = chapters.some(({ ch }) => ch.status === 'ready');
+  const wantStatus = anyReady ? 'ready' : 'building';
+  if (book.status !== wantStatus) { changes.push(`book.json: status "${book.status}" → "${wantStatus}" (จากสถานะบท)`); book.status = wantStatus; }
+
   // book.sourcePdf.bytes ให้ตรงไฟล์จริงถ้ามี (Content-Length ผิด → Safari โหลด PDF ไม่จบ)
   if (book.sourcePdf?.file) {
     const pdf = join(ROOT, 'content', 'source', book.sourcePdf.file);
