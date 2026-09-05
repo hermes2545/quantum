@@ -31,28 +31,42 @@ function normalizeBook(bookSlug) {
   if (!existsSync(bookPath)) return { bookSlug, skipped: 'ไม่มี book.json' };
 
   const book = readJson(bookPath);
-  const glossaryPath = join(dir, 'glossary.json');
-  const glossary = existsSync(glossaryPath) ? readJson(glossaryPath) : [];
-  const kindOf = new Map(glossary.map((t) => [t.term, t.kind]));
-
   const chapterFiles = readdirSync(dir).filter((f) => /^ch\d{2}\.json$/.test(f)).sort();
   const unknown = new Map(); // term -> [chNN...]
   const changes = [];
 
-  for (const file of chapterFiles) {
-    const slug = basename(file, '.json');
-    const p = join(dir, file);
-    const ch = readJson(p);
+  // 0. glossary.json ตาม glossary.schema.json = { book, terms[] } — รับ array เปลือย (รูปเก่าจาก prototype) แล้วแปลง
+  const glossaryPath = join(dir, 'glossary.json');
+  let glossaryRaw = existsSync(glossaryPath) ? readJson(glossaryPath) : { book: bookSlug, terms: [] };
+  if (Array.isArray(glossaryRaw)) { changes.push(`glossary.json: array เปลือย → { book, terms }`); glossaryRaw = { book: bookSlug, terms: glossaryRaw }; }
+  const glossary = { book: bookSlug, terms: [] };
+  const byTerm = new Map(); // term -> entry (อันแรกที่พบชนะ = glossary เดิม ก่อน แล้วไล่ตามลำดับบท §9.2)
+  const addTerm = (t, src) => {
+    if (!t?.term || !t?.kind || !t?.def) return;
+    const cur = byTerm.get(t.term);
+    if (cur) { if (!cur.books.includes(bookSlug)) cur.books.push(bookSlug); return; }
+    const e = { term: t.term, kind: t.kind, alt: t.alt ?? '', def: t.def, books: Array.isArray(t.books) && t.books.length ? [...t.books] : [bookSlug] };
+    byTerm.set(t.term, e); glossary.terms.push(e);
+    if (src) changes.push(`glossary.json: + "${t.term}" (${t.kind}) จาก ${src}`);
+  };
+  for (const t of glossaryRaw.terms ?? []) addTerm(t, null);
+
+  // merge terms[] จากทุกบทตามลำดับ order (แทนขั้น finalize/terms.py เมื่อ pipeline ยังไม่ได้รัน)
+  const chapters = chapterFiles.map((file) => ({ file, slug: basename(file, '.json'), path: join(dir, file), ch: readJson(join(dir, file)) }));
+  for (const { slug, ch } of chapters) for (const t of ch.terms ?? []) addTerm(t, slug);
+  const kindOf = new Map(glossary.terms.map((t) => [t.term, t.kind]));
+  if (JSON.stringify(glossaryRaw) !== JSON.stringify(glossary)) writeJson(glossaryPath, glossary);
+
+  for (const { slug, path: p, ch } of chapters) {
     const before = JSON.stringify(ch);
 
     // 1. slug = ชื่อไฟล์
     if (ch.slug !== slug) { changes.push(`${slug}: slug "${ch.slug}" → "${slug}"`); ch.slug = slug; }
 
-    // 4. terms[] ครบ field และเติม kind ให้ lookup ได้ (terms ในบทมีสิทธิ์เหนือ glossary เพราะใหม่กว่า)
+    // 4. terms[] ในบทครบ field (subset ของ glossary)
     for (const t of ch.terms ?? []) {
       if (t.alt === undefined) t.alt = '';
       if (!Array.isArray(t.books) || !t.books.length) t.books = [bookSlug];
-      if (t.term && t.kind && !kindOf.has(t.term)) kindOf.set(t.term, t.kind);
     }
 
     // 2. เติม data-kind ให้ทุก <dfn> ในทุก string ที่มี markup
