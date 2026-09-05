@@ -1,7 +1,8 @@
 /**
  * term-sheet.js — TermSheet (§6 ตาราง Interaction/state, §D.2, §E.1 ในสัญญาระหว่างโมดูล ที่นั่นตั้งชื่อไฟล์ว่า
  * "terms.js" แต่งานนี้มอบหมายให้เขียนที่ไฟล์ชื่อ term-sheet.js — คง export ชื่อเดียวกัน (init/open/close)
- * เผื่อไฟล์อื่นถูกเขียนให้ import จากชื่อนี้)
+ * และมี web/src/js/terms.js เป็นไฟล์ re-export ชื่อตรงสัญญาให้ import ตามชื่อ §E.4/nav.js ได้จริง (แก้ตาม
+ * code review major #5 — ไฟล์ชื่อ terms.js ขาดไปทำให้ import chain ของ nav.js/app.js resolve ไม่ได้)
  *
  * พฤติกรรม: กด <dfn data-term> เปิด bottom sheet ทันทีจากข้อมูลที่ฝังอยู่ใน #page-data แล้ว (ไม่มี network)
  * ปิดด้วยปุ่ม × / กดพื้นหลัง / Esc — ปุ่ม "ถามเพิ่มเกี่ยวกับคำนี้" ปิด sheet แล้วเปิด AskPanel พร้อมส่งคำถาม

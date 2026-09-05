@@ -1,10 +1,18 @@
+# หมายเหตุ (P1): docker-compose.yml ตั้ง `build: ./proxy` — build context ของ Docker
+# คือโฟลเดอร์ ./proxy เท่านั้น ดังนั้น Docker จะมองหา .dockerignore ที่ proxy/.dockerignore
+# ไม่ใช่ไฟล์นี้ที่ root — ไฟล์นี้ "ไม่มีผล" กับ image ของ proxy ในปัจจุบัน
+# ต้องมี proxy/.dockerignore แยกต่างหาก (เนื้อหาอย่างน้อย: node_modules, .env*, test/, *.log)
+# — proxy/** เป็นของ P2 ตาม §F.1 จึงไม่แก้ในไฟล์นี้ คงไว้เผื่อ build context อื่นในอนาคต
+
 # Git
 .git
 .gitignore
 
 # Development
 .venv
+.env
 .env.local
+.env.*.local
 *.log
 node_modules
 __pycache__
@@ -16,8 +24,8 @@ docs/
 README.md
 
 # Build outputs (not needed in container, will be copied fresh)
-web/public/b/
-web/public/glossary/
+web/public/*
+!web/public/.gitkeep
 
 # Source content (will be mounted as volume)
 content/source/
@@ -37,4 +45,3 @@ Thumbs.db
 # Other
 *.pem
 *.key
-.env.*.local

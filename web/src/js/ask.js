@@ -4,7 +4,7 @@
  * บับเบิล "กำลังคิด…" เอียง เปลี่ยนเป็นตัวปกติเมื่อเริ่มมี delta / จบ stream, busy flag กันส่งซ้ำ
  */
 
-import { getPageData, readJSON, writeJSON, turnsKey, streamSSE } from './components.js';
+import { getPageData, readJSON, writeJSON, turnsKey, streamSSE, formatThousands } from './components.js';
 
 /* คำถามแนะนำเมื่ออยู่หน้าที่ไม่มีบทเฉพาะ (shelf/book/glossary) — คัดลอกจาก SUGG.home ของ prototype-artifact.html
    เนื่องจาก PageData (§D.7) มี suggestions ให้เฉพาะ page=chapter|soon เท่านั้น หน้าอื่นสัญญาระบุให้ใช้ชุดนี้ตรงๆ */
@@ -99,7 +99,7 @@ export async function send(question) {
 
   const maxLen = (pageData.limits && pageData.limits.question) || 1000;
   if (q.length > maxLen) {
-    addMsg('a', `คำถามยาวเกิน ${maxLen} ตัวอักษร`);
+    addMsg('a', `คำถามยาวเกิน ${formatThousands(maxLen)} ตัวอักษร`);
     return;
   }
 

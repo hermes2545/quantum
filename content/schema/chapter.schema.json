@@ -52,8 +52,8 @@
       "properties": {
         "module": {
           "type": "string",
-          "description": "'particles' (กลาง) หรือ '{bookSlug}/chNN' → web/src/js/interactives/{module}.js",
-          "minLength": 1
+          "description": "'particles' (กลาง) หรือ '{bookSlug}/chNN' → web/src/js/interactives/{module}.js — ห้ามเป็น path traversal เพราะถูกต่อสตริงตรงเข้า import() ฝั่ง P5",
+          "pattern": "^(particles|[a-z0-9]+(-[a-z0-9]+)*/ch[0-9]{2})$"
         },
         "position": { "type": "integer", "minimum": 1 },
         "title": { "type": "string", "minLength": 1 },

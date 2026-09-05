@@ -138,23 +138,32 @@ def _particles_config_schema() -> dict:
 
 
 def build_schema(book: dict, has_custom_module: bool) -> dict:
+    interactive_properties: dict = {
+        "module": {"type": "string"},  # บังคับค่าจริงทับใน main() เสมอ ไม่พึ่งความแม่นของโมเดล
+        "position": {"type": "integer", "minimum": 1},
+        "title": _plain_str(),
+        "intro": _plain_str(),
+    }
+    interactive_required = ["module", "position", "title", "intro"]
+
     if has_custom_module:
         # มีไฟล์ interactive เฉพาะบทอยู่แล้ว (เขียนมือโดย P5) — config เป็น shape เฉพาะที่ author.py
-        # ไม่รู้จักล่วงหน้า (ดู §E.4: "P6/P3 ใส่ค่าใน chNN.json ตามนั้น") ปล่อยเป็น object อิสระ
-        config_schema: dict = {"type": "object"}
+        # ไม่รู้จักล่วงหน้า (ดู §E.4: "P6/P3 ใส่ค่าใน chNN.json ตามนั้น") แต่ output_config.format
+        # (structured outputs) บังคับ additionalProperties:false ในทุก object เสมอ — schema {"type":
+        # "object"} แบบ free-form (ไม่มี additionalProperties:false) เป็น schema ที่ไม่ถูกต้องตาม subset
+        # ที่รองรับ และมีความเสี่ยงสูงที่ request จะได้ 400 พังทั้งก้อน (เคสนี้ไม่ใช่ edge case — เป็น path
+        # ปกติของ ch01/ch02/ch03/ch04/ch09 ตาม §11) จึงตัด "config" ออกจาก schema ไปเลยแทนการเดา shape
+        # แล้วเติมค่ากลับหลังได้ผลลัพธ์คืนมา (ดู main(): คงค่า config เดิมจากไฟล์ chNN.json ที่มีอยู่ —
+        # แบบเดียวกับที่ทำกับ module/lensLabels/phases อยู่แล้วสำหรับกรณี particles)
+        pass
     else:
-        config_schema = _particles_config_schema()
+        interactive_properties["config"] = _particles_config_schema()
+        interactive_required.append("config")
 
     interactive_schema = {
         "type": "object",
-        "properties": {
-            "module": {"type": "string"},  # บังคับค่าจริงทับใน main() เสมอ ไม่พึ่งความแม่นของโมเดล
-            "position": {"type": "integer", "minimum": 1},
-            "title": _plain_str(),
-            "intro": _plain_str(),
-            "config": config_schema,
-        },
-        "required": ["module", "position", "title", "intro", "config"],
+        "properties": interactive_properties,
+        "required": interactive_required,
         "additionalProperties": False,
     }
 
@@ -301,10 +310,26 @@ def assert_allowed_html(label: str, html: str, errors: list[str]) -> None:
         errors.append(f"{label}: พบแท็กที่ไม่อนุญาต {bad} (อนุญาตเฉพาะ <b> <i> — <dfn> เป็นหน้าที่ terms.py เท่านั้น)")
 
 
+def assert_count(label: str, actual: int, lo: int, hi: int, errors: list[str]) -> None:
+    """เช็คจำนวนรายการเอง — ไม่พึ่ง minItems/maxItems ที่ประกาศไว้ใน build_schema() เพียงอย่างเดียว
+    เพราะ numerical/complex array constraints ไม่อยู่ใน subset ที่ output_config.format (structured
+    outputs) รองรับจริง (ดู skill claude-api) SDK/API จะตัดทิ้งเงียบๆ ก่อนบังคับใช้จริงกับโมเดล"""
+    if not (lo <= actual <= hi):
+        want = f"{lo}" if lo == hi else f"{lo}-{hi}"
+        errors.append(f"{label}: จำนวนต้องอยู่ในช่วง {want} รายการ ได้ {actual} รายการ")
+
+
 def validate_output(data: dict) -> list[str]:
     errors: list[str] = []
     assert_no_tags("goal", data["goal"], errors)
     assert_no_tags("summary", data["summary"], errors)
+
+    assert_count("keyPoints", len(data["keyPoints"]), 5, 8, errors)
+    assert_count("keywords", len(data["keywords"]), 8, 15, errors)
+    assert_count("sections", len(data["sections"]), 2, 4, errors)
+    assert_count("questions", len(data["questions"]), 4, 4, errors)
+    assert_count("suggestions", len(data["suggestions"]), 3, 3, errors)
+
     for i, kp in enumerate(data["keyPoints"]):
         assert_no_tags(f"keyPoints[{i}]", kp, errors)
     for i, kw in enumerate(data["keywords"]):
@@ -316,6 +341,7 @@ def validate_output(data: dict) -> list[str]:
 
     for si, sec in enumerate(data["sections"]):
         assert_no_tags(f"sections[{si}].h2", sec["h2"], errors)
+        assert_count(f"sections[{si}].paragraphs", len(sec["paragraphs"]), 2, 5, errors)
         for pi, p in enumerate(sec["paragraphs"]):
             assert_allowed_html(f"sections[{si}].paragraphs[{pi}]", p, errors)
         for bi, b in enumerate(sec.get("bullets", [])):
@@ -342,22 +368,31 @@ def validate_output(data: dict) -> list[str]:
     for field in ("title", "intro", "prompt", "placeholder", "hint"):
         if field in ex:
             assert_no_tags(f"exercise.{field}", ex[field], errors)
+    assert_count("exercise.options", len(ex["options"]), 4, 4, errors)
     for oi, opt in enumerate(ex["options"]):
         assert_no_tags(f"exercise.options[{oi}].name", opt["name"], errors)
+        assert_count(f"exercise.options[{oi}].steps", len(opt["steps"]), 3, 3, errors)
         for si, step in enumerate(opt["steps"]):
             assert_no_tags(f"exercise.options[{oi}].steps[{si}]", step, errors)
 
-    # เช็คความยาวคร่าวๆ (§9.1 ข้อ 9: 900-1,400 คำ) — หมายเหตุ: ภาษาไทยไม่มีช่องว่างคั่นคำ การนับ "คำ"
-    # จริงต้องใช้ตัวตัดคำ (เช่น pythainlp) ซึ่งไม่ได้อยู่ใน requirements.txt ของ pipeline นี้
-    # ใช้ heuristic ประมาณจากจำนวนตัวอักษร (เฉลี่ยคำไทย ~4-5 ตัวอักษร/คำ) เป็น "คำเตือน" ไม่ใช่ error แข็ง
-    # เพราะไม่แม่นพอจะ fail ทั้งบท — คนตรวจต้องยืนยันความยาวจริงตอนอ่านทวนอยู่ดี
+    # เช็คความยาวคร่าวๆ (§9.1 ข้อ 9: 900-1,400 คำ) — ใช้ตัวตัดคำ pythainlp (ติดตั้งมาแล้วสำหรับ terms.py
+    # ดู requirements.txt) นับคำจริงถ้ามี ไม่งั้น fallback เป็นค่าประมาณจากจำนวนตัวอักษร (เฉลี่ยคำไทย
+    # ~4-5 ตัวอักษร/คำ) — ทั้งสองแบบเป็น "คำเตือน" ไม่ใช่ error แข็ง เพราะยังไม่แม่นพอจะ fail ทั้งบท
+    # คนตรวจต้องยืนยันความยาวจริงตอนอ่านทวนอยู่ดี
     body_text = "".join(
         re.sub(r"<[^>]+>", "", p) for sec in data["sections"] for p in sec["paragraphs"]
     )
-    approx_words = len(body_text) / 4.5
-    if not (700 <= approx_words <= 1700):
+    try:
+        from pythainlp.tokenize import word_tokenize
+
+        word_count = len(word_tokenize(body_text, engine="newmm", keep_whitespace=False))
+        word_count_label = f"{word_count} คำ (นับด้วยตัวตัดคำ)"
+    except ImportError:
+        word_count = len(body_text) / 4.5
+        word_count_label = f"{word_count:.0f} คำ (ประมาณจากตัวอักษร — ไม่ได้ติดตั้ง pythainlp)"
+    if not (700 <= word_count <= 1700):
         common.eprint(
-            f"คำเตือน: ความยาวเนื้อหาประมาณ {approx_words:.0f} คำ (ประมาณจากตัวอักษร) "
+            f"คำเตือน: ความยาวเนื้อหาประมาณ {word_count_label} "
             f"อยู่นอกช่วง 900-1,400 คำตาม §9.1 ข้อ 9 มาก — ควรตรวจด้วยตา (ไม่ fail อัตโนมัติเพราะเป็นค่าประมาณ)"
         )
 
@@ -368,6 +403,8 @@ def validate_output(data: dict) -> list[str]:
 # เรียก API
 # ---------------------------------------------------------------------------
 def call_model(client: Any, *, model: str, system: str, user: str, schema: dict):
+    import anthropic  # เรียกซ้ำได้ปลอดภัย (main() import ไว้ก่อนแล้ว) แค่ผูกชื่อในสโคปนี้
+
     kwargs = dict(
         model=model,
         max_tokens=16000,
@@ -385,6 +422,13 @@ def call_model(client: Any, *, model: str, system: str, user: str, schema: dict)
                 return stream.get_final_message()
         except (TypeError, AttributeError) as e:
             common.eprint(f"หมายเหตุ: SDK ไม่รองรับ server-side fallback ({e}) — เรียกแบบปกติแทน")
+        except anthropic.APIStatusError as e:
+            # เช่น server ปฏิเสธ beta flag "server-side-fallback-2026-07-01" นี้ (400) — degrade ไปเรียก
+            # แบบปกติแทนที่จะปล่อยให้พังทั้งสคริปต์ทั้งที่ path ปกติ (บรรทัดถัดไป) ยังใช้ได้อยู่
+            common.eprint(
+                f"หมายเหตุ: server ปฏิเสธ server-side fallback beta ({e.status_code}: {e.message}) — "
+                "เรียกแบบปกติแทน"
+            )
     with client.messages.stream(**kwargs) as stream:
         return stream.get_final_message()
 
@@ -503,10 +547,39 @@ def main(argv: list[str] | None = None) -> int:
         common.eprint("หมายเหตุ: ไม่พบ ANTHROPIC_API_KEY/ANTHROPIC_AUTH_TOKEN ใน env — จะพึ่ง credential อื่นที่ SDK หาเจอ (ถ้ามี)")
 
     model = os.environ.get("AUTHOR_MODEL", "claude-fable-5-1")
-    client = anthropic.Anthropic()
+    # max_retries=0 (กฎเหล็กข้อ 7 — ห้าม retry API อัตโนมัติ ค่า default ของ SDK คือ retry 2 ครั้งเอง
+    # ซึ่งขัดกฎนี้ตรงๆ สัญญาระหว่างโมดูล §B บังคับ maxRetries: 0 ให้ P2 ไว้ด้วยเหตุผลเดียวกัน)
+    client = anthropic.Anthropic(max_retries=0)
 
     common.eprint(f"เรียก {model} สำหรับ {book_slug}/{chapter_slug} ...")
-    message = call_model(client, model=model, system=system, user=user, schema=schema)
+    # ครอบด้วย except chain แบบเฉพาะเจาะจงก่อนกว้าง (ไม่ใช่ except Exception เดียวกว้างๆ) เพื่อให้ error
+    # message บอกวิธีแก้ที่ตรงจุดต่างกันตามสาเหตุจริง — เดิมโค้ดนี้ไม่มี try/except เลย ทำให้ 429/401/403/
+    # 5xx/timeout/connection error ทุกแบบโยน traceback ดิบใส่ผู้ใช้แทน (ต่างจาก error path อื่นในไฟล์นี้
+    # ที่ใช้ common.die เสมอ)
+    try:
+        message = call_model(client, model=model, system=system, user=user, schema=schema)
+    except anthropic.NotFoundError as e:
+        common.die(f"ไม่พบโมเดล '{model}' (404) — ตรวจชื่อโมเดลใน env AUTHOR_MODEL: {e.message}")
+        return 1
+    except anthropic.RateLimitError as e:
+        common.die(f"ถูก rate limit จาก API (429) — รอสักครู่แล้วลองใหม่: {e.message}")
+        return 1
+    except (anthropic.AuthenticationError, anthropic.PermissionDeniedError) as e:
+        common.die(
+            f"ยังไม่ได้ตั้งค่า key ถูกต้อง ({e.status_code}) — ตรวจ ANTHROPIC_API_KEY/ANTHROPIC_AUTH_TOKEN "
+            f"และสิทธิ์เข้าถึงโมเดล '{model}': {e.message}"
+        )
+        return 1
+    except anthropic.APITimeoutError as e:
+        # ต้องอยู่ก่อน APIConnectionError เสมอ (เป็น subclass ของมัน) มิฉะนั้น branch นี้จะไม่มีวันถูกเรียก
+        common.die(f"เรียก API หมดเวลา (timeout) — ลองใหม่อีกครั้ง: {e}")
+        return 1
+    except anthropic.APIConnectionError as e:
+        common.die(f"เชื่อมต่อ API ไม่สำเร็จ (เครือข่าย/DNS) — ตรวจอินเทอร์เน็ตแล้วลองใหม่: {e}")
+        return 1
+    except anthropic.APIStatusError as e:
+        common.die(f"API ตอบ error ({e.status_code}: {e.type}) — {e.message}")
+        return 1
 
     if message.stop_reason == "refusal":
         detail = getattr(message, "stop_details", None)
@@ -545,6 +618,10 @@ def main(argv: list[str] | None = None) -> int:
     ix = data.setdefault("interactive", {})
     if has_custom_module:
         ix["module"] = f"{book_slug}/{chapter_slug}"
+        # โมเดลไม่ได้ถูกขอให้ส่ง config มา (ตัดออกจาก schema ใน build_schema() เพราะ structured outputs
+        # ไม่รองรับ free-form object) — คงค่าเดิมจากไฟล์ chNN.json ที่มีอยู่ถ้ามี (คนตรวจอาจเคยเติมไว้แล้ว)
+        # ไม่งั้นปล่อย {} ว่างเปล่าให้คนตรวจเติมเองให้ตรงกับโมดูลจริง (ดูสัญญาระหว่างโมดูล §E.4)
+        ix["config"] = ((existing or {}).get("interactive") or {}).get("config", {})
     else:
         ix["module"] = "particles"
         cfg = ix.setdefault("config", {})
@@ -566,16 +643,39 @@ def main(argv: list[str] | None = None) -> int:
             common.eprint("  -", e)
         return 1
 
+    # สัญญาระหว่างโมดูล §G บังคับว่า "ผลต้อง validate ผ่าน jsonschema ก่อนเขียน" — เดิมโค้ดนี้แค่เตือนแล้ว
+    # เขียนไฟล์ต่อ ซึ่งขัดกับที่บังคับไว้ตรงๆ (และสำคัญกว่านั้นคือ minItems/maxItems หลายจุดที่
+    # build_schema() ประกาศไว้ไม่ถูกบังคับจริงฝั่งโมเดลผ่าน structured outputs — ดู assert_count() —
+    # chapter.schema.json + assert_count() ข้างบนจึงเป็นด่านจริงด่านเดียวที่เหลือ ต้อง fail จริงไม่ใช่แค่เตือน)
+    # ไม่ fail เมื่อ validate_against_schema คืน [] เพราะไม่มีไฟล์ schema/ไม่มี jsonschema ติดตั้ง (P6 ยัง
+    # ไม่ได้สร้าง — ค่านั้นแยกไม่ออกจาก "ผ่านจริง" ในการออกแบบปัจจุบันของ common.validate_against_schema
+    # แต่นั่นคือ degrade แบบตั้งใจสำหรับช่วงพัฒนาขนานกับ P6 ไม่ใช่บั๊กนี้)
     schema_errors = common.validate_against_schema(data, "chapter.schema.json")
     if schema_errors:
-        common.eprint("ไม่ผ่าน content/schema/chapter.schema.json (เขียนไฟล์ต่อไปเพื่อให้คนตรวจ แต่ต้องแก้):")
+        rejected_path = out_path.with_name(f"{chapter_slug}.rejected.json")
+        common.save_json(rejected_path, reorder_keys(data))
+        common.eprint(
+            f"ไม่ผ่าน content/schema/chapter.schema.json — ไม่เขียน {out_path} "
+            f'(สัญญาระหว่างโมดูล §G: "ผลต้อง validate ผ่าน jsonschema ก่อนเขียน") '
+            f"บันทึกผลดิบไว้ให้ดูที่ {rejected_path} แทน — แก้ prompt/raw text แล้วรันใหม่:"
+        )
         for e in schema_errors:
             common.eprint("  -", e)
+        return 1
 
     data = reorder_keys(data)
     common.save_json(out_path, data)
     common.eprint(f"เขียน {out_path} (status: draft — ต้องมีคนตรวจก่อนเปลี่ยนเป็น ready)")
     common.eprint(f"usage: input={message.usage.input_tokens} output={message.usage.output_tokens}")
+    if meta.get("status") != "draft":
+        # สัญญาระหว่างโมดูล §A.1: book.json.chapters[i].status ต้องเท่ากับ chNN.json.status เสมอ —
+        # ที่นี่เขียน chNN.json.status="draft" เสมอ (ห้าม mark ready อัตโนมัติ) แต่ book.json อาจยังเขียน
+        # ค่าอื่นอยู่ (เช่น "building" ถ้ายังไม่เคยแก้) เตือนให้ชัดเจนก่อนคนลืมแล้ว build.js/validate.mjs fail
+        common.eprint(
+            f'คำเตือน: book.json.chapters[i].status ของ "{chapter_slug}" ยังเป็น "{meta.get("status")}" '
+            f'— ต้องแก้เป็น "draft" ด้วยมือ (ให้ตรงกับ {chapter_slug}.json ที่เพิ่งเขียน) มิฉะนั้น build.js '
+            "จะ fail (สัญญาระหว่างโมดูล §A.1 บังคับให้สองที่นี้ตรงกันเสมอ)"
+        )
     common.eprint(f"ขั้นถัดไป: python3 -m pipeline.terms --book {book_slug}")
     return 0
 

@@ -4,7 +4,7 @@
  * ปุ่ม "ให้ผู้ช่วยช่วยดู" -> ถ้า textarea ว่างแสดงข้อความชวนเขียนโดยไม่เรียก API, ไม่งั้น stream feedback จาก /api/feedback
  */
 
-import { getPageData, streamSSE } from './components.js';
+import { getPageData, streamSSE, formatThousands } from './components.js';
 
 let pageData = null;
 let exercise = null;
@@ -65,7 +65,7 @@ async function handleFeedback(btn) {
   }
   if (text.length > maxLen) {
     out.hidden = false;
-    out.textContent = `ข้อความยาวเกิน ${maxLen} ตัวอักษร`;
+    out.textContent = `ข้อความยาวเกิน ${formatThousands(maxLen)} ตัวอักษร`;
     return;
   }
 

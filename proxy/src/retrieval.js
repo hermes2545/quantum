@@ -24,6 +24,24 @@ function buildSystemPrompt(seriesTitle) {
   return SYSTEM_PROMPT_TEMPLATE.replace('{ชื่อชุด}', seriesTitle ?? '');
 }
 
+/**
+ * ก้อน 1 ของ system prompt: system prompt §9.3 + "สารบัญทั้งชุด:" ทั้งเล่ม/ทุกบท
+ * ใช้ร่วมกันโดย /api/ask และ /api/feedback (§B.2 "system = ก้อน 1 เดียวกับ B.1 (cache ร่วมกัน)")
+ * — ต้องเป็นฟังก์ชันเดียวจุดเดียว ไม่งั้น prefix ต่างกันแม้ไบต์เดียวจะทำให้ cache_control
+ * ephemeral ของสองเส้นทางกลายเป็นคนละ cache entry (เสีย prompt caching ทุกครั้งที่กด feedback)
+ */
+function buildBlock1(index) {
+  const systemPrompt = buildSystemPrompt(index.series?.title);
+  const tocLines = ['สารบัญทั้งชุด:'];
+  for (const b of index.books ?? []) {
+    tocLines.push(`เล่ม ${b.order} ${b.title}`);
+    for (const ch of b.chapters ?? []) {
+      tocLines.push(`  บทที่ ${ch.thaiNum} ${ch.title} — ${ch.summary ?? ''}`);
+    }
+  }
+  return `${systemPrompt}\n\n${tocLines.join('\n')}`;
+}
+
 /** ตัดแท็ก HTML ออกเหลือ plain text (ใช้กับ paragraphs/bullets/callout.text ก่อนส่งเข้า context) */
 function stripHtml(html) {
   if (!html) return '';
@@ -135,6 +153,30 @@ export function validateFeedbackBody(body, index) {
   return { bookSlug, chapterSlug, option, text: trimmed };
 }
 
+/**
+ * ทำ turns ดิบให้เป็นรูปแบบที่ Anthropic Messages API รับได้เสมอ: ตัด content ว่าง (หลัง trim)
+ * ทิ้ง, รวม turn ที่ role ซ้ำติดกันเข้าด้วยกัน (Messages API บังคับ role สลับกันเป๊ะ แม้สัญญา
+ * §B.1 Validation จะไม่บังคับให้ turns ที่ client ส่งมาสลับกัน) แล้วตัดหัวจนกว่าจะเริ่มด้วย user
+ * ต้องเรียกฟังก์ชันนี้ใหม่ทุกครั้งที่ slice รายการ turns (ไม่ใช่ slice ผลลัพธ์ที่ normalize แล้ว)
+ * ไม่งั้นการตัดหัวออกอาจทำให้ตัวแรกกลายเป็น assistant อีกครั้ง (§B.1 ขั้น 4(c))
+ */
+function normalizeMessages(rawTurns) {
+  const merged = [];
+  for (const t of rawTurns ?? []) {
+    const content = typeof t?.content === 'string' ? t.content : '';
+    if (!content.trim()) continue; // content ว่างส่งให้ Anthropic ไม่ได้ (400 "text content blocks must be non-empty")
+    const role = t.role === 'assistant' ? 'assistant' : 'user';
+    const last = merged[merged.length - 1];
+    if (last && last.role === role) {
+      last.content = `${last.content}\n${content}`; // role ซ้ำติดกัน: รวมเป็น turn เดียว (ห้าม role ซ้ำติดกันส่งเข้า Anthropic)
+    } else {
+      merged.push({ role, content });
+    }
+  }
+  while (merged.length && merged[0].role !== 'user') merged.shift();
+  return merged;
+}
+
 // ===== การประกอบ context สำหรับ /api/ask (§9.4 ข้อ 1-6 / §B.1 ขั้น 1-6) =====
 
 async function findAdjacentChapters(store, book, bookSlug, currentSlug) {
@@ -186,15 +228,7 @@ export async function buildAskContext(store, { bookSlug, chapterSlug, turns }) {
   const index = await store.loadIndex();
 
   // ----- ก้อน 1: system prompt + สารบัญทั้งชุด (cache_control ephemeral) -----
-  const systemPrompt = buildSystemPrompt(index.series?.title);
-  const tocLines = ['สารบัญทั้งชุด:'];
-  for (const b of index.books ?? []) {
-    tocLines.push(`เล่ม ${b.order} ${b.title}`);
-    for (const ch of b.chapters ?? []) {
-      tocLines.push(`  บทที่ ${ch.thaiNum} ${ch.title} — ${ch.summary ?? ''}`);
-    }
-  }
-  let block1Text = `${systemPrompt}\n\n${tocLines.join('\n')}`;
+  let block1Text = buildBlock1(index);
 
   // ----- โหลดเล่ม/บทปัจจุบัน -----
   const book = bookSlug ? await store.loadBook(bookSlug) : null;
@@ -242,8 +276,7 @@ export async function buildAskContext(store, { bookSlug, chapterSlug, turns }) {
 
   // ----- messages: turns 16 รายการล่าสุด (8 คู่) ตัดหัวจนเริ่มด้วย user (§9.4 ข้อ 6 / §B.1 ขั้น 3) -----
   let recentTurns = (turns ?? []).slice(-16);
-  while (recentTurns.length && recentTurns[0].role !== 'user') recentTurns.shift();
-  let messages = recentTurns.map((t) => ({ role: t.role, content: t.content }));
+  let messages = normalizeMessages(recentTurns);
 
   // ----- เพดาน ~150,000 ตัวอักษร: ตัดตามลำดับที่สัญญากำหนด (§B.1 ขั้น 4) -----
   const totalChars = () =>
@@ -259,7 +292,8 @@ export async function buildAskContext(store, { bookSlug, chapterSlug, turns }) {
     block3Text = ''; // (b) ตัดก้อน 3 ทั้งก้อน
   }
   if (totalChars() > MAX_CONTEXT_CHARS && messages.length > 8) {
-    messages = messages.slice(-8); // (c) ลด turns เหลือ 4 คู่
+    recentTurns = recentTurns.slice(-8);
+    messages = normalizeMessages(recentTurns); // (c) ลด turns เหลือ 4 คู่ (normalize ซ้ำ กัน role ไม่สลับ/content ว่าง)
   }
   if (totalChars() > MAX_CONTEXT_CHARS && chapter?.terms?.length) {
     block2Text = renderBlock2({ ...chapter, terms: [] }); // (d) ตัด terms ในก้อน 2
@@ -284,7 +318,7 @@ export async function buildAskContext(store, { bookSlug, chapterSlug, turns }) {
 
 export async function buildFeedbackContext(store, { bookSlug, chapterSlug, option, text }) {
   const index = await store.loadIndex();
-  const systemPrompt = buildSystemPrompt(index.series?.title);
+  const block1Text = buildBlock1(index); // ก้อน 1 เดียวกับ /api/ask เป๊ะ ๆ เพื่อแชร์ prompt cache (§B.2)
   const book = await store.loadBook(bookSlug);
   const chapter = await store.loadChapter(bookSlug, chapterSlug);
   if (!chapter || !chapter.exercise) {
@@ -298,7 +332,7 @@ export async function buildFeedbackContext(store, { bookSlug, chapterSlug, optio
   const block2Text = exerciseLines.join('\n');
 
   const system = [
-    { type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } },
+    { type: 'text', text: block1Text, cache_control: { type: 'ephemeral' } },
     { type: 'text', text: block2Text },
   ];
 

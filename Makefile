@@ -21,8 +21,7 @@ up: build
 	@echo "  - Proxy (API): localhost:8787 (internal)"
 	@echo ""
 	@echo "💡 Access via Tailscale: http://<tailscale-hostname>:8080"
-	@echo ""
-	docker compose logs -f
+	@echo "💡 ดู log ต่อ: make logs"
 
 down:
 	@echo "🛑 Stopping Docker Compose..."
@@ -44,11 +43,11 @@ validate:
 	@echo "🔍 Validating all content..."
 	node content/schema/validate.mjs
 	@echo ""
-	@echo "🔍 Checking for API keys in codebase..."
-	@if grep -r "sk-ant" web/ content/ 2>/dev/null; then \
-		echo "❌ SECURITY: Found API key in code!"; exit 1; \
+	@echo "🔍 Checking for API keys leaked into web/public + content..."
+	@if grep -rnE 'sk-ant-[A-Za-z0-9_-]{8,}' web/public content/books content/schema content/index.json content/index.example.json 2>/dev/null; then \
+		echo "❌ SECURITY: Found API key in served content!"; exit 1; \
 	else \
-		echo "✓ No API keys found in code"; \
+		echo "✓ No API keys found"; \
 	fi
 	@echo ""
 	@echo "🔍 Checking for committed PDFs..."
@@ -57,18 +56,16 @@ validate:
 	else \
 		echo "✓ No PDFs in git history"; \
 	fi
-	@echo ""
-	@echo "🔍 Checking health endpoint..."
-	@echo "⏳ Wait for containers to be ready (may need to run 'make up' first)..."
-	@sleep 2
-	@if curl -sf http://localhost:8080/api/health > /dev/null 2>&1; then \
-		echo "✓ Health check passed"; \
-		curl -s http://localhost:8080/api/health | jq '.'; \
-	else \
-		echo "⚠ Health endpoint not available (may need to run 'make up' first)"; \
-	fi
 
 check: validate
+	@echo ""
+	@echo "🔍 Checking health endpoint (ต้องรัน 'make up' ให้ services พร้อมก่อน)..."
+	@if curl -sf http://localhost:8080/api/health > /dev/null 2>&1; then \
+		echo "✓ Health check passed"; \
+		curl -s http://localhost:8080/api/health; echo ""; \
+	else \
+		echo "❌ Health endpoint ไม่ตอบสนอง — รัน 'make up' ก่อนแล้วลองใหม่"; exit 1; \
+	fi
 	@echo ""
 	@echo "✅ All checks passed!"
 
@@ -91,8 +88,7 @@ pipeline:
 		echo "Usage: make pipeline STEP=author BOOK=trilaksana-quantum CH=ch03"; \
 		exit 1; \
 	fi
-	@cd pipeline && \
-	if [ "$(STEP)" = "extract" ]; then \
+	@if [ "$(STEP)" = "extract" ]; then \
 		python3 -m pipeline.extract --book $(BOOK); \
 	elif [ "$(STEP)" = "clean" ]; then \
 		python3 -m pipeline.clean --book $(BOOK); \
@@ -119,7 +115,7 @@ shell-web:
 
 clean:
 	@echo "🧹 Cleaning build outputs..."
-	rm -rf web/public/
+	@find web/public -depth -mindepth 1 ! -name '.gitkeep' -delete 2>/dev/null || true
 	rm -f content/index.json
 	@echo "✓ Cleaned"
 

@@ -11,7 +11,9 @@ Orchestrator: session หลัก (Fable 5.1) · Reviewer: Opus 5 · Implemente
 
 ## เฟส
 - [x] 0. เอกสาร: handoff-spec, prototype, book01 txt, addendum, agent-team
-- [ ] 1. โครง infra/proxy/pipeline/web/content  ← workflow `quantum-book-phase1` กำลังรัน
+- [x] 1. โครง infra/proxy/pipeline/web/content — 6 package, Opus ตรวจ 59 findings (9 blocker) → แก้ครบ → smoke test ผ่าน
+      (proxy health/traversal/maxRetries:0, Caddy SSE flush, pytest 34 passed, ไม่มี key/window.claude หลุด)
+      ตกลงธรรมเนียมตามสัญญา Fable: chapter.slug = chNN, <dfn> มี data-kind, module = particles | {book}/chNN → `content/schema/normalize.mjs`
 - [ ] 2. PDF 9 เล่ม → content/source/
 - [ ] 3. extract + clean + split ทั้ง 9 เล่ม → raw/chNN.txt   ← เล่ม 1 เสร็จ (9 บท + คำนำ, แก้คำ 467 จุด); เล่ม 2–9 รอ PDF
 - [ ] 4. author ทุกบท (agent เขียน → Opus ตรวจ → แก้) → chNN.json status ready   ← เล่ม 1 บท 1–2 จาก prototype ✓; บท 3–9 workflow `author-book1-ch03-09` กำลังรัน

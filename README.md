@@ -49,7 +49,16 @@ mkdir -p content/source
 # เช่น: content/source/1.1 E-book ไตรลักษณ์ในควอนตัม ....pdf
 ```
 
-จากนั้น อัปเดต `content/books/trilaksana-quantum/book.json` เพื่อให้ตรงกับชื่อไฟล์:
+หาขนาดไฟล์จริงเป็นไบต์ (ต้องตรงเป๊ะ ไม่งั้น `Content-Length` ของ `/api/source/*.pdf` จะผิดและ Safari บนมือถือโหลด PDF ไม่จบ):
+
+```bash
+# macOS
+stat -f%z "content/source/1.1 E-book ไตรลักษณ์ในควอนตัม ....pdf"
+# Linux
+stat -c%s "content/source/1.1 E-book ไตรลักษณ์ในควอนตัม ....pdf"
+```
+
+จากนั้น อัปเดต `content/books/trilaksana-quantum/book.json` เพื่อให้ตรงกับชื่อไฟล์และขนาดไฟล์จริง:
 
 ```json
 {
@@ -60,6 +69,8 @@ mkdir -p content/source
   }
 }
 ```
+
+(`52428800` เป็นแค่ตัวอย่าง — ใส่ตัวเลขที่ได้จากคำสั่ง `stat` ด้านบน ไม่ใช่ค่านี้)
 
 ### 4. รัน pipeline (ตัวเลือก — เฉพาะถ้าต้องการสร้างเนื้อหาบทใหม่)
 
@@ -133,17 +144,15 @@ make build          # build.js validate + render static site
 make up             # make build + docker compose up -d --build
 make down           # docker compose down
 make logs           # docker compose logs -f
-make validate       # ตรวจสอบ JSON schema ทั้งหมด
+make validate       # schema + grep API key ใน web/public,content + ตรวจ PDF ใน git
+make check          # validate + curl /api/health (ต้องรัน 'make up' ให้ services พร้อมก่อน)
 
-# Pipeline
+# Pipeline (รันจาก root repo เสมอ)
 make pipeline STEP=extract BOOK=trilaksana-quantum
 make pipeline STEP=clean BOOK=trilaksana-quantum
 make pipeline STEP=split BOOK=trilaksana-quantum
 make pipeline STEP=author BOOK=trilaksana-quantum CH=ch03
 make pipeline STEP=terms BOOK=trilaksana-quantum
-
-# Health check
-make check          # curl /api/health + grep -r "sk-ant" + ตรวจ PDF
 ```
 
 ## การประเมิน (Checklist เฟส 1)
@@ -153,11 +162,11 @@ make check          # curl /api/health + grep -r "sk-ant" + ตรวจ PDF
 - [ ] `docker compose up` รันบน Ubuntu แล้วเข้าถึงได้จากมือถือผ่าน Tailscale (iOS/Android)
 - [ ] ผ่าน mobile responsive ทั้ง 360/390/768/1280px
 - [ ] บท 1–2 ตรงกับ prototype ทั้งข้อความ, ศัพท์, interactive, exercise, questions
-- [ ] บท 3–9 ตรงตาม gฎ §9.1 ทั้ง 11 ข้อ และผ่านคนตรวจแล้ว
+- [ ] บท 3–9 ตรงตามกฎ §9.1 ทั้ง 11 ข้อ และผ่านคนตรวจแล้ว
 - [ ] ถามผู้ช่วย 10 คำถาม (จาก `.questions`) — คำตอบอ้างเล่ม/บท ไม่มี bullet ≤ 8 ประโยค
 - [ ] Rate limit ทำงาน (คำถามที่ 31 / (วัน) หรือ 6 / (นาที) ได้ 429)
 - [ ] ปิดเบราว์เซอร์ → เปิดใหม่ → เด้งไปบทล่าสุด + ✓ "อ่านจบ" ถูกต้อง
-- [ ] `grep -r "sk-ant" web/ content/` ไม่พบ (ไม่มี API key ใน code)
+- [ ] `grep -rnE 'sk-ant-[A-Za-z0-9_-]{8,}' web/public content/` ไม่พบ (ไม่มี API key หลุดในไฟล์ที่เสิร์ฟจริง)
 - [ ] `git status` ไม่มี PDF (ยังอยู่ใน content/source/ gitignored)
 - [ ] SourceFooter ปรากฏทั้ง 4 หน้า (/, /b/x, /b/x/ch, /glossary)
 - [ ] เครดิต "สิรวิชญ์ รัตน์จินดา" ปรากฏครบ 5 จุด (README + 4 หน้า)
@@ -177,7 +186,7 @@ make check          # curl /api/health + grep -r "sk-ant" + ตรวจ PDF
 
 - **ไม่บันทึก content ของคำถาม** — บันทึกเฉพาะ `timestamp, bookSlug, chapterSlug, tokens, latency` (§9.5)
 - **ไม่ส่งข้อมูลไปให้บุคคลที่สาม** — Anthropic API ตามนโยบายของพวกเขา
-- **localStorage เก็บ locally** — ความคืบหน้านอน ประวัติแชท บนเบราว์เซอร์ผู้ใช้เท่านั้น
+- **localStorage เก็บ locally** — ความคืบหน้า และประวัติแชท บนเบราว์เซอร์ผู้ใช้เท่านั้น
 - **ไม่มี cookies / session / server-side state** ในเฟส 1
 
 ## การเรียบเรียงเนื้อหา
@@ -240,7 +249,7 @@ GET /api/source/{bookSlug}.pdf
 
 ### API key ไม่ใช้ได้ (503 "ระบบยังไม่ได้ตั้งค่า")
 - ตรวจสอบ `.env` มี `ANTHROPIC_API_KEY` ไม่ว่างเปล่า
-- `docker compose logs proxy` — มี error gì?
+- `docker compose logs proxy` — มี error อะไรบ้าง?
 
 ### คำตอบผู้ช่วยไม่ขึ้น / "กำลังคิด…" ค้าง
 - ตรวจสอบ `docker compose logs proxy` มี error หรือ timeout

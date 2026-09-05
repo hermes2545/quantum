@@ -5,7 +5,7 @@
 // -> เปิด SSE -> เรียก Anthropic แบบ stream -> ส่ง delta/done/error -> log
 
 import { streamSSE } from 'hono/streaming';
-import { jsonError, logLine, mapAnthropicError, ERROR_MESSAGES } from './storage.js';
+import { jsonError, logLine, mapAnthropicError, ERROR_MESSAGES, ProxyError } from './storage.js';
 import { buildAskContext, validateAskBody } from './retrieval.js';
 import { checkRateLimit, getClientIp } from './ratelimit.js';
 
@@ -47,31 +47,34 @@ export function registerAsk(app, { store, env, client }) {
       return jsonError(c, 'no_key', 503);
     }
 
+    const { bookSlug, chapterSlug, turns } = validated;
+
+    // buildAskContext ก่อนนับ rate limit โดยตั้งใจ (ตรงกับ docstring ของ checkRateLimit ใน
+    // ratelimit.js ที่ระบุว่า "เรียกเมื่อจะยอมรับคำถามจริงเท่านั้น") — ถ้า context พังเพราะเหตุฝั่ง
+    // server (เช่น index.json อ้างถึง book/chNN.json ที่ไฟล์หายไปจริง) จะได้ไม่หักโควตาผู้ใช้ไปฟรีๆ
+    let ctx;
+    try {
+      ctx = await buildAskContext(store, { bookSlug, chapterSlug, turns });
+    } catch (err) {
+      // แยก ProxyError (ปัญหาที่ตั้งใจสื่อสารเป็น code เฉพาะ เช่น bad_request) ออกจาก error อื่น
+      // (เช่น fs อ่านไฟล์ไม่ได้) ซึ่งเป็นปัญหาฝั่ง server ล้วนๆ ไม่ใช่ bad_request ของผู้ใช้
+      if (err instanceof ProxyError) return jsonError(c, err.code, err.status);
+      return jsonError(c, 'upstream', 502);
+    }
+
     const rl = checkRateLimit(ip, { rateMin: env.RATE_MIN, rateDay: env.RATE_DAY });
     if (!rl.allowed) {
       c.header('Retry-After', String(rl.retryAfterSec));
       return jsonError(c, rl.code, 429);
     }
 
-    const { bookSlug, chapterSlug, turns } = validated;
-
-    let ctx;
-    try {
-      ctx = await buildAskContext(store, { bookSlug, chapterSlug, turns });
-    } catch (err) {
-      return jsonError(c, err.code ?? 'bad_request', err.status);
-    }
-
-    c.header('Cache-Control', 'no-store');
-    c.header('X-Accel-Buffering', 'no');
-    c.header('Connection', 'keep-alive');
-
     const startedAt = Date.now();
 
-    return streamSSE(c, async (stream) => {
+    const res = streamSSE(c, async (stream) => {
       let pingTimer;
       let abortTimer;
       const controller = new AbortController();
+      stream.onAbort(() => controller.abort()); // client ปิดพาเนล/ปิดแท็บ — เลิกเรียก Anthropic ทันที ไม่ปล่อยให้จบเองแล้วจ่ายเต็ม
       let usage = null;
       let stopReason = null;
       let logCode = null;
@@ -155,5 +158,13 @@ export function registerAsk(app, { store, env, client }) {
         });
       }
     });
+
+    // streamSSE() (hono/streaming) ตั้ง Content-Type/Cache-Control ของตัวเองทับหลังจากนี้เสมอ
+    // (c.header('Content-Type','text/event-stream') + c.header('Cache-Control','no-cache')) —
+    // ต้องแก้ header บน Response ที่ได้กลับมาโดยตรง ไม่ใช่เรียก c.header(...) ก่อนหน้า (§B.1)
+    res.headers.set('Content-Type', 'text/event-stream; charset=utf-8');
+    res.headers.set('Cache-Control', 'no-store');
+    res.headers.set('X-Accel-Buffering', 'no');
+    return res;
   });
 }

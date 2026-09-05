@@ -4,7 +4,7 @@
 // รูปแบบ SSE เดียวกับ /api/ask (§B.2) นับรวมใน rate limit เดียวกับ /api/ask
 
 import { streamSSE } from 'hono/streaming';
-import { jsonError, logLine, mapAnthropicError, ERROR_MESSAGES } from './storage.js';
+import { jsonError, logLine, mapAnthropicError, ERROR_MESSAGES, ProxyError } from './storage.js';
 import { buildFeedbackContext, validateFeedbackBody } from './retrieval.js';
 import { checkRateLimit, getClientIp } from './ratelimit.js';
 
@@ -42,31 +42,30 @@ export function registerFeedback(app, { store, env, client }) {
       return jsonError(c, 'no_key', 503);
     }
 
+    const { bookSlug, chapterSlug, option, text } = validated;
+
+    // buildFeedbackContext ก่อนนับ rate limit เหมือน ask.js (ดูเหตุผลในไฟล์นั้น)
+    let ctx;
+    try {
+      ctx = await buildFeedbackContext(store, { bookSlug, chapterSlug, option, text });
+    } catch (err) {
+      if (err instanceof ProxyError) return jsonError(c, err.code, err.status);
+      return jsonError(c, 'upstream', 502);
+    }
+
     const rl = checkRateLimit(ip, { rateMin: env.RATE_MIN, rateDay: env.RATE_DAY });
     if (!rl.allowed) {
       c.header('Retry-After', String(rl.retryAfterSec));
       return jsonError(c, rl.code, 429);
     }
 
-    const { bookSlug, chapterSlug, option, text } = validated;
-
-    let ctx;
-    try {
-      ctx = await buildFeedbackContext(store, { bookSlug, chapterSlug, option, text });
-    } catch (err) {
-      return jsonError(c, err.code ?? 'bad_request', err.status);
-    }
-
-    c.header('Cache-Control', 'no-store');
-    c.header('X-Accel-Buffering', 'no');
-    c.header('Connection', 'keep-alive');
-
     const startedAt = Date.now();
 
-    return streamSSE(c, async (stream) => {
+    const res = streamSSE(c, async (stream) => {
       let pingTimer;
       let abortTimer;
       const controller = new AbortController();
+      stream.onAbort(() => controller.abort()); // client ปิดพาเนล/ปิดแท็บ — เลิกเรียก Anthropic ทันที
       let usage = null;
       let stopReason = null;
       let logCode = null;
@@ -146,5 +145,11 @@ export function registerFeedback(app, { store, env, client }) {
         });
       }
     });
+
+    // ดูหมายเหตุเดียวกันใน ask.js — streamSSE() ทับ Content-Type/Cache-Control ของตัวเองเสมอ
+    res.headers.set('Content-Type', 'text/event-stream; charset=utf-8');
+    res.headers.set('Cache-Control', 'no-store');
+    res.headers.set('X-Accel-Buffering', 'no');
+    return res;
   });
 }

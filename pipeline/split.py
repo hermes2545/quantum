@@ -59,14 +59,28 @@ def find_heading_start(norm: str, idx_map: list[int], thai_num: str, title: str)
     return None
 
 
-def split_book(text: str, chapters: list[dict]) -> dict[str, str]:
-    """คืน dict {chapterSlug: เนื้อหาบทนั้น} — โยน SplitError ถ้าหาบทใดไม่เจอ หรือลำดับสลับกัน"""
+def split_book(
+    text: str, chapters: list[dict], overrides: dict[str, str] | None = None
+) -> dict[str, str]:
+    """คืน dict {chapterSlug: เนื้อหาบทนั้น} — โยน SplitError ถ้าหาบทใดไม่เจอ หรือลำดับสลับกัน
+
+    `overrides` (ถ้ามี — มาจาก --manual-offsets): {chapterSlug: ข้อความค้นหาหัวข้อบทแบบกำหนดเอง}
+    ใช้แทน "{thaiNum}.{title}" ของ book.json สำหรับบทนั้นๆ เมื่อ PDF จริงสะกดหัวข้อบทต่างจาก book.json
+    (เช่น "วิฒันาการ" ในเนื้อหาจริง vs. "วิวัฒนาการ" ที่ถูกต้องใน book.json) โดยไม่ต้องแก้ book.json
+    ที่ P6 เป็นเจ้าของให้สะกดผิดตาม PDF"""
     norm, idx_map = strip_ws_with_map(text)
+    overrides = overrides or {}
 
     starts: dict[str, int] = {}
     not_found: list[str] = []
     for ch in chapters:
-        pos = find_heading_start(norm, idx_map, ch["thaiNum"], ch["title"])
+        override = overrides.get(ch["slug"])
+        if override is not None:
+            key = strip_ws(override)
+            positions_found = [m.start() for m in re.finditer(re.escape(key), norm)] if key else []
+            pos = idx_map[positions_found[-1]] if positions_found else None
+        else:
+            pos = find_heading_start(norm, idx_map, ch["thaiNum"], ch["title"])
         if pos is None:
             not_found.append(f"{ch['slug']} ({ch['thaiNum']}. {ch['title']})")
         else:
@@ -76,7 +90,9 @@ def split_book(text: str, chapters: list[dict]) -> dict[str, str]:
         raise SplitError(
             "จับสารบัญไม่ได้ — หาหัวข้อบทต่อไปนี้ในข้อความไม่เจอ:\n  "
             + "\n  ".join(not_found)
-            + "\n(ตรวจว่า clean.py ทำงานถูกต้อง หรือชื่อบทใน book.json สะกดตรงกับ PDF จริงหรือไม่)"
+            + "\n(ตรวจว่า clean.py ทำงานถูกต้อง หรือชื่อบทใน book.json สะกดตรงกับ PDF จริงหรือไม่ — ถ้า PDF "
+            "สะกดต่างจาก book.json จริงๆ ใช้ --manual-offsets FILE.json โดย FILE.json เป็น "
+            '{"chNN": "ข้อความที่ปรากฏจริงใน PDF สำหรับหาบทนั้น"} เฉพาะบทที่มีปัญหา)'
         )
 
     ordered = sorted(chapters, key=lambda c: c["order"])
@@ -85,7 +101,8 @@ def split_book(text: str, chapters: list[dict]) -> dict[str, str]:
         raise SplitError(
             "ตำแหน่งหัวข้อบทที่พบไม่เรียงตามลำดับ order ใน book.json — อาจ match ผิดจุด "
             "(เช่นชื่อบทสั้นไปจนไปชนข้อความอื่น) ต้องตรวจด้วยตาแล้วอาจต้องปรับชื่อบทใน book.json "
-            "หรือใช้ --manual-offsets"
+            'หรือใช้ --manual-offsets FILE.json โดย FILE.json เป็น {"chNN": "ข้อความที่ปรากฏจริงใน PDF"} '
+            "เฉพาะบทที่มีปัญหา"
         )
 
     result: dict[str, str] = {}
@@ -106,6 +123,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--in", dest="in_path", default=None, help="ไฟล์ input (default: raw/book-cleaned.txt)"
     )
+    parser.add_argument(
+        "--manual-offsets",
+        dest="manual_offsets_path",
+        default=None,
+        help=(
+            "ไฟล์ JSON {chapterSlug: ข้อความที่ปรากฏจริงใน PDF} ใช้แทนการค้นด้วย book.json "
+            'เฉพาะบทที่ระบุ (เช่น {"ch08": "วิฒันาการ"}) สำหรับกรณี PDF สะกดหัวข้อบทต่างจาก book.json'
+        ),
+    )
     args = parser.parse_args(argv)
 
     book_slug = args.book
@@ -118,6 +144,14 @@ def main(argv: list[str] | None = None) -> int:
         if not common.CHAPTER_SLUG_RE.match(ch.get("slug", "")):
             common.die(f"chapterSlug ผิดรูปแบบใน book.json: '{ch.get('slug')}' (ต้องเป็น ch01, ch02, ...)")
 
+    overrides: dict[str, str] = {}
+    if args.manual_offsets_path:
+        overrides_path = Path(args.manual_offsets_path)
+        loaded = common.load_json(overrides_path)
+        if loaded is None:
+            common.die(f"ไม่พบไฟล์ --manual-offsets: {overrides_path}")
+        overrides = loaded
+
     in_path = Path(args.in_path) if args.in_path else common.raw_book_cleaned_txt_path(book_slug)
     if not in_path.exists():
         common.die(f"ไม่พบไฟล์ input: {in_path} (รัน clean.py --book {book_slug} ก่อน)")
@@ -125,7 +159,7 @@ def main(argv: list[str] | None = None) -> int:
     text = in_path.read_text(encoding="utf-8")
 
     try:
-        chapter_texts = split_book(text, chapters)
+        chapter_texts = split_book(text, chapters, overrides)
     except SplitError as e:
         common.die(str(e))
         return 1  # unreachable

@@ -9,14 +9,19 @@
 // แยกต่างหากแบบที่ §F.1 ร่างไว้) จึงรวม "โครงสร้างพื้นฐานที่ทุก route ใช้ร่วมกัน" (error taxonomy,
 // logging) ไว้ในไฟล์นี้ เพราะทุก route (ask/feedback/source) import storage.js อยู่แล้วเพื่อคุย
 // กับ ContentStore — เป็นจุดรวมที่สมเหตุสมผลที่สุดในข้อจำกัดของรายการไฟล์ที่ได้รับมอบหมาย
+//
+// หมายเหตุ portability (§F.2/§I.10 ความเสี่ยง): ERROR_MESSAGES/ProxyError/jsonError/mapAnthropicError/
+// logLine ไม่ผูก Node เลย แต่ ask.js/feedback.js/source.js/retrieval.js ทุกไฟล์ import ตัวเหล่านี้จากไฟล์
+// นี้ ถ้า node:fs/node:path/node:stream/node:url ถูก import แบบ static ที่หัวไฟล์ โมดูลกราฟทั้งหมดจะลาก
+// Node built-in เข้าไปด้วยแม้ไม่ได้เรียก createFsContentStore เลยก็ตาม (Cloudflare Pages Functions/Workers
+// ไม่มี node:fs) จึงย้าย Node built-in ทั้งหมดไปเป็น "import แบบ dynamic เฉพาะตอนเรียก createFsContentStore
+// จริง" แทน — ฟังก์ชัน error/logging ด้านบนจึง import ได้แม้บน runtime ที่ไม่มี Node built-in
 
-import { createReadStream } from 'node:fs';
-import { stat as fsStat, readFile } from 'node:fs/promises';
-import path from 'node:path';
-import { Readable } from 'node:stream';
-import { fileURLToPath } from 'node:url';
+// @anthropic-ai/sdk ใช้ fetch ล้วน ไม่ผูก Node built-in (ความเสี่ยงข้อ 6 ของสัญญา) จึง import
+// แบบ static ได้ตามปกติ ต่างจาก node:fs/node:path/node:stream/node:url ด้านล่าง
 import {
   APIConnectionError,
+  APIConnectionTimeoutError,
   APIError,
   APIUserAbortError,
   AuthenticationError,
@@ -24,8 +29,6 @@ import {
   PermissionDeniedError,
   RateLimitError,
 } from '@anthropic-ai/sdk';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // ===== ตารางข้อความ error ภาษาไทย (§B ของสัญญาระหว่างโมดูล / §9.5 ของ handoff-spec) =====
 // ทุก endpoint (JSON ก่อนเริ่ม stream และ SSE "event: error" ระหว่าง stream) ใช้ตารางเดียวกันนี้
@@ -67,7 +70,9 @@ export function jsonError(c, code, overrideStatus) {
  * แปลง error จากการเรียก Anthropic SDK เป็น {code, message} ตามตาราง §B
  * ลำดับการเช็ค: เฉพาะเจาะจงไปกว้าง (เหมือนที่ข้อกำหนดขอ แต่ปรับชื่อคลาสให้ตรงกับ TS SDK จริง
  * — SDK นี้ไม่มีคลาส APIStatusError แบบ Python ใช้ APIError เป็น base แทน และ
- * APIUserAbortError/APIConnectionError เป็น subclass ของ APIError จึงต้องเช็คก่อน APIError เสมอ)
+ * APIUserAbortError/APIConnectionError เป็น subclass ของ APIError จึงต้องเช็คก่อน APIError เสมอ
+ * — APIConnectionTimeoutError เป็น subclass ของ APIConnectionError จึงต้องเช็คก่อนตัวนั้นด้วย
+ * มิฉะนั้นการหมดเวลาจริง (client ตั้ง timeout: 60000) จะถูกจัดเป็น 'upstream' แทน 'timeout')
  */
 export function mapAnthropicError(err) {
   if (err instanceof NotFoundError) return { code: 'upstream', message: ERROR_MESSAGES.upstream.message };
@@ -75,6 +80,7 @@ export function mapAnthropicError(err) {
   if (err instanceof PermissionDeniedError) return { code: 'no_key', message: ERROR_MESSAGES.no_key.message };
   if (err instanceof RateLimitError) return { code: 'upstream', message: ERROR_MESSAGES.upstream.message };
   if (err instanceof APIUserAbortError) return { code: 'timeout', message: ERROR_MESSAGES.timeout.message };
+  if (err instanceof APIConnectionTimeoutError) return { code: 'timeout', message: ERROR_MESSAGES.timeout.message };
   if (err instanceof APIConnectionError) return { code: 'upstream', message: ERROR_MESSAGES.upstream.message };
   if (err instanceof APIError) return { code: 'upstream', message: ERROR_MESSAGES.upstream.message };
   return { code: 'upstream', message: ERROR_MESSAGES.upstream.message };
@@ -98,23 +104,59 @@ export function logLine(fields) {
 // (เช่นตอนพัฒนาขนานกับทีมอื่น) — ผลลัพธ์สุดท้ายเหมือนกันคือไม่มีการ hot-reload หลังโหลดสำเร็จ
 
 export function createFsContentStore({ contentDir, sourceDir } = {}) {
-  const CONTENT_DIR = contentDir
-    ? path.resolve(contentDir)
-    : path.resolve(__dirname, '..', '..', 'content');
-  const SOURCE_DIR = sourceDir ? path.resolve(sourceDir) : path.join(CONTENT_DIR, 'source');
+  // import Node built-in แบบ dynamic ที่นี่ (ไม่ใช่หัวไฟล์) — เพื่อให้ ERROR_MESSAGES/ProxyError/
+  // jsonError/mapAnthropicError/logLine ที่ export จากไฟล์นี้ยัง import ได้บน runtime ที่ไม่มี
+  // node:fs/node:path/node:stream/node:url (เช่น Cloudflare Workers) ตราบใดที่ไม่มีใครเรียก
+  // createFsContentStore() จริง ๆ (ดูหมายเหตุ portability ด้านบนสุดของไฟล์)
+  let fsModPromise;
+  let fsPromisesModPromise;
+  let pathModPromise;
+  let streamModPromise;
+  let urlModPromise;
+  const nodeMods = async () => {
+    fsModPromise ??= import('node:fs');
+    fsPromisesModPromise ??= import('node:fs/promises');
+    pathModPromise ??= import('node:path');
+    streamModPromise ??= import('node:stream');
+    urlModPromise ??= import('node:url');
+    const [fsMod, fsPromisesMod, pathMod, streamMod, urlMod] = await Promise.all([
+      fsModPromise,
+      fsPromisesModPromise,
+      pathModPromise,
+      streamModPromise,
+      urlModPromise,
+    ]);
+    return { fsMod, fsPromisesMod, pathMod, streamMod, urlMod };
+  };
+
+  // resolve CONTENT_DIR/SOURCE_DIR แบบ lazy ตั้งแต่เรียกครั้งแรก (ไม่ใช่ตอนสร้าง store) ด้วยเหตุผลเดียวกัน
+  let dirsPromise;
+  async function resolveDirs() {
+    if (dirsPromise) return dirsPromise;
+    dirsPromise = (async () => {
+      const { pathMod, urlMod } = await nodeMods();
+      const dirname = pathMod.dirname(urlMod.fileURLToPath(import.meta.url));
+      const CONTENT_DIR = contentDir ? pathMod.resolve(contentDir) : pathMod.resolve(dirname, '..', '..', 'content');
+      const SOURCE_DIR = sourceDir ? pathMod.resolve(sourceDir) : pathMod.join(CONTENT_DIR, 'source');
+      return { CONTENT_DIR, SOURCE_DIR, pathMod };
+    })();
+    return dirsPromise;
+  }
 
   const indexCache = { value: null };
   const bookCache = new Map(); // bookSlug -> Book
   const chapterCache = new Map(); // "bookSlug/chapterSlug" -> Chapter | null (null = ไม่มีไฟล์)
 
   async function readJsonFile(filePath) {
-    const raw = await readFile(filePath, 'utf8');
+    const { fsPromisesMod } = await nodeMods();
+    const raw = await fsPromisesMod.readFile(filePath, 'utf8');
     return JSON.parse(raw);
   }
 
   async function loadIndex() {
     if (indexCache.value) return indexCache.value;
-    const filePath = path.join(CONTENT_DIR, 'index.json');
+    const { CONTENT_DIR, pathMod } = await resolveDirs();
+    const filePath = pathMod.join(CONTENT_DIR, 'index.json');
     const data = await readJsonFile(filePath); // โยน error ถ้าไฟล์ยังไม่มี/parse ไม่ได้ — ผู้เรียกจัดการเอง
     indexCache.value = data;
     return data;
@@ -122,7 +164,8 @@ export function createFsContentStore({ contentDir, sourceDir } = {}) {
 
   async function loadBook(bookSlug) {
     if (bookCache.has(bookSlug)) return bookCache.get(bookSlug);
-    const filePath = path.join(CONTENT_DIR, 'books', bookSlug, 'book.json');
+    const { CONTENT_DIR, pathMod } = await resolveDirs();
+    const filePath = pathMod.join(CONTENT_DIR, 'books', bookSlug, 'book.json');
     const data = await readJsonFile(filePath);
     bookCache.set(bookSlug, data);
     return data;
@@ -131,7 +174,8 @@ export function createFsContentStore({ contentDir, sourceDir } = {}) {
   async function loadChapter(bookSlug, chapterSlug) {
     const key = `${bookSlug}/${chapterSlug}`;
     if (chapterCache.has(key)) return chapterCache.get(key);
-    const filePath = path.join(CONTENT_DIR, 'books', bookSlug, `${chapterSlug}.json`);
+    const { CONTENT_DIR, pathMod } = await resolveDirs();
+    const filePath = pathMod.join(CONTENT_DIR, 'books', bookSlug, `${chapterSlug}.json`);
     try {
       const data = await readJsonFile(filePath);
       chapterCache.set(key, data);
@@ -151,18 +195,23 @@ export function createFsContentStore({ contentDir, sourceDir } = {}) {
     // ป้องกัน path traversal อีกชั้น แม้ข้อมูลจาก index.json ควรผ่าน schema มาแล้วก็ตาม
     if (file.includes('/') || file.includes('\\') || file.startsWith('.')) return null;
 
-    const fullPath = path.join(SOURCE_DIR, file);
+    const { SOURCE_DIR, pathMod } = await resolveDirs();
+    const { fsMod, fsPromisesMod, streamMod } = await nodeMods();
+    const fullPath = pathMod.join(SOURCE_DIR, file);
     let stats;
     try {
-      stats = await fsStat(fullPath);
+      stats = await fsPromisesMod.stat(fullPath);
     } catch {
       return null;
     }
     // ใช้ขนาดไฟล์จริงจาก fs เสมอ ไม่ใช่ book.json.sourcePdf.bytes ที่อาจพิมพ์ผิด (ความเสี่ยงข้อ 15)
-    const nodeStream = createReadStream(fullPath);
-    const webStream = Readable.toWeb(nodeStream);
+    const nodeStream = fsMod.createReadStream(fullPath);
+    const webStream = streamMod.Readable.toWeb(nodeStream);
     return { stream: webStream, bytes: stats.size, filename: file };
   }
 
-  return { loadIndex, loadBook, loadChapter, openSource, CONTENT_DIR, SOURCE_DIR };
+  // หมายเหตุ: §F.2 ระบุ shape เดิมคืน CONTENT_DIR/SOURCE_DIR แบบ sync แต่ตอนนี้ค่าทั้งสอง resolve
+  // แบบ async เท่านั้น (lazy import node:path/node:url ด้านบน) และไม่มี route ใดอ่านสองฟิลด์นี้จริง
+  // (grep ยืนยันแล้ว) จึงตัดออกแทนที่จะคง property ที่คืนค่า undefined เสมอไว้ให้สับสน
+  return { loadIndex, loadBook, loadChapter, openSource };
 }

@@ -2,11 +2,12 @@
  * components.js — ยูทิลิตี้กลางที่ใช้ร่วมกันในไฟล์ที่แพ็กเกจนี้ (web-js) เป็นเจ้าของ
  * (term-sheet.js, ask.js, exercise.js, progress.js, source-footer.js, interactives/particles.js)
  *
- * หมายเหตุการตัดสินใจ: สัญญาระหว่างโมดูล §E.1 อธิบาย tokens.js / store.js / pagedata.js / sse.js / canvas.js
- * เป็นไฟล์แยกที่ "P5" เป็นเจ้าของ แต่รายการไฟล์ที่มอบหมายให้ในงานนี้ระบุเฉพาะ 7 ไฟล์ (ไม่รวมไฟล์ข้างต้น)
- * เพื่อไม่ให้โมดูลของฉันพังเมื่อไฟล์เหล่านั้นยังไม่มี/ถูกสร้างคนละเวลาโดยทีมคู่ขนาน จึงรวมฟังก์ชันที่จำเป็น
- * (คงชื่อ/ลายเซ็นตรงตามสัญญา §E.1 ทุกจุด) ไว้ในไฟล์นี้แทน ไฟล์อื่นนอกเจ้าของก็ import จากที่นี่ได้ตามสบาย
- * เพราะเป็นแค่การอ่าน ไม่ใช่การแก้ไฟล์ที่ไม่ใช่ของตัวเอง
+ * หมายเหตุ (แก้ตาม code review): สัญญาระหว่างโมดูล §E.1 ตั้งชื่อไฟล์ tokens.js / store.js / pagedata.js /
+ * sse.js / canvas.js / terms.js ไว้ตายตัว — ห้ามเบี่ยง เนื้อจริงของฟังก์ชันเหล่านี้ยังคงรวมไว้ที่ไฟล์นี้
+ * (คงชื่อ/ลายเซ็นตรงตามสัญญาทุกจุด) แต่ตอนนี้มีไฟล์ชื่อตรงสัญญาแยกอยู่แล้วที่ re-export จากที่นี่
+ * (web/src/js/tokens.js, store.js, pagedata.js, sse.js, canvas.js, terms.js) เพื่อให้ import ตามชื่อสัญญา
+ * เป๊ะๆ resolve ได้จริง — ดูไฟล์เหล่านั้นสำหรับรายละเอียด ไฟล์อื่นนอกเจ้าของยัง import จาก components.js
+ * ตรงๆ ได้เหมือนเดิมเพราะเป็นแค่การอ่าน ไม่ใช่การแก้ไฟล์ที่ไม่ใช่ของตัวเอง
  */
 
 /* ============================================================ */
@@ -79,6 +80,12 @@ export function writeJSON(key, value) {
 /* ตัวช่วย HTML: escape ข้อความ / กรองแท็กที่อนุญาต                 */
 /* ============================================================ */
 
+/** ใส่คอมมาคั่นหลักพัน — ใช้ประกอบข้อความ "…ยาวเกิน 1,000/2,000 ตัวอักษร" ให้ตรงตาม §J ทุกตัวอักษร
+ *  (ไม่ใช้ Number.toLocaleString เพราะพฤติกรรมของตัวคั่นหลักพันต่างกันไปตาม locale ของเบราว์เซอร์ผู้ใช้) */
+export function formatThousands(n) {
+  return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
 export function escapeHtml(s) {
   return String(s === null || s === undefined ? '' : s)
     .replace(/&/g, '&amp;')
@@ -95,10 +102,26 @@ export function escapeHtml(s) {
  */
 export function sanitizeInlineHtml(html, allowedTags) {
   const allowed = new Set((allowedTags || ['b']).map((t) => String(t).toLowerCase()));
-  const tmp = document.createElement('div');
-  tmp.innerHTML = String(html === null || html === undefined ? '' : html);
-  stripDisallowed(tmp, allowed);
-  return tmp.innerHTML;
+  const src = String(html === null || html === undefined ? '' : html);
+  // parse ใน <template> แทน <div> ปกติ — template.content เป็นเอกสาร inert (ไม่ผูกกับ document หลัก)
+  // ดังนั้น element อย่าง <img>/<video>/<object> ที่หลุดเข้ามาจะไม่เริ่มโหลด resource หรือรัน handler ใดๆ
+  // ก่อนถูก strip ทิ้ง (document.createElement('div') + innerHTML แบบเดิมไม่ inert — element ถูก parse
+  // เข้าสู่ document ที่มีชีวิตทันที ทำให้ onerror/onload ของ <img src=x onerror=...> ยิงได้จริงแบบ async
+  // แม้จะ strip ออกไปแล้วก็ตาม) ถ้าเบราว์เซอร์ไม่รองรับ <template> (ไม่มีเคสนี้ใน target ของสัญญา แต่กันพลาด)
+  // จะ fallback ไปใช้ div เดิม
+  const tmp = document.createElement('template');
+  if ('content' in tmp) {
+    tmp.innerHTML = src;
+    stripDisallowed(tmp.content, allowed);
+    const out = document.createElement('div');
+    out.appendChild(tmp.content.cloneNode(true)); // fragment ไม่ใช่ element เดี่ยว จึงไม่ห่อ tag เกินมา
+    return out.innerHTML;
+  }
+  // fallback: เบราว์เซอร์ไม่รองรับ <template>.content (ไม่ควรเกิดกับ target ตามสัญญา แต่กันพลาดไว้)
+  const div = document.createElement('div');
+  div.innerHTML = src;
+  stripDisallowed(div, allowed);
+  return div.innerHTML;
 }
 
 function stripDisallowed(node, allowed) {
@@ -124,6 +147,35 @@ function stripDisallowed(node, allowed) {
 /* ============================================================ */
 /* sse.js equivalent — ถอด stream ตามรูปแบบ §B.1 ที่ proxy นิยามเอง  */
 /* ============================================================ */
+
+/**
+ * statusFallback(status, res) — ข้อความไทย/code ดีฟอลต์ตาม HTTP status เมื่อ body ไม่ใช่ JSON ที่ parse ได้
+ * (เช่น Caddy คืน error page ของตัวเอง) ยึดตาราง error code ของสัญญาระหว่างโมดูล §B ตรงๆ ไม่ใช่เดา "upstream"
+ * ทุกกรณีเหมือนเดิม — สำคัญโดยเฉพาะ 429 ที่ผู้ใช้ต้องรู้ว่าโดนจำกัดจริง ไม่ใช่แค่ "ตอบไม่ได้ในตอนนี้"
+ */
+function statusFallback(status, res) {
+  if (status === 429) {
+    // แยกนาที/วันจาก Retry-After ถ้ามี (วินาทีน้อย ≈ ติดโควตานาที; มากถึงเที่ยงคืน ≈ ติดโควตาวัน) —
+    // เป็นการตีความโดยตั้งใจตามความเสี่ยงข้อ 7 ของสัญญา เมื่อ proxy ไม่ได้ส่ง JSON body มาให้แยกตรงๆ
+    let retryAfter = NaN;
+    try {
+      retryAfter = parseInt(res.headers.get('Retry-After'), 10);
+    } catch (_e) {
+      retryAfter = NaN;
+    }
+    if (!isNaN(retryAfter) && retryAfter <= 90) {
+      return { code: 'rate_limited_minute', message: 'ถามถี่ไปนิด รอสักครู่แล้วลองใหม่' };
+    }
+    return { code: 'rate_limited_day', message: 'วันนี้ถามครบโควตาแล้ว พรุ่งนี้ถามต่อได้' };
+  }
+  if (status === 503) return { code: 'no_key', message: 'ระบบยังไม่ได้ตั้งค่า key' };
+  if (status === 504) return { code: 'timeout', message: 'ตอบไม่ได้ในตอนนี้ ลองใหม่อีกครั้ง' };
+  if (status === 502) return { code: 'upstream', message: 'ตอบไม่ได้ในตอนนี้ ลองใหม่อีกครั้ง' };
+  if (status === 400) return { code: 'bad_request', message: 'คำถามไม่ถูกต้อง ลองพิมพ์ใหม่อีกครั้ง' };
+  if (status === 404) return { code: 'not_found', message: 'ไม่พบไฟล์ต้นฉบับของเล่มนี้' };
+  if (status === 403) return { code: 'disabled', message: 'ยังไม่เปิดให้ดาวน์โหลดต้นฉบับ' };
+  return { code: 'upstream', message: 'ตอบไม่ได้ในตอนนี้ ลองใหม่อีกครั้ง' };
+}
 
 export class AskError extends Error {
   constructor(code, message, status) {
@@ -157,8 +209,9 @@ export async function streamSSE(url, body, handlers) {
   }
 
   if (!res.ok) {
-    let code = 'upstream';
-    let message = 'ตอบไม่ได้ในตอนนี้ ลองใหม่อีกครั้ง';
+    const fallback = statusFallback(res.status, res);
+    let code = fallback.code;
+    let message = fallback.message;
     try {
       const j = await res.json();
       if (j && j.error) {
@@ -166,7 +219,8 @@ export async function streamSSE(url, body, handlers) {
         message = j.error.message || message;
       }
     } catch (_e) {
-      // parse JSON ไม่ได้ ใช้ fallback ตามตาราง error §B ของสัญญาระหว่างโมดูล
+      // parse JSON ไม่ได้ (เช่น proxy/Caddy ตอบ HTML หรือ body ว่าง) — ใช้ fallback ตาม HTTP status
+      // ที่คำนวณไว้แล้วข้างบน ตามตาราง error code ↔ status ของสัญญาระหว่างโมดูล §B แทนการเหมาเป็น "upstream" เสมอ
     }
     throw new AskError(code, message, res.status);
   }

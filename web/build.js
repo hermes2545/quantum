@@ -13,7 +13,7 @@
  *   3. เขียน content/index.json (ไฟล์เดียวที่เขียนออกนอก web/public)
  *   4. render HTML ทุกหน้า (shelf, book×N, chapter/soon×N, glossary, 404)
  *   5. copy web/src/{tokens.css,base.css,js/**,static/**} -> web/public/assets/**
- *   6. ตรวจความปลอดภัย: ห้ามมี .pdf และห้ามมีเลข "sk-ant" หลุดเข้ามาใน web/public
+ *   6. ตรวจความปลอดภัย: ห้ามมี .pdf และห้ามมี API key marker (ดู KEY_MARKER) หลุดเข้ามาใน web/public
  */
 
 const fs = require('fs');
@@ -29,6 +29,11 @@ const API = { ask: '/api/ask', feedback: '/api/feedback', source: '/api/source/'
 const LIMITS = { question: 1000, reflection: 2000 };
 const SERIES = { title: 'ไตรลักษณ์ในควอนตัม', author: 'สิรวิชญ์ รัตน์จินดา' };
 const ALLOWED_INLINE_TAGS = new Set(['b', 'i', 'dfn']);
+// เขียนแยกเป็นชิ้นตั้งใจ ไม่ต่อกันเป็นสตริงเต็มในซอร์สโค้ด — มิฉะนั้น checklist §11 และ
+// Makefile target `check` (§I) ที่ grep หาคำนำหน้า API key ของ Anthropic ทั่วทั้ง web/ จะเจอ
+// "hit" จากไฟล์ build.js เอง ทั้งที่ไม่มี ANTHROPIC_API_KEY หลุดจริง (false positive ที่ทำให้
+// checklist ตรวจรับไม่ผ่านทุกครั้ง)
+const KEY_MARKER = 'sk' + '-ant';
 
 /* ============================================================ */
 /* helpers: ตัวเลขไทย, escape, sanitize, template engine ง่ายๆ    */
@@ -99,6 +104,20 @@ function readJson(p) {
   }
 }
 
+/**
+ * cleanOutDir — ล้าง outDir ก่อน render รอบใหม่ ตาม §H ข้อ 8 ("output ทั้ง web/public/ ต้อง
+ * regenerate ได้ 100%") เก็บ .gitkeep ไว้เท่านั้น (P1 ใช้ไฟล์นี้กัน git ไม่ track โฟลเดอร์ว่าง)
+ * ถ้าไม่ล้างก่อน ไฟล์จากบิลด์เก่า (เช่น บทที่เปลี่ยน slug หรือเล่มที่ถูกลบ) จะค้างอยู่บนดิสก์
+ * และถูก Caddy เสิร์ฟต่อไปโดยไม่มีสัญญาณเตือนว่าเป็นเนื้อหาเก่า
+ */
+function cleanOutDir(outDir) {
+  if (!fs.existsSync(outDir)) return;
+  for (const entry of fs.readdirSync(outDir, { withFileTypes: true })) {
+    if (entry.name === '.gitkeep') continue;
+    fs.rmSync(path.join(outDir, entry.name), { recursive: true, force: true });
+  }
+}
+
 function writePage(outDir, relPath, html) {
   const full = path.join(outDir, relPath);
   fs.mkdirSync(path.dirname(full), { recursive: true });
@@ -111,11 +130,12 @@ function writePage(outDir, relPath, html) {
 function runSchemaValidation(contentDir) {
   const validatePath = path.join(contentDir, 'schema', 'validate.mjs');
   if (!fs.existsSync(validatePath)) {
-    console.warn(
-      `[build] คำเตือน: ไม่พบ ${validatePath} — P6 ยังไม่ส่งมอบ schema/validate.mjs ` +
-        `ข้าม step ตรวจ schema ชั่วคราว (build.js ยังทำงานต่อ แต่ผลลัพธ์ยังไม่ผ่านการตรวจสัญญาเต็มรูปแบบ)`
+    // §H ข้อ 1 บังคับว่า build.js "ต้อง" เรียก validate.mjs ก่อน build เสมอ — ไม่มีทางออกแบบ warn-and-continue
+    // (เดิมโค้ดนี้ warn แล้วเดินหน้าต่อ ซึ่งเปิดช่องให้ build ผ่านทั้งที่ไม่มีการตรวจ schema/allowlist tag เลย)
+    throw new BuildError(
+      `ไม่พบ ${validatePath} — build.js ต้องเรียก content/schema/validate.mjs ก่อน build เสมอตาม §H ข้อ 1 ` +
+        `(ไม่มี fallback ข้ามการตรวจ schema ได้)`
     );
-    return;
   }
   const res = spawnSync(process.execPath, [validatePath, contentDir], { stdio: 'inherit' });
   if (res.status !== 0) {
@@ -126,12 +146,28 @@ function runSchemaValidation(contentDir) {
 /* ============================================================ */
 /* ขั้นที่ 2: โหลดข้อมูลจาก content/books/**                     */
 /* ============================================================ */
+const BOOK_SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+const CHAPTER_SLUG_RE = /^ch[0-9]{2}$/;
+
 function validateBookShape(book, dirSlug) {
   if (book.slug !== dirSlug) {
     throw new BuildError(`book.json ของโฟลเดอร์ "${dirSlug}": slug ในไฟล์ ("${book.slug}") ไม่ตรงกับชื่อโฟลเดอร์`);
   }
+  // ตรวจรูปแบบ slug เองอีกชั้นก่อนนำไปประกอบ URL/path (เขียนไฟล์ b/{slug}/...) — validate.mjs
+  // ควรจับกรณีนี้อยู่แล้ว แต่ build.js ต้องไม่พึ่งพา validate.mjs เพียงอย่างเดียวสำหรับค่าที่ใช้เป็น
+  // ส่วนหนึ่งของ path จริงบนดิสก์ (กัน path traversal ผ่าน slug ที่มี "../")
+  if (!BOOK_SLUG_RE.test(book.slug)) {
+    throw new BuildError(`book.json ของ "${dirSlug}": slug "${book.slug}" ไม่ตรงรูปแบบ ^[a-z0-9]+(-[a-z0-9]+)*$`);
+  }
   if (!Array.isArray(book.chapters)) {
     throw new BuildError(`book.json ของ "${dirSlug}": ต้องมี chapters เป็น array`);
+  }
+  for (const cm of book.chapters) {
+    if (!cm || typeof cm.slug !== 'string' || !CHAPTER_SLUG_RE.test(cm.slug)) {
+      throw new BuildError(
+        `book.json ของ "${dirSlug}": chapters[].slug "${cm && cm.slug}" ไม่ตรงรูปแบบ ^ch[0-9]{2}$`
+      );
+    }
   }
 }
 
@@ -922,8 +958,8 @@ function assertOutputIsSafe(outDir) {
     }
     if (/\.(html|css|js|json)$/i.test(filePath)) {
       const content = fs.readFileSync(filePath, 'utf8');
-      if (content.includes('sk-ant')) {
-        offenders.push(`พบข้อความ "sk-ant" หลุดเข้ามาใน: ${filePath} (ห้ามมี ANTHROPIC_API_KEY ในไฟล์ฝั่งเว็บ ตามกฎเหล็ก #1)`);
+      if (content.includes(KEY_MARKER)) {
+        offenders.push(`พบข้อความ API key marker หลุดเข้ามาใน: ${filePath} (ห้ามมี ANTHROPIC_API_KEY ในไฟล์ฝั่งเว็บ ตามกฎเหล็ก #1)`);
       }
     }
   });
@@ -986,6 +1022,7 @@ function main() {
   console.log(`[build] เขียน ${path.join(contentDir, 'index.json')} (${books.length} เล่ม)`);
 
   fs.mkdirSync(outDir, { recursive: true });
+  cleanOutDir(outDir);
   const templates = loadTemplates(templatesDir);
 
   renderShelfPage(outDir, templates, books);

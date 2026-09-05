@@ -16,14 +16,37 @@ import { registerAsk } from './ask.js';
 import { registerFeedback } from './feedback.js';
 import { registerSource } from './source.js';
 
+/**
+ * Number(...) ธรรมดาไม่พอ: .env ที่พิมพ์ผิด (comment ต่อท้ายบรรทัด, ค่าว่าง, ใส่หน่วยเช่น "30/day")
+ * จะได้ NaN เงียบๆ ซึ่งทำให้เงื่อนไข ">= NaN" ใน ratelimit.js เป็น false เสมอ = ปิด rate limit
+ * ทั้งระบบโดยไม่มีใครรู้ (ความเสี่ยงด้านค่าใช้จ่าย §9.5) — ใช้ตัวช่วยนี้ตรวจแล้ว fallback + เตือน log แทน
+ */
+function positiveIntEnv(name, fallback) {
+  const raw = process.env[name];
+  if (raw === undefined || raw === '') return fallback;
+  const n = Number.parseInt(raw, 10);
+  if (!Number.isFinite(n) || n <= 0) {
+    console.log(JSON.stringify({ ts: new Date().toISOString(), msg: 'env ผิดรูป ใช้ค่า default แทน', name, raw, fallback }));
+    return fallback;
+  }
+  return n;
+}
+
+const ASK_EFFORT_VALUES = new Set(['low', 'medium', 'high']);
+
 function readEnv() {
+  const askEffortRaw = process.env.ASK_EFFORT || 'medium';
+  const askEffort = ASK_EFFORT_VALUES.has(askEffortRaw) ? askEffortRaw : 'medium';
+  if (askEffort !== askEffortRaw) {
+    console.log(JSON.stringify({ ts: new Date().toISOString(), msg: 'ASK_EFFORT ผิดค่า ใช้ medium แทน', raw: askEffortRaw }));
+  }
   return {
     ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || '',
     MODEL: process.env.MODEL || 'claude-opus-5',
-    PORT: Number(process.env.PORT || 8787),
-    RATE_DAY: Number(process.env.RATE_DAY || 30),
-    RATE_MIN: Number(process.env.RATE_MIN || 5),
-    ASK_EFFORT: process.env.ASK_EFFORT || 'medium', // low|medium|high — §11 กฎเหล็ก: effort อยู่ใน output_config เท่านั้น
+    PORT: positiveIntEnv('PORT', 8787),
+    RATE_DAY: positiveIntEnv('RATE_DAY', 30),
+    RATE_MIN: positiveIntEnv('RATE_MIN', 5),
+    ASK_EFFORT: askEffort, // low|medium|high — §11 กฎเหล็ก: effort อยู่ใน output_config เท่านั้น
     SERVE_SOURCE_PDF: process.env.SERVE_SOURCE_PDF ?? 'true',
     CONTENT_DIR: process.env.CONTENT_DIR || undefined, // undefined = ให้ storage.js ใช้ default ของมันเอง
     SOURCE_DIR: process.env.SOURCE_DIR || undefined,

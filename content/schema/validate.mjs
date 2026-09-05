@@ -10,10 +10,15 @@
 //   - content/books/{bookSlug}/chNN.json      ตาม chapter.schema.json (ทุกบทที่ระบุใน book.json.chapters)
 //   - content/index.json / content/index.example.json (ถ้ามี) ตาม index.schema.json
 // รวมกฎ cross-file ที่ JSON Schema เดี่ยวๆ ตรวจเองไม่ได้ (§H ข้อ 1 ของ build.js):
-//   1. book.json.chapters[i].status ต้องเท่ากับ chNN.json.status เสมอ
-//   2. dfn ทุกตัวใน chNN.json ต้องอ้างถึง term ที่มีอยู่จริงใน glossary.json ของเล่มนั้น
+//   1. book.json.chapters[i].status/title/sub/thaiNum/order ต้องเท่ากับ chNN.json เสมอ
+//   2. dfn ทุกตัวใน chNN.json ต้องอ้างถึง term ที่มีอยู่จริงใน glossary.json ของเล่มนั้น และ data-kind ต้องตรงกับ kind ของ term นั้น
 //   3. glossary.json ห้ามมี term ซ้ำภายในไฟล์เดียวกัน
+//   4. ทุกไฟล์ chNN.json บนดิสก์ต้องถูกอ้างถึงใน book.json.chapters[] (กันไฟล์กำพร้าหลุดรอด)
+//   5. interactive.position ห้ามเกินจำนวน sections, bulletsAfter ห้ามเกินจำนวน paragraphs
+//   6. ทุก string ใต้ interactive.config ห้ามมีแท็ก HTML นอกเหนือจาก <b> (กัน XSS ผ่าน config ที่ P5 ต่อเป็น innerHTML)
+//   7. sourcePdf (ถ้ามี) — เตือนถ้าไฟล์ไม่มีใน content/source/ (error ถ้าใช้ --strict-source), error ถ้ามีไฟล์แต่ bytes ไม่ตรงขนาดจริง
 // exit code 1 เมื่อพบข้อผิดพลาดอย่างน้อย 1 จุด, exit 0 เมื่อผ่านหมด
+// JSON ที่อ่านไม่ขึ้น (syntax error) ไม่ทำให้สคริปต์ตายกลางคัน — รายงานเป็น error ของไฟล์นั้นแล้วตรวจไฟล์อื่นต่อ
 //
 // หมายเหตุการออกแบบ (P6 ตัดสินใจเอง เพราะสัญญาไม่ได้ลงรายละเอียดวิธีสร้าง validator):
 // ไม่ใช้ไลบรารี JSON-Schema สำเร็จรูป (เช่น ajv) เพราะ build.js/pipeline ในสัญญาระบุชัดว่า
@@ -38,6 +43,17 @@ function readJson(path) {
 
 function loadSchema(name) {
   return readJson(join(SCHEMA_DIR, name));
+}
+
+// เหมือน readJson แต่ไม่โยน exception ออกไปทั้งโปรแกรม — ไฟล์ JSON พังหนึ่งไฟล์ (เช่น
+// author.py เขียนค้าง) ต้องไม่ทำให้ไฟล์อื่นที่เหลือไม่ถูกตรวจในรอบเดียวกัน
+function tryReadJson(path, label, errors) {
+  try {
+    return readJson(path);
+  } catch (err) {
+    errors.push(`${label}: JSON ไม่ถูกต้อง — ${err.message}`);
+    return null;
+  }
 }
 
 // ---------- JSON Schema evaluator (subset draft 2020-12) ----------
@@ -203,10 +219,43 @@ function collectDfnUsages(chapter) {
   return usages;
 }
 
+// interactive.config (§E.4) ถูกส่งตรงเข้า P5 แล้ว render บางฟิลด์ (เช่น particles.lenses,
+// zoom.levels[].q) เป็น innerHTML — ต้องกันแท็กอันตราย (<img onerror>, <script>, …) ตรงนี้
+// เพราะ chapter.schema.json ตรวจแค่ว่า config เป็น object เฉยๆ อนุญาตแคบกว่า InnerHtml ปกติ
+// คือมีแค่ <b>/</b> (§E.4: "lenses = inner HTML ของ readout (อนุญาต <b> เท่านั้น)")
+const CONFIG_INNER_HTML_RE = /^(?:[^<]|<\/?b>)*$/;
+
+function collectConfigStrings(value, path, out) {
+  if (typeof value === "string") {
+    out.push([path, value]);
+  } else if (Array.isArray(value)) {
+    value.forEach((v, i) => collectConfigStrings(v, `${path}[${i}]`, out));
+  } else if (value !== null && typeof value === "object") {
+    for (const [k, v] of Object.entries(value)) collectConfigStrings(v, `${path}.${k}`, out);
+  }
+}
+
+function checkInteractiveConfig(chapter, label, errors) {
+  if (!chapter.interactive || typeof chapter.interactive.config !== "object" || chapter.interactive.config === null) {
+    return;
+  }
+  const strings = [];
+  collectConfigStrings(chapter.interactive.config, "interactive.config", strings);
+  for (const [path, str] of strings) {
+    if (!CONFIG_INNER_HTML_RE.test(str)) {
+      const preview = str.length > 120 ? str.slice(0, 120) + "…" : str;
+      errors.push(`${label}: ${path} มีแท็ก HTML ที่ไม่อนุญาต (อนุญาตเฉพาะ <b>) ค่า: ${JSON.stringify(preview)}`);
+    }
+  }
+}
+
 // ---------- main ----------
 
 function main() {
-  const contentDir = resolve(process.argv[2] || "content");
+  const args = process.argv.slice(2);
+  const strictSource = args.includes("--strict-source");
+  const positional = args.find((a) => !a.startsWith("--"));
+  const contentDir = resolve(positional || "content");
   const errors = [];
   let filesChecked = 0;
 
@@ -236,39 +285,64 @@ function main() {
         continue;
       }
       filesChecked++;
-      const book = readJson(bookJsonPath);
-      for (const e of validateAgainst(book, schemas.book, `books/${bookSlug}/book.json`)) errors.push(e);
+      const bookLabel = `books/${bookSlug}/book.json`;
+      const book = tryReadJson(bookJsonPath, bookLabel, errors);
+      if (book === null) continue;
+      for (const e of validateAgainst(book, schemas.book, bookLabel)) errors.push(e);
       if (book.slug !== bookSlug) {
-        errors.push(`books/${bookSlug}/book.json: book.slug ("${book.slug}") ไม่ตรงกับชื่อโฟลเดอร์ "${bookSlug}"`);
+        errors.push(`${bookLabel}: book.slug ("${book.slug}") ไม่ตรงกับชื่อโฟลเดอร์ "${bookSlug}"`);
+      }
+
+      // sourcePdf (optional) — ไฟล์จริงต้องมีอยู่และขนาดต้องตรง bytes ที่ประกาศไว้ (A-01, ความเสี่ยง #15)
+      if (book.sourcePdf && typeof book.sourcePdf.file === "string") {
+        const srcPath = join(contentDir, "source", book.sourcePdf.file);
+        if (!existsSync(srcPath)) {
+          const msg = `${bookLabel}: sourcePdf.file "${book.sourcePdf.file}" ไม่พบใน content/source/`;
+          if (strictSource) errors.push(`${msg} (--strict-source)`);
+          else console.warn(`คำเตือน: ${msg} — ข้ามการตรวจขนาดไฟล์ (ใช้ --strict-source เพื่อบังคับเป็น error)`);
+        } else {
+          const actualBytes = statSync(srcPath).size;
+          if (actualBytes !== book.sourcePdf.bytes) {
+            errors.push(
+              `${bookLabel}: sourcePdf.bytes (${book.sourcePdf.bytes}) ไม่ตรงกับขนาดไฟล์จริง content/source/${book.sourcePdf.file} (${actualBytes} bytes) — proxy ต้องใช้ขนาดจริงจาก stat ไม่ใช่ค่านี้ แต่ค่านี้ก็ควรตรงเพื่อไม่ให้ SourceFooter แสดงขนาดผิด`
+            );
+          }
+        }
       }
 
       // glossary.json (optional แต่ถ้ามีต้อง valid + ห้าม term ซ้ำ)
       const glossaryPath = join(bookDir, "glossary.json");
-      let glossaryTerms = new Set();
+      let glossaryTerms = new Map(); // term -> kind
       if (existsSync(glossaryPath)) {
         filesChecked++;
-        const glossary = readJson(glossaryPath);
-        for (const e of validateAgainst(glossary, schemas.glossary, `books/${bookSlug}/glossary.json`)) errors.push(e);
-        const seen = new Set();
-        for (const t of glossary.terms || []) {
-          if (seen.has(t.term)) {
-            errors.push(`books/${bookSlug}/glossary.json: term ซ้ำ "${t.term}"`);
+        const glossaryLabel = `books/${bookSlug}/glossary.json`;
+        const glossary = tryReadJson(glossaryPath, glossaryLabel, errors);
+        if (glossary !== null) {
+          for (const e of validateAgainst(glossary, schemas.glossary, glossaryLabel)) errors.push(e);
+          const seen = new Set();
+          for (const t of glossary.terms || []) {
+            if (seen.has(t.term)) {
+              errors.push(`${glossaryLabel}: term ซ้ำ "${t.term}"`);
+            }
+            seen.add(t.term);
+            glossaryTerms.set(t.term, t.kind);
           }
-          seen.add(t.term);
-          glossaryTerms.add(t.term);
         }
       }
 
       // chNN.json ทุกบทที่ระบุใน book.json.chapters — ต้องมีไฟล์เสมอแม้ status เป็น building (§A.2)
+      const referencedSlugs = new Set();
       for (const meta of book.chapters || []) {
+        referencedSlugs.add(meta.slug);
         const chPath = join(bookDir, `${meta.slug}.json`);
         if (!existsSync(chPath)) {
           errors.push(`books/${bookSlug}/${meta.slug}.json: ไม่พบไฟล์ (ทุกบทต้องมี chNN.json แม้ status เป็น building)`);
           continue;
         }
         filesChecked++;
-        const chapter = readJson(chPath);
         const label = `books/${bookSlug}/${meta.slug}.json`;
+        const chapter = tryReadJson(chPath, label, errors);
+        if (chapter === null) continue;
         for (const e of validateAgainst(chapter, schemas.chapter, label)) errors.push(e);
 
         if (chapter.status !== meta.status) {
@@ -279,16 +353,63 @@ function main() {
         if (chapter.slug !== meta.slug) {
           errors.push(`${label}: chapter.slug ("${chapter.slug}") ไม่ตรงกับชื่อไฟล์/ChapterMeta.slug ("${meta.slug}")`);
         }
-        // ความสอดคล้องที่ไม่ได้บังคับโดยสัญญาโดยตรง (แค่ status/slug) — เตือนไว้เฉยๆ ไม่นับเป็น error
-        if (chapter.title !== meta.title) {
-          console.warn(`คำเตือน: ${label}: title ไม่ตรงกับ book.json.chapters[].title ("${chapter.title}" vs "${meta.title}")`);
+        // title/sub/thaiNum/order ต้องตรงกันด้วย ไม่ใช่แค่ status/slug — mismatch จริงเคยหลุดผ่านตอนเป็นแค่ warn
+        // (rail/mobnav/mapgrid render จาก book.json แต่หัวบทจริง render จาก chNN.json — ถ้าไม่ตรงคนละข้อความจะโผล่คู่กัน)
+        for (const field of ["title", "sub", "thaiNum", "order"]) {
+          if (chapter[field] !== meta[field]) {
+            errors.push(
+              `${label}: ${field} ("${chapter[field]}") ไม่ตรงกับ book.json.chapters[].${field} ("${meta[field]}") — ต้องเท่ากันเสมอ`
+            );
+          }
         }
 
-        // dfn ทุกตัวต้องอ้างถึง term ที่มีจริงใน glossary.json ของเล่มนี้
+        // interactive.position ห้ามเกินจำนวน sections ที่มีจริง มิฉะนั้น UniverseWindow หายไปเงียบๆ ตอน render
+        if (chapter.interactive && Array.isArray(chapter.sections)) {
+          if (chapter.interactive.position > chapter.sections.length) {
+            errors.push(
+              `${label}: interactive.position (${chapter.interactive.position}) เกินจำนวน sections (${chapter.sections.length})`
+            );
+          }
+        }
+        // bulletsAfter ห้ามเกินจำนวน paragraphs ของ section เดียวกัน
+        if (Array.isArray(chapter.sections)) {
+          chapter.sections.forEach((section, i) => {
+            if (
+              section.bulletsAfter !== undefined &&
+              Array.isArray(section.paragraphs) &&
+              section.bulletsAfter > section.paragraphs.length
+            ) {
+              errors.push(
+                `${label}: sections[${i}].bulletsAfter (${section.bulletsAfter}) เกินจำนวน paragraphs (${section.paragraphs.length})`
+              );
+            }
+          });
+        }
+
+        // ทุก string ใต้ interactive.config ห้ามมีแท็ก HTML นอกเหนือจาก <b> (กัน XSS — ความเสี่ยง #11/#4)
+        checkInteractiveConfig(chapter, label, errors);
+
+        // dfn ทุกตัวต้องอ้างถึง term ที่มีจริงใน glossary.json ของเล่มนี้ และ data-kind ต้องตรงกับ kind ของ term นั้น
         for (const usage of collectDfnUsages(chapter)) {
           if (!glossaryTerms.has(usage.term)) {
             errors.push(`${label}: <dfn data-term="${usage.term}"> ไม่พบคำนี้ใน books/${bookSlug}/glossary.json`);
+          } else if (glossaryTerms.get(usage.term) !== usage.kind) {
+            errors.push(
+              `${label}: <dfn data-term="${usage.term}" data-kind="${usage.kind}"> ไม่ตรงกับ kind ("${glossaryTerms.get(usage.term)}") ของคำนี้ใน glossary.json`
+            );
           }
+        }
+      }
+
+      // ไฟล์ chNN.json ที่มีอยู่บนดิสก์แต่ไม่ถูกอ้างถึงใน book.json.chapters[] จะไม่ถูกตรวจ/รายงานเลย
+      // ถ้าไม่สแกนหาแบบนี้ — กันไฟล์เสีย/ไฟล์เก่าหลุดรอดจน build ไปเจอทีหลัง
+      for (const fileName of readdirSync(bookDir)) {
+        if (!/^ch[0-9]{2}\.json$/.test(fileName)) continue;
+        const slug = fileName.replace(/\.json$/, "");
+        if (!referencedSlugs.has(slug)) {
+          errors.push(
+            `books/${bookSlug}/${fileName}: มีไฟล์อยู่บนดิสก์แต่ไม่ถูกอ้างถึงใน book.json.chapters[] (ไฟล์กำพร้าที่ไม่ถูกตรวจ)`
+          );
         }
       }
     }
@@ -299,8 +420,10 @@ function main() {
     const indexPath = join(contentDir, indexName);
     if (existsSync(indexPath)) {
       filesChecked++;
-      const index = readJson(indexPath);
-      for (const e of validateAgainst(index, schemas.index, indexName)) errors.push(e);
+      const index = tryReadJson(indexPath, indexName, errors);
+      if (index !== null) {
+        for (const e of validateAgainst(index, schemas.index, indexName)) errors.push(e);
+      }
     }
   }
 

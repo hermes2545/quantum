@@ -12,7 +12,10 @@
 		encode gzip
 
 		# Routing: ให้ URL จริง /b/x/ch01 (ไม่มี slash ท้าย) ไปชี้ที่ไฟล์ index.html
-		try_files {path} {path}/index.html {path}.html =404
+		# โดยไม่ redirect ไปเป็น /b/x/ch01/ — ต้องเช็ค {path}/index.html ก่อน {path}
+		# เพราะ /b/x/ch01 เป็นไดเรกทอรีจริง ถ้าเอา {path} ขึ้นก่อน file_server จะ
+		# canonical-redirect (301) ไปมี trailing slash ทันที ขัด §0/§I
+		try_files {path}/index.html {path}.html {path} =404
 
 		# Serve ไฟล์จากดิสก์
 		file_server
@@ -23,8 +26,11 @@
 		}
 		header @assets Cache-Control "public, max-age=3600"
 
-		# HTML: ไม่ cache ให้ดึงใหม่ทุกครั้ง
-		header Cache-Control "no-cache"
+		# HTML: ไม่ cache ให้ดึงใหม่ทุกครั้ง (ต้องไม่ทับกฎ cache ของ /assets/* ด้านบน)
+		@html {
+			not path /assets/*
+		}
+		header @html Cache-Control "no-cache"
 	}
 
 	# 404 handling

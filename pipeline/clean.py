@@ -136,16 +136,40 @@ def fix_known_words(text: str, compiled: list[tuple[str, re.Pattern]]) -> tuple[
 
 # ---------------------------------------------------------------------------
 # pass 3 — ลบบรรทัดเลขหน้าเดี่ยว
+#
+# เดิม PAGE_NUMBER_LINE_RE ลบทุกบรรทัดที่มีแต่ตัวเลข โดยไม่ดูบริบทเลย — ตรวจกับเนื้อหาจริงของเล่มนี้แล้ว
+# พบว่าเลขหน้าจริงทุกจุด (100+ จุด ตรวจนับแล้ว) เป็นเลขอารบิกที่เพิ่มทีละ 1 ตลอดเล่ม และ "ล้อมด้วยบรรทัด
+# ว่างเปล่าทั้งสองด้านเสมอ" (รูปแบบ '\n\nNN\n\n' — หน้าเป็นหน่วยที่แยกจากเนื้อหาด้วยช่องว่างชัดเจนตอน PDF
+# ตัดหน้า) ต่างจากตัวเลขที่เป็นส่วนหนึ่งของเนื้อหาจริง เช่นเลขยกกำลังทางวิทยาศาสตร์ที่ font bug ตัดขึ้น
+# บรรทัดใหม่กลางประโยค: "...แสงสีในช่วงความถี่คลื่น แม่เหล็กไฟ้า\n๑๔\n๑๐ เฮิรตซ์..." (คือ 10^14 Hz) ซึ่งไม่มี
+# บรรทัดว่างคั่นเลย — เดิมโค้ดนี้ลบ "๑๔" ทิ้งเหมือนเป็นเลขหน้า ทำให้ตัวเลขวิทยาศาสตร์เพี้ยนไป 14 ออร์เดอร์
+# แล้วข้อความที่เพี้ยนถูกส่งเข้า author.py ต่อเป็นแหล่งข้อเท็จจริง (ขัด §9.1 ข้อ 6: ตัวเลขวิทยาศาสตร์ต้อง
+# ถูกต้อง) — ตอนนี้จึงลบเฉพาะบรรทัดที่ล้อมด้วยบรรทัดว่างทั้งสองด้านเท่านั้น บรรทัดเลขเดี่ยวที่ "ไม่" ล้อมด้วย
+# บรรทัดว่างจะไม่ถูกลบอัตโนมัติ แต่ถูกเก็บเป็นรายการ "น่าสงสัย" ให้คนตรวจดูแทน (เขียนลง clean-report.txt)
 # ---------------------------------------------------------------------------
-def remove_page_number_lines(lines: list[str]) -> tuple[list[str], int]:
-    out = []
+def remove_page_number_lines(lines: list[str]) -> tuple[list[str], int, list[str], list[str]]:
+    """คืน (lines ใหม่, จำนวนที่ลบ, รายการบรรทัดที่ลบ (มีบริบท), รายการบรรทัดน่าสงสัยที่ไม่ได้ลบ)"""
+    out: list[str] = []
     removed = 0
-    for line in lines:
-        if line.strip() and PAGE_NUMBER_LINE_RE.match(line.strip()):
-            removed += 1
-            continue
+    removed_context: list[str] = []
+    suspicious: list[str] = []
+    n = len(lines)
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        if stripped and PAGE_NUMBER_LINE_RE.match(stripped):
+            prev_blank = i == 0 or lines[i - 1].strip() == ""
+            next_blank = i == n - 1 or lines[i + 1].strip() == ""
+            if prev_blank and next_blank:
+                removed += 1
+                removed_context.append(f"บรรทัด {i + 1}: {stripped!r}")
+                continue
+            suspicious.append(
+                f"บรรทัด {i + 1}: {stripped!r} (ไม่ได้ลบ — ไม่มีบรรทัดว่างล้อมทั้งสองด้าน อาจเป็นตัวเลขที่"
+                "เป็นส่วนหนึ่งของเนื้อหาจริง เช่น เลขยกกำลังทางวิทยาศาสตร์ที่ตัดขึ้นบรรทัดใหม่ ไม่ใช่เลขหน้า "
+                "— ตรวจด้วยตาแล้วลบมือถ้าใช่เลขหน้าจริง)"
+            )
         out.append(line)
-    return out, removed
+    return out, removed, removed_context, suspicious
 
 
 # ---------------------------------------------------------------------------
@@ -188,7 +212,7 @@ def clean_text(raw_text: str, words: list[str] | None = None) -> tuple[str, dict
     text, replaced_artifacts = REPLACEMENT_ARTIFACT_RE.subn("", text)
 
     lines = text.split("\n")
-    lines, removed_pagenum = remove_page_number_lines(lines)
+    lines, removed_pagenum, removed_pagenum_lines, suspicious_pagenum = remove_page_number_lines(lines)
     text = "\n".join(lines)
 
     text = DUP_RE.sub(r"\1", text)
@@ -210,6 +234,8 @@ def clean_text(raw_text: str, words: list[str] | None = None) -> tuple[str, dict
         "lines_merged_combining_mark": merged_count,
         "replacement_char_artifacts_removed": replaced_artifacts,
         "page_number_lines_removed": removed_pagenum,
+        "page_number_lines_removed_detail": removed_pagenum_lines,
+        "suspicious_page_number_lines": suspicious_pagenum,
         "dictionary_word_fixes": word_fix_counts,
         "remaining_ufffd_count": remaining_ufffd,
         "suspicious_lines": suspicious,
@@ -225,7 +251,7 @@ def format_report(report: dict, book_slug: str) -> str:
         f"จำนวนตัวอักษรหลังทำความสะอาด: {report['char_count_after']:,}",
         f"บรรทัดที่ถูกรวมกลับ (สระ/วรรณยุกต์ลอยขึ้นต้นบรรทัด): {report['lines_merged_combining_mark']}",
         f"ร่องรอย \\ufffd ที่ลบออก (พร้อมสระลอยตามหลัง): {report['replacement_char_artifacts_removed']}",
-        f"บรรทัดเลขหน้าเดี่ยวที่ลบออก: {report['page_number_lines_removed']}",
+        f"บรรทัดเลขหน้าเดี่ยวที่ลบออก (ล้อมด้วยบรรทัดว่างทั้งสองด้าน): {report['page_number_lines_removed']}",
         f"\\ufffd ที่เหลือค้างหลังทำความสะอาด (ควรเป็น 0): {report['remaining_ufffd_count']}",
         "",
         "คำใน dictionary ที่ถูกแก้กลับ (คำ: จำนวนครั้ง) — ต้องตรวจว่าแก้ถูกจุดจริง:",
@@ -235,6 +261,24 @@ def format_report(report: dict, book_slug: str) -> str:
             lines.append(f"  {word}: {n}")
     else:
         lines.append("  (ไม่มี)")
+
+    lines.append("")
+    lines.append("บรรทัดเลขหน้าที่ถูกลบจริง (ตรวจว่าเป็นเลขหน้าจริง ไม่ใช่ตัวเลขในเนื้อหา):")
+    if report["page_number_lines_removed_detail"]:
+        lines.extend(f"  {s}" for s in report["page_number_lines_removed_detail"])
+    else:
+        lines.append("  (ไม่มี)")
+
+    lines.append("")
+    lines.append(
+        "บรรทัดเลขเดี่ยวที่ 'ไม่ได้' ลบ (ไม่มีบรรทัดว่างล้อมทั้งสองด้าน — อาจเป็นเลขหน้าที่ควรลบด้วยมือ "
+        "หรือเป็นตัวเลขในเนื้อหาจริง เช่น เลขยกกำลังทางวิทยาศาสตร์ที่ font bug ตัดขึ้นบรรทัดใหม่กลางประโยค "
+        "ต้องตรวจด้วยตาทุกจุด — ห้ามลบทิ้งถ้าไม่แน่ใจ เพราะจะทำให้ตัวเลขวิทยาศาสตร์ผิดเพี้ยนถ้าลบผิด):"
+    )
+    if report["suspicious_page_number_lines"]:
+        lines.extend(f"  {s}" for s in report["suspicious_page_number_lines"])
+    else:
+        lines.append("  (ไม่พบ)")
 
     lines.append("")
     lines.append(

@@ -134,24 +134,59 @@ class TestReplacementCharCleanup(unittest.TestCase):
 
 
 class TestPageNumberRemoval(unittest.TestCase):
-    def test_removes_lone_arabic_and_thai_digit_lines(self):
-        lines = ["เนื้อหาบรรทัดแรก", "42", "เนื้อหาต่อ", "๘๘", "จบ"]
-        out, removed = clean.remove_page_number_lines(lines)
-        self.assertEqual(out, ["เนื้อหาบรรทัดแรก", "เนื้อหาต่อ", "จบ"])
+    """กรณีจริงที่ reviewer เจอ: content/books/trilaksana-quantum/raw/book01-cleaned.txt มีบรรทัด
+    '๑๔' เดี่ยวๆ กลางประโยค (ไม่มีบรรทัดว่างล้อม) ที่จริงคือเลขยกกำลัง 10^14 Hz ("...แสง\n๑๔\n๑๐ เฮิรตซ์...")
+    ไม่ใช่เลขหน้า — ตรวจนับเลขหน้าจริงทั้งเล่ม (100+ จุด) พบว่าล้อมด้วยบรรทัดว่างทั้งสองด้านเสมอ
+    ('\\n\\nNN\\n\\n') จึงใช้เป็นเกณฑ์แยกแทนการลบทุกบรรทัดที่มีแต่ตัวเลข"""
+
+    def test_removes_lone_digit_lines_padded_by_blank_lines(self):
+        # รูปแบบเลขหน้าจริงตามที่ตรวจสอบกับเนื้อหาจริง: บรรทัดว่างคั่นทั้งก่อนและหลัง
+        lines = ["เนื้อหาบรรทัดแรก", "", "42", "", "เนื้อหาต่อ", "", "๘๘", "", "จบ"]
+        out, removed, removed_detail, suspicious = clean.remove_page_number_lines(lines)
+        self.assertEqual(out, ["เนื้อหาบรรทัดแรก", "", "", "เนื้อหาต่อ", "", "", "จบ"])
         self.assertEqual(removed, 2)
+        self.assertEqual(len(removed_detail), 2)
+        self.assertEqual(suspicious, [])
 
     def test_does_not_remove_content_lines_with_numbers_inside(self):
         lines = ["ตัวเลข 42 อยู่กลางประโยค"]
-        out, removed = clean.remove_page_number_lines(lines)
+        out, removed, removed_detail, suspicious = clean.remove_page_number_lines(lines)
         self.assertEqual(out, lines)
         self.assertEqual(removed, 0)
+        self.assertEqual(removed_detail, [])
+        self.assertEqual(suspicious, [])
+
+    def test_does_not_remove_lone_digit_line_without_blank_padding(self):
+        # เคสจริงที่พบ: "๑๔" (เลขยกกำลังของ 10^14 Hz) อยู่กลางประโยค ไม่มีบรรทัดว่างล้อมเลย — ต้องไม่ถูกลบ
+        # (ต่างจากพฤติกรรมเดิมที่ลบทุกบรรทัดตัวเลขเดี่ยวไม่ว่าบริบทใด ทำให้ตัวเลขวิทยาศาสตร์เพี้ยน)
+        lines = [
+            "เรามองเห็นแสงสีในช่วงความถี่คลื่นแม่เหล็กไฟ้า",
+            "๑๔",
+            "๑๐ เฮิรตซ์ ความยาวคลื่นแม่เหล็กไฟ้าที่ต่าง",
+        ]
+        out, removed, removed_detail, suspicious = clean.remove_page_number_lines(lines)
+        self.assertEqual(out, lines)  # ไม่แตะเลย
+        self.assertEqual(removed, 0)
+        self.assertEqual(removed_detail, [])
+        self.assertEqual(len(suspicious), 1)
+        self.assertIn("๑๔", suspicious[0])
+
+    def test_line_at_start_or_end_of_file_treated_as_blank_boundary(self):
+        # บรรทัดแรก/สุดท้ายของไฟล์ไม่มี "บรรทัดก่อนหน้า/ถัดไป" จริง — นับเป็นขอบว่างได้ (ไม่ควร crash
+        # และควรลบได้ถ้าอีกด้านเป็นบรรทัดว่างจริง)
+        lines = ["7", "", "เนื้อหา"]
+        out, removed, removed_detail, suspicious = clean.remove_page_number_lines(lines)
+        self.assertEqual(out, ["", "เนื้อหา"])
+        self.assertEqual(removed, 1)
 
 
 class TestCleanTextEndToEnd(unittest.TestCase):
     def test_full_pipeline_on_synthetic_corrupted_text(self):
         raw = (
             "๑. ควาามลัับ\n"
-            "๑\n"  # บรรทัดเลขหน้าเดี่ยว ต้องถูกลบ
+            "\n"
+            "๑\n"  # บรรทัดเลขหน้าเดี่ยว ล้อมด้วยบรรทัดว่างทั้งสองด้าน — ต้องถูกลบ
+            "\n"
             "เนื้อหาเรื่องปัญาและธรมในบทนี้ พูดถึงกรมและเซล์ด้วย\n"
             "สังขารกับขันธ์ไม่ได้ถูกแตะต้องเพราะไม่มีตัวซ้อน\n"
         )
@@ -162,9 +197,22 @@ class TestCleanTextEndToEnd(unittest.TestCase):
         self.assertIn("เซลล์", cleaned)
         self.assertIn("สังขาร", cleaned)
         self.assertIn("ขันธ์", cleaned)
-        self.assertNotIn("๑\n", cleaned.split("เนื้อหา")[0][-3:])
+        self.assertNotIn("๑\n\n", cleaned)
         self.assertEqual(report["page_number_lines_removed"], 1)
         self.assertGreaterEqual(report["dictionary_word_fixes"].get("ปัญญา", 0), 1)
+
+    def test_preserves_scientific_exponent_split_mid_sentence(self):
+        # เคสจริงจาก content/books/trilaksana-quantum/raw/book01-cleaned.txt: "๑๔" (เลขยกกำลังของ
+        # 10^14 Hz) อยู่กลางประโยค ไม่มีบรรทัดว่างล้อม ต้อง "ไม่" ถูกลบเหมือนเลขหน้า (ต่างจากพฤติกรรมเดิม)
+        raw = (
+            "เรามองเห็นแสงสีในช่วงความถี่คลื่นแม่เหล็กไฟ้า\n"
+            "๑๔\n"
+            "๑๐ เฮิรตซ์ ความยาวคลื่นแม่เหล็กไฟ้าที่ต่างกันทำให้เกิดสีสัน\n"
+        )
+        cleaned, report = clean.clean_text(raw)
+        self.assertIn("๑๔", cleaned)
+        self.assertEqual(report["page_number_lines_removed"], 0)
+        self.assertEqual(len(report["suspicious_page_number_lines"]), 1)
 
 
 if __name__ == "__main__":

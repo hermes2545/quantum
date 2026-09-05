@@ -12,22 +12,24 @@ pipeline/terms.py — รวม glossary ทุกบทของเล่ม + 
 กฎ auto-link (§9.2):
   - ห่อเฉพาะการปรากฏ "ครั้งแรกของศัพท์ในแต่ละ section" ด้วย <dfn data-term="…" data-kind="…">
   - จับคู่แบบ longest-match ก่อน (ขันธ์ ๕ ก่อน ขันธ์) — แก้ด้วยลำดับ pattern เอง (ดู build_master_pattern)
-  - ห้ามห่อคำที่อยู่ในคำอื่น (สติ ใน สติปัญญา) — หมายเหตุสำคัญ: สัญญาระหว่างโมดูลเขียนว่า "เช็คตัวอักษรไทย
-    หน้า/หลังต้องไม่ใช่ตัวอักษรไทย" แต่กฎนี้ใช้ไม่ได้จริงกับภาษาไทยที่ไม่มีช่องว่างระหว่างคำ (ตัวอักษรก่อน/
-    หลังคำเกือบทุกคำในเนื้อหาจริงเป็นภาษาไทยอยู่แล้ว เช็คแบบนี้ตรงๆ จะบล็อกการจับคู่แทบทั้งหมด) — ที่นี่จึง
-    ตีความและทำ 2 ชั้นแทน: (1) กันตัดกลาง "กลุ่มอักขระเดียวกัน" ด้วยการเช็คสระ/วรรณยุกต์ลอยที่ขอบ (ถูกต้อง
-    และทดสอบได้จริง) (2) กันคำสั้นไปแอบในคำยาวที่ไม่ได้เป็นศัพท์เอง ด้วยรายการ exclusions ที่แก้ไขมือได้
-    (pipeline/fixtures/term_exclusions.json) เพราะขอบเขตคำไทยทั่วไปต้องใช้ตัวตัดคำ/พจนานุกรมซึ่งไม่ได้อยู่
-    ใน dependency ของ pipeline นี้ — ดูรายละเอียดที่ wrap_first_occurrence()
-  - ไม่ห่อภายใน quote (quote.text/source — ไม่แตะพุทธพจน์เอง), หัวข้อ (h2, callout.label, ฯลฯ),
-    และ readout ของ interactive (interactive.title/intro/config)
+  - ห้ามห่อคำที่อยู่ในคำอื่น (สติ ใน สติปัญญา) — สัญญาระหว่างโมดูลเขียนว่า "เช็คตัวอักษรไทยหน้า/หลังต้องไม่ใช่
+    ตัวอักษรไทย" แต่กฎนี้ใช้ไม่ได้จริงกับภาษาไทยที่ไม่มีช่องว่างระหว่างคำ (ตัวอักษรก่อน/หลังคำเกือบทุกคำใน
+    เนื้อหาจริงเป็นภาษาไทยอยู่แล้ว เช็คแบบนี้ตรงๆ จะบล็อกการจับคู่แทบทั้งหมด) — ที่นี่จึงทำ 3 ชั้นแทน:
+    (1) กันตัดกลาง "กลุ่มอักขระเดียวกัน" ด้วยการเช็คสระ/วรรณยุกต์ลอยที่ขอบ (ถูกต้องและทดสอบได้จริง)
+    (2) เช็คขอบเขตคำจริงด้วยตัวตัดคำ pythainlp (word_tokenize, engine=newmm — ดู thai_token_boundaries())
+    ถ้า match ไม่ตรงกับขอบเขต token ทั้งสองด้าน (ตัดกลาง token เดียวกันทั้งสองฝั่ง เช่น "สติ" ใน "พลาสติก")
+    ปฏิเสธอัตโนมัติโดยไม่เสี่ยง false positive — แต่ถ้าตรงขอบแค่ด้านเดียว (เช่น "สติปัญญา" เต็มคำใน
+    "มีสติปัญญา" ที่ตัวตัดคำรวม "มี" เข้ากับคำถัดไปแบบไม่ตรงไปตรงมา) ปล่อยผ่านแล้วให้ --report แจ้งเตือน
+    แทนการฟันธงเอง เพราะกรณีขอบเดียวแยกไม่ออกอัตโนมัติว่าเป็นคำประสมที่ถูกต้อง (ปล่อยผ่าน) หรือคำที่ไป
+    แอบอยู่ในคำอื่นแบบผิด (เช่น "กรรม" ท้าย "พันธุกรรม" ซึ่งก็ตรงขอบท้ายด้านเดียวเหมือนกัน) — ดูรายละเอียด
+    ที่ thai_token_boundaries()/wrap_first_occurrence() (3) รายการ exclusions ที่แก้ไขมือได้
+    (pipeline/fixtures/term_exclusions.json) เป็นตาข่ายสุดท้ายสำหรับกรณีขอบเดียวที่คนตรวจยืนยันแล้วว่าผิด
+    (ทั้ง pythainlp และ exclusions ทำงานร่วมกัน — ไม่ใช่อย่างใดอย่างหนึ่งอย่างเดียว)
+  - ไม่ห่อภายใน quote (ทั้ง object รวม quote.text/source/after — ไม่แตะพุทธพจน์และย่อหน้าปิดท้ายที่ตามเลย
+    ตามตัวอักษรของสัญญาระหว่างโมดูล §G: "ไม่ห่อใน quote/h2/callout.label/interactive/exercise" ไม่ได้
+    ยกเว้น after — ถ้าจะห่อ quote.after จริงต้องแก้เอกสารสัญญาก่อน ไม่ใช่ตีความเองใน pipeline นี้),
+    หัวข้อ (h2, callout.label, ฯลฯ), และ readout ของ interactive (interactive.title/intro/config)
   - idempotent: รันซ้ำได้โดยไม่ห่อคำที่มี <dfn> อยู่แล้วซ้ำอีก
-
-หมายเหตุเรื่อง scope "section": สัญญาระหว่างโมดูลไม่ได้พูดชัดว่า quote.after (ย่อหน้าที่ตามหลังพุทธพจน์)
-นับเป็น "section" ของตัวเองหรือไม่ — ในนี้เลือกให้ quote.after เป็น scope อิสระของตัวเอง (นับหนึ่งใหม่)
-เพราะมันเป็น block ที่แยกจาก sections[] array ในโครงสร้างข้อมูล ส่วน callout.text ถือเป็นส่วนหนึ่งของ
-section เดียวกับ paragraphs/bullets ที่มันแนบอยู่ (ใช้ "used-set" เดียวกัน) เพราะ callout วางอยู่ในบล็อก
-เดียวกันกับ section นั้นๆ ตามสายตาผู้อ่าน ตรงตามเหตุผลกฎข้อนี้ ("รกและกดพลาดบนมือถือ" ถ้าห่อซ้ำถี่ๆ)
 """
 from __future__ import annotations
 
@@ -42,9 +44,7 @@ THAI_BLOCK_RE = re.compile(r"[฀-๿]")
 
 # สระ/วรรณยุกต์ที่ "ลอยไม่ได้" ต้องเกาะพยัญชนะก่อนหน้าเสมอ (เหมือนใน clean.py) — ใช้เช็คว่า match ไม่ได้
 # ตัดกลางกลุ่มอักขระเดียวกัน (เช่น จับ "ขันธ" แล้วทิ้ง "์" ไว้นอกช่วงที่ห่อ) ไม่ใช่การหาขอบเขต "คำ" เต็มรูป
-# (การหาขอบเขตคำไทยจริงต้องใช้ตัวตัดคำ/พจนานุกรม ซึ่งไม่ได้อยู่ใน dependency ของ pipeline นี้ —
-# ภาษาไทยไม่มีช่องว่างระหว่างคำ จึง "ตัวอักษรก่อน/หลังต้องไม่ใช่ภาษาไทย" ตามตัวอักษรของสัญญาระหว่างโมดูล
-# ใช้ไม่ได้จริงในทางปฏิบัติ เพราะจะบล็อกการจับคู่แทบทุกคำในเนื้อหาจริง — ดูรายละเอียดที่ wrap_first_occurrence)
+# (ขอบเขต "คำ" เต็มรูปใช้ thai_token_boundaries() ด้านล่าง ซึ่งพึ่งตัวตัดคำ pythainlp)
 COMBINING_MARKS = set("ั" "ิีึืฺุู" "็่้๊๋์ํ๎")
 
 
@@ -53,11 +53,92 @@ def is_thai_char(ch: str) -> bool:
 
 
 def load_term_exclusions() -> dict[str, list[str]]:
-    """โหลด pipeline/fixtures/term_exclusions.json — ตาข่ายนิรภัยที่แก้ไขมือได้สำหรับกรณี
-    "คำสั้นไปแอบอยู่ในคำยาวกว่าที่ไม่ได้เป็นศัพท์เอง" (เช่น สติ ใน สติปัญญา) ดู docstring ของไฟล์นี้"""
+    """โหลด pipeline/fixtures/term_exclusions.json — ตาข่ายนิรภัยชั้นสุดท้ายที่แก้ไขมือได้สำหรับกรณี
+    "คำสั้นไปแอบอยู่ในคำยาวกว่าที่ไม่ได้เป็นศัพท์เอง" ที่ thai_token_boundaries() (ตัวตัดคำ) แยกไม่ออก
+    เพราะตรงขอบแค่ด้านเดียว (เช่น กรรม ใน พันธุกรรม) ดู docstring ของไฟล์นี้"""
     path = Path(__file__).resolve().parent / "fixtures" / "term_exclusions.json"
     data = common.load_json(path) or {}
     return {k: v for k, v in data.items() if not k.startswith("_")}
+
+
+# ---------------------------------------------------------------------------
+# เช็คขอบเขตคำจริงด้วยตัวตัดคำ (pythainlp) — เสริมจาก exclusions list (ดู docstring ของไฟล์นี้)
+# ---------------------------------------------------------------------------
+_WORD_TOKENIZE: object = None  # None = ยังไม่เช็ค, False = ไม่มี pythainlp, ฟังก์ชัน = เช็คแล้วมี
+_WORD_TOKENIZE_WARNED = False
+
+
+def _get_word_tokenize():
+    """โหลด pythainlp.tokenize.word_tokenize แบบ lazy + cache (import ครั้งเดียวพอ) คืน None ถ้า
+    ไม่ได้ติดตั้ง (เตือนครั้งเดียว ไม่สแปมข้อความทุกครั้งที่เรียกซ้ำ) ผู้เรียกต้องยอมรับว่าไม่มีการเช็ค
+    ขอบเขตคำอัตโนมัติแล้วพึ่ง term_exclusions.json เพียงอย่างเดียวเหมือนพฤติกรรมเดิม"""
+    global _WORD_TOKENIZE, _WORD_TOKENIZE_WARNED
+    if _WORD_TOKENIZE is not None:
+        return _WORD_TOKENIZE or None
+    try:
+        from pythainlp.tokenize import word_tokenize
+    except ImportError:
+        if not _WORD_TOKENIZE_WARNED:
+            common.eprint(
+                "คำเตือน: ไม่ได้ติดตั้ง pythainlp (pip install -r pipeline/requirements.txt) — "
+                "ข้ามการเช็คขอบเขตคำไทยด้วยตัวตัดคำ จะพึ่ง term_exclusions.json อย่างเดียว "
+                "(เสี่ยงห่อกลางคำที่ยังไม่มีใครเพิ่มลงรายการ exclusions เช่น 'สติ' ใน 'พลาสติก')"
+            )
+            _WORD_TOKENIZE_WARNED = True
+        _WORD_TOKENIZE = False
+        return None
+    _WORD_TOKENIZE = word_tokenize
+    return word_tokenize
+
+
+def strip_html_with_map(html: str) -> tuple[str, list[int]]:
+    """ตัดแท็ก HTML (<...>) ออกจาก html คืน (plain_text, idx_map) โดย idx_map[i] = ตำแหน่งของ
+    plain_text[i] ใน html เดิม — ตัวตัดคำต้องทำงานบน plain text (แท็กจะทำให้ตัดคำผิดเพี้ยน) แต่ผลลัพธ์
+    (ตำแหน่งขอบเขต token) ต้องแปลงกลับเป็น offset ใน html จริงที่ wrap_first_occurrence() ใช้แก้ไข"""
+    out: list[str] = []
+    idx_map: list[int] = []
+    i, n = 0, len(html)
+    while i < n:
+        if html[i] == "<":
+            j = html.find(">", i)
+            if j == -1:
+                out.append(html[i])
+                idx_map.append(i)
+                i += 1
+                continue
+            i = j + 1
+            continue
+        out.append(html[i])
+        idx_map.append(i)
+        i += 1
+    return "".join(out), idx_map
+
+
+def thai_token_boundaries(html: str) -> tuple[set[int], set[int]] | None:
+    """ตัดคำ (word segmentation) ข้อความ plain-text ของ html ด้วย pythainlp คืน (token_starts,
+    token_ends) เป็นเซตของตำแหน่ง offset ใน html เดิม — คืน None ถ้าไม่ได้ติดตั้ง pythainlp
+
+    วิธีใช้ผลลัพธ์ (ดู wrap_first_occurrence): match ที่ตรงขอบ token ทั้งสองด้าน (start อยู่ใน
+    token_starts และ end อยู่ใน token_ends) = ปลอดภัยแน่นอน ตรงขอบด้านเดียว = น่าสงสัยแต่ไม่ฟันธง
+    (แจ้งใน --report แทน) ไม่ตรงขอบเลยทั้งสองด้าน = ตัดกลาง token เดียวกันแน่ๆ ปฏิเสธได้ปลอดภัย"""
+    word_tokenize = _get_word_tokenize()
+    if not word_tokenize:
+        return None
+    plain, idx_map = strip_html_with_map(html)
+    if not plain:
+        return set(), set()
+    tokens = word_tokenize(plain, engine="newmm", keep_whitespace=True)
+    starts: set[int] = set()
+    ends: set[int] = set()
+    pos = 0
+    for tok in tokens:
+        if not tok:
+            continue
+        end_pos = pos + len(tok)
+        starts.add(idx_map[pos] if pos < len(idx_map) else len(html))
+        ends.add(idx_map[end_pos - 1] + 1 if end_pos - 1 < len(idx_map) else len(html))
+        pos = end_pos
+    return starts, ends
 
 
 # ---------------------------------------------------------------------------
@@ -127,17 +208,23 @@ def wrap_first_occurrence(
     term_lookup: dict[str, dict],
     used: set[str],
     exclusions: dict[str, list[str]] | None = None,
+    context_sink: list[str] | None = None,
 ) -> tuple[str, set[str]]:
     """ห่อ <dfn> รอบการปรากฏครั้งแรกของแต่ละคำใน `html` เดียวนี้ โดยนับรวมกับ `used`
     ที่ส่งเข้ามา (ให้ผู้เรียกคุม scope ว่าอะไรนับเป็น section เดียวกัน) คืน (html ใหม่, newly_used)
+    ถ้าส่ง `context_sink` มา (list) จะ append บริบท ±15 ตัวอักษรของทุก dfn ที่ห่อใหม่รอบนี้เข้าไป
+    (ใช้โดย --report ให้คนตรวจ scan หาคำที่ห่อผิดได้ตาม checklist §11 โดยไม่ต้อง diff ไฟล์เอง)
 
     เรื่อง "ห้ามห่อคำที่อยู่ในคำอื่น": ระหว่างคำที่ทั้งคู่อยู่ในรายการศัพท์ (เช่น "ขันธ์ ๕" กับ "ขันธ์")
     การเรียง pattern ยาวไปสั้นใน build_master_pattern() แก้ปัญหานี้ได้เองอัตโนมัติแล้ว (regex ลองตัวยาว
     ก่อนที่ตำแหน่งเดียวกันเสมอ) กรณีที่เหลือคือคำสั้นที่เป็นศัพท์ไปแอบอยู่ในคำยาวกว่าที่ "ไม่ได้" เป็นศัพท์
-    เอง (เช่น "สติ" ใน "สติปัญญา") — กรณีนี้แก้ด้วยรายการ exclusions ที่แก้ไขมือได้ (ดู load_term_exclusions)
-    เพราะการหาขอบเขตคำไทยทั่วไปแบบอัตโนมัติต้องใช้ตัวตัดคำ/พจนานุกรมที่ไม่ได้อยู่ใน dependency ของ pipeline นี้"""
+    เอง (เช่น "สติ" ใน "สติปัญญา", "กรรม" ใน "พันธุกรรม") — เช็คด้วย thai_token_boundaries() (ตัวตัดคำ)
+    ก่อน: ไม่ตรงขอบ token ทั้งสองด้าน = ปฏิเสธอัตโนมัติ (ปลอดภัย ไม่ต้องพึ่งใครมาเพิ่มรายการ exclusions)
+    ตรงขอบด้านเดียว = ปล่อยผ่านแต่บันทึกลง context_sink เป็น "น่าสงสัย" ให้คนตรวจดู แล้วเช็ค exclusions
+    list ที่แก้ไขมือได้เป็นชั้นสุดท้ายสำหรับกรณีขอบเดียวที่ยืนยันแล้วว่าผิด (ดู load_term_exclusions)"""
     existing_spans = find_existing_dfn_spans(html)
     exclusions = exclusions or {}
+    boundaries = thai_token_boundaries(html)  # None ถ้าไม่มี pythainlp ติดตั้ง
 
     excluded_spans_for_term: dict[str, list[tuple[int, int]]] = {}
     for term_key, longer_words in exclusions.items():
@@ -173,13 +260,26 @@ def wrap_first_occurrence(
         after = html[end] if end < len(html) else ""
         if after in COMBINING_MARKS:
             return term  # ตัดกลางกลุ่มอักขระเดียวกัน (สระ/วรรณยุกต์ตกขอบ) — ไม่ใช่ขอบเขตคำที่ถูกต้อง
+        boundary_ok_both_sides = True
+        if boundaries is not None:
+            starts, ends = boundaries
+            start_aligned = start in starts
+            end_aligned = end in ends
+            if not start_aligned and not end_aligned:
+                return term  # ตัดกลาง token เดียวกันทั้งสองฝั่งตามตัวตัดคำ (เช่น "สติ" ใน "พลาสติก") — ปฏิเสธ
+            boundary_ok_both_sides = start_aligned and end_aligned
         if inside_excluded_word(term, start, end):
-            return term  # อยู่ในคำที่ยาวกว่าตามรายการ exclusions (เช่น "สติ" ใน "สติปัญญา") — ข้าม
+            return term  # อยู่ในคำที่ยาวกว่าตามรายการ exclusions (เช่น "กรรม" ใน "พันธุกรรม") — ข้าม
         info = term_lookup.get(term)
         if info is None:
             return term
         used.add(term)
         newly_used.add(term)
+        if context_sink is not None:
+            before_ctx = html[max(0, start - 15):start]
+            after_ctx = html[end:end + 15]
+            flag = "" if boundary_ok_both_sides else " [⚠ ตรวจขอบเขตคำ: ตัวตัดคำติดกับคำข้างเคียงด้านหนึ่ง]"
+            context_sink.append(f"{before_ctx}[{term}]{after_ctx}{flag}")
         return f'<dfn data-term="{term}" data-kind="{info["kind"]}">{term}</dfn>'
 
     new_html = pattern.sub(repl, html)
@@ -191,8 +291,12 @@ def autolink_chapter(
     pattern: re.Pattern,
     term_lookup: dict[str, dict],
     exclusions: dict[str, list[str]],
+    context_sink: list[str] | None = None,
 ) -> set[str]:
-    """ห่อ dfn ทั่วทั้งบท คืน set ของ term ทั้งหมดที่ปรากฏเป็น dfn ในบทนี้ (รวมของเดิมที่มีอยู่แล้ว)"""
+    """ห่อ dfn ทั่วทั้งบท คืน set ของ term ทั้งหมดที่ปรากฏเป็น dfn ในบทนี้ (รวมของเดิมที่มีอยู่แล้ว)
+
+    หมายเหตุ: ไม่แตะ chapter["quote"] เลย (ทั้ง text/source/after) ตามตัวอักษรของสัญญาระหว่างโมดูล §G
+    ("ไม่ห่อใน quote/h2/callout.label/interactive/exercise") — ไม่ยกเว้น after เอง"""
     all_terms_in_chapter: set[str] = set()
 
     for section in chapter.get("sections", []):
@@ -207,7 +311,7 @@ def autolink_chapter(
 
         new_paragraphs = []
         for p in section.get("paragraphs", []):
-            new_p, newly = wrap_first_occurrence(p, pattern, term_lookup, used, exclusions)
+            new_p, newly = wrap_first_occurrence(p, pattern, term_lookup, used, exclusions, context_sink)
             new_paragraphs.append(new_p)
             all_terms_in_chapter |= newly | find_existing_dfn_terms(new_p)
         section["paragraphs"] = new_paragraphs
@@ -215,27 +319,24 @@ def autolink_chapter(
         if "bullets" in section:
             new_bullets = []
             for b in section["bullets"]:
-                new_b, newly = wrap_first_occurrence(b, pattern, term_lookup, used, exclusions)
+                new_b, newly = wrap_first_occurrence(b, pattern, term_lookup, used, exclusions, context_sink)
                 new_bullets.append(new_b)
                 all_terms_in_chapter |= newly | find_existing_dfn_terms(new_b)
             section["bullets"] = new_bullets
 
         if "callout" in section:
             new_text, newly = wrap_first_occurrence(
-                section["callout"]["text"], pattern, term_lookup, used, exclusions
+                section["callout"]["text"], pattern, term_lookup, used, exclusions, context_sink
             )
             section["callout"]["text"] = new_text
             all_terms_in_chapter |= newly | find_existing_dfn_terms(new_text)
 
+    # quote (text/source/after) ไม่ถูกแตะเลย — นับ dfn เดิมที่อาจมีอยู่แล้วใน quote.after (จากรันครั้งก่อน
+    # ที่เคยห่อ) รวมเข้า all_terms_in_chapter ด้วย เพื่อไม่ให้ chNN.json.terms หายไปจากของเดิมที่มีอยู่แล้ว
     quote = chapter.get("quote")
-    if quote and quote.get("after"):
-        used_quote: set[str] = set().union(*[find_existing_dfn_terms(a) for a in quote["after"]])
-        new_after = []
-        for a in quote["after"]:
-            new_a, newly = wrap_first_occurrence(a, pattern, term_lookup, used_quote, exclusions)
-            new_after.append(new_a)
-            all_terms_in_chapter |= newly | find_existing_dfn_terms(new_a)
-        quote["after"] = new_after
+    if quote:
+        for a in quote.get("after", []):
+            all_terms_in_chapter |= find_existing_dfn_terms(a)
 
     return all_terms_in_chapter
 
@@ -302,8 +403,11 @@ def main(argv: list[str] | None = None) -> int:
     before_counts = {slug: count_dfn(data) for slug, data in chapter_data.items()}
 
     chapter_terms_used: dict[str, set[str]] = {}
+    dfn_contexts: dict[str, list[str]] = {}
     for slug, data in chapter_data.items():
-        chapter_terms_used[slug] = autolink_chapter(data, pattern, term_lookup, exclusions)
+        ctx_sink: list[str] = []
+        chapter_terms_used[slug] = autolink_chapter(data, pattern, term_lookup, exclusions, ctx_sink)
+        dfn_contexts[slug] = ctx_sink
 
     # terms.py เป็นผู้เขียนค่าสุดท้ายของ chNN.json.terms = subset ของ glossary ที่ปรากฏจริงในบทนั้น
     for slug, data in chapter_data.items():
@@ -322,6 +426,19 @@ def main(argv: list[str] | None = None) -> int:
             after = count_dfn(chapter_data[slug])
             print(f"  {slug}: {before_counts[slug]} -> {after}")
         print(f"รวมคำศัพท์ใน glossary.json: {len(merged_terms)}")
+        print()
+        print(
+            "รายการ <dfn> ที่ห่อใหม่รอบนี้ (บริบท ±15 ตัวอักษร) — ตรวจตาม checklist §11 "
+            '("กดศัพท์ทุกคำในเล่มแล้วเปิด sheet ได้ ไม่มีคำที่ห่อผิด") '
+            "จุดที่มี ⚠ คือตัวตัดคำ (pythainlp) เห็นว่าติดกับคำข้างเคียงด้านหนึ่ง ควรตรวจก่อนเป็นอันดับแรก:"
+        )
+        any_new = False
+        for slug in sorted(dfn_contexts.keys()):
+            for ctx in dfn_contexts[slug]:
+                print(f"  {slug}: {ctx}")
+                any_new = True
+        if not any_new:
+            print("  (ไม่มี dfn ใหม่รอบนี้)")
 
     return 0
 
