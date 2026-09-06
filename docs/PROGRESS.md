@@ -14,11 +14,13 @@ Orchestrator: session หลัก (Fable 5.1) · Reviewer: Opus 5 · Implemente
 - [x] 1. โครง infra/proxy/pipeline/web/content — 6 package, Opus ตรวจ 59 findings (9 blocker) → แก้ครบ → smoke test ผ่าน
       (proxy health/traversal/maxRetries:0, Caddy SSE flush, pytest 34 passed, ไม่มี key/window.claude หลุด)
       ตกลงธรรมเนียมตามสัญญา Fable: chapter.slug = chNN, <dfn> มี data-kind, module = particles | {book}/chNN → `content/schema/normalize.mjs`
-- [~] 2. PDF 9 เล่ม → content/source/ — **7/9 ดึงจาก Drive ผ่าน connector ได้เอง (6 ก.ย.)** ด้วย `download_file_content` (harness เก็บผล base64 ลงไฟล์ให้ถอดรหัสได้) เหลือ 1.1 (connector "session expired" ทุกครั้ง 6.8 MB) และ 1.5 (10.5 MB เกินลิมิต 10 MB ของ connector) — สองเล่มนี้ผู้ใช้ต้องวางเอง
-- [~] 3. extract + clean + split → raw/chNN.txt — เล่ม 1 เสร็จ; **7 เล่ม (2,3,4,6,7,8,9) เสร็จ 6 ก.ย.**: extract (pymupdf) → `pipeline/toc_init.py` (สเปกสารบัญที่คนเขียนจาก TOC ของ PDF → book.json.chapters + stub chNN.json status building + raw/_toc.json) → `pipeline/split_pages.py` (ตัดบทตามเลขหน้าพิมพ์ = ดัชนี PDF+1, clean ต่อบท) รวม 120 บท; เล่ม 5 รอ PDF
+- [x] 2. PDF 9 เล่ม → content/source/ — **ครบ 9 เล่ม (6 ก.ย.)**: 7 เล่มดึงจาก Drive ผ่าน connector ได้เอง ด้วย `download_file_content` (harness เก็บผล base64 ลงไฟล์ให้ถอดรหัสได้) ส่วน 1.1 (connector "session expired" ทุกครั้ง) และ 1.5 (10.5 MB เกินลิมิต 10 MB ของ connector) ผู้ใช้วางเองแล้ว → `validate.mjs --strict-source` ผ่าน และ `/api/source/{slug}.pdf` เสิร์ฟครบทุกเล่ม (ทดสอบ 4 เล่ม 200 OK)
+- [~] 3. extract + clean + split → raw/chNN.txt — เล่ม 1 เสร็จ; **7 เล่ม (2,3,4,6,7,8,9) เสร็จ 6 ก.ย.**: extract (pymupdf) → `pipeline/toc_init.py` (สเปกสารบัญที่คนเขียนจาก TOC ของ PDF → book.json.chapters + stub chNN.json status building + raw/_toc.json) → `pipeline/split_pages.py` (ตัดบทตามเลขหน้าพิมพ์ = ดัชนี PDF+1, clean ต่อบท) รวม 140 บท (เล่ม 5 = 20 บท เพิ่ม 6 ก.ย. หลังได้ PDF)
       การตัดสินใจ: 1 บทเรียน = 1 บทต้นฉบับ ยกเว้น เล่ม 2 (41 บทสั้น 2–8 หน้า → รวมเป็น 17 บทตามส่วนของหนังสือ, `source` ใน raw/_toc.json บอกว่ารวมบทไหน) และ เล่ม 9 Part 12 (74 หน้า → แยก 2 บทที่หน้า 196 = เริ่มอริยสัจ 4)
       clean.py: ฟอนต์เล่ม 2–9 ซ้อนเฉพาะสระ/วรรณยุกต์ ไม่ซ้อนพยัญชนะ (ตรวจสถิติแล้ว) → ค่าเริ่มต้นยุบเฉพาะสระ/วรรณยุกต์ + ลบ glyph ละตินแปลกปลอม (Ě ę š ć Ĝ …); โหมด spec เดิม = `--legacy-collapse`
-- [x] 4. author ทุกบท — **เล่ม 1 ครบ 9/9 ready** (บท 1–2 จาก prototype; บท 3–9 Sonnet เขียน → Opus ตรวจ 2–3 รอบ → แก้ → Opus ยืนยัน post-fix; reviewedBy=opus-5-agent)
+- [~] 4. author ทุกบท — **เล่ม 1 ครบ 9/9 ready**; เล่มนำร่อง quantum-merit-power เขียนครบ 10/10 (draft) รอบตรวจแรกชน session limit (reset 18:30) → resume workflow ต่อ
+      **ค่าใช้จ่ายจริง: ~2.3M token ต่อ 10 บท (เขียน+ตรวจบางส่วน)** — 140 บทที่เหลือจะชน session limit หลายรอบ ต้องทยอยทีละเล่มและ resume
+- [x] 4b. เดิม: (บท 1–2 จาก prototype; บท 3–9 Sonnet เขียน → Opus ตรวจ 2–3 รอบ → แก้ → Opus ยืนยัน post-fix; reviewedBy=opus-5-agent)
       เล่ม 2–9 รอ PDF
 - [x] 6. interactives เขียนมือ — ch01 (particles config), ch02 zoom-scale 4 KB, ch03 aggregate-chain+ใส่สติ 21 KB, ch04 star-mass 22 KB, ch09 cell-turnover 30 KB; ch05–08 ใช้ particles กลาง (ch08 เก็บ requestedModule=evolution-timeline ไว้ทำภายหลัง)
 - [x] 5. glossary + auto-link + index.json — เล่ม 1: glossary 71 คำ (merge โดย normalize.mjs), validate ผ่าน 13 ไฟล์, build 13 หน้า, index.json 1 เล่ม
