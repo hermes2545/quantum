@@ -28,6 +28,11 @@ Orchestrator: session หลัก (Fable 5.1) · Reviewer: Opus 5 · Implemente
 ## สิ่งที่ผู้ใช้ต้องทำก่อนเปิดใช้เฟส 1 (ระบบทำแทนไม่ได้)
 1. วาง PDF 9 เล่มลง `content/source/` (ชื่อไฟล์ตาม `content/books/*/book.json → sourcePdf.file`) แล้ว `node content/schema/validate.mjs --strict-source`
 2. ใส่ `ANTHROPIC_API_KEY` ใน `.env` + ตั้ง spend limit ใน Anthropic Console
+   วิธีที่ง่ายสุด: เปิดโฟลเดอร์ Drive `quantum book/E-Books ธรรมะ-ควอนตัม 9 เล่ม-20260905T055651Z-1-001/E-Books ธรรมะ-ควอนตัม 9 เล่ม`
+   → ดาวน์โหลดทั้งโฟลเดอร์ (zip) → แตกไฟล์ลง `content/source/` (ชื่อไฟล์ใน Drive ตรงกับ `sourcePdf.file` อยู่แล้ว ไม่ต้องเปลี่ยนชื่อ)
+   **ทดลองดึงอัตโนมัติแล้ว 6 ก.ย. 2026 — ทำแทนไม่ได้ทุกทาง:** (ก) ลิงก์ `drive.google.com/uc?export=download` ต้องล็อกอิน (ไฟล์แชร์เฉพาะบัญชี);
+   (ข) Drive connector อ่านข้อความจาก PDF ได้แค่ ~80 หน้าแรก (ตัดที่ ~190 KB) และตัวอักษรไทยหาย 5–8% ต่อหน้า (U+FFFD + font map เพี้ยน) ใช้ author ไม่ได้;
+   (ค) `download_file_content` คืน base64 ขนาด 4–14 MB เกิน context; (ง) `share_file` แชร์ได้เฉพาะอีเมล ไม่มี "anyone with link"; (จ) ไม่มี rclone/gdrive/Drive desktop ในเครื่อง; (ฉ) Chrome extension ผู้ใช้เลือกไม่ติดตั้ง
 3. บน Ubuntu: `docker compose up -d` → เปิด `http://<tailscale-host>:8080` จากมือถือ
 
 ## ขั้นตอนเล่ม 2–9 (เมื่อ PDF มา)
