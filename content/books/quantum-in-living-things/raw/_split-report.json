@@ -1,0 +1,176 @@
+{
+  "pdfPages": 192,
+  "pageOffset": 1,
+  "endPage": 190,
+  "chapters": {
+    "ch00-preface": {
+      "startPage": 4,
+      "endPage": 6,
+      "pages": 2,
+      "chars": 1534,
+      "preview": "หนังสือ ควอนตัมในสิ่งมีชีวิต เล่มนี้ ถูกเขียนขึ้นโดย",
+      "warning": "สั้นกว่า 3,000 ตัวอักษร — ตรวจว่าตัดถูกช่วง"
+    },
+    "ch01": {
+      "startPage": 6,
+      "endPage": 12,
+      "pages": 6,
+      "chars": 3151,
+      "preview": "6",
+      "source": "1"
+    },
+    "ch02": {
+      "startPage": 12,
+      "endPage": 22,
+      "pages": 10,
+      "chars": 5800,
+      "preview": "12",
+      "source": "2"
+    },
+    "ch03": {
+      "startPage": 22,
+      "endPage": 30,
+      "pages": 8,
+      "chars": 3978,
+      "preview": "22",
+      "source": "3"
+    },
+    "ch04": {
+      "startPage": 30,
+      "endPage": 42,
+      "pages": 12,
+      "chars": 6931,
+      "preview": "30",
+      "source": "4"
+    },
+    "ch05": {
+      "startPage": 42,
+      "endPage": 52,
+      "pages": 10,
+      "chars": 5114,
+      "preview": "42",
+      "source": "5"
+    },
+    "ch06": {
+      "startPage": 52,
+      "endPage": 66,
+      "pages": 14,
+      "chars": 7230,
+      "preview": "52",
+      "source": "6"
+    },
+    "ch07": {
+      "startPage": 66,
+      "endPage": 78,
+      "pages": 12,
+      "chars": 7115,
+      "preview": "66",
+      "source": "7"
+    },
+    "ch08": {
+      "startPage": 78,
+      "endPage": 86,
+      "pages": 8,
+      "chars": 4730,
+      "preview": "78",
+      "source": "8"
+    },
+    "ch09": {
+      "startPage": 86,
+      "endPage": 98,
+      "pages": 12,
+      "chars": 7934,
+      "preview": "86",
+      "source": "9"
+    },
+    "ch10": {
+      "startPage": 98,
+      "endPage": 112,
+      "pages": 14,
+      "chars": 8606,
+      "preview": "98",
+      "source": "10"
+    },
+    "ch11": {
+      "startPage": 112,
+      "endPage": 116,
+      "pages": 4,
+      "chars": 1877,
+      "preview": "112",
+      "source": "11",
+      "warning": "สั้นกว่า 3,000 ตัวอักษร — ตรวจว่าตัดถูกช่วง"
+    },
+    "ch12": {
+      "startPage": 116,
+      "endPage": 126,
+      "pages": 10,
+      "chars": 6397,
+      "preview": "116",
+      "source": "12"
+    },
+    "ch13": {
+      "startPage": 126,
+      "endPage": 136,
+      "pages": 10,
+      "chars": 5429,
+      "preview": "126",
+      "source": "13"
+    },
+    "ch14": {
+      "startPage": 136,
+      "endPage": 148,
+      "pages": 12,
+      "chars": 6458,
+      "preview": "136",
+      "source": "14"
+    },
+    "ch15": {
+      "startPage": 148,
+      "endPage": 156,
+      "pages": 8,
+      "chars": 4410,
+      "preview": "148",
+      "source": "15"
+    },
+    "ch16": {
+      "startPage": 156,
+      "endPage": 162,
+      "pages": 6,
+      "chars": 3268,
+      "preview": "156",
+      "source": "16"
+    },
+    "ch17": {
+      "startPage": 162,
+      "endPage": 170,
+      "pages": 8,
+      "chars": 5474,
+      "preview": "162",
+      "source": "17"
+    },
+    "ch18": {
+      "startPage": 170,
+      "endPage": 178,
+      "pages": 8,
+      "chars": 5828,
+      "preview": "170",
+      "source": "18"
+    },
+    "ch19": {
+      "startPage": 178,
+      "endPage": 184,
+      "pages": 6,
+      "chars": 4268,
+      "preview": "178",
+      "source": "19"
+    },
+    "ch20": {
+      "startPage": 184,
+      "endPage": 190,
+      "pages": 6,
+      "chars": 3937,
+      "preview": "184",
+      "source": "20"
+    }
+  }
+}

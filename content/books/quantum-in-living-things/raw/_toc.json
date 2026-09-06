@@ -1,0 +1,129 @@
+{
+  "pageOffset": 1,
+  "endPage": 190,
+  "chapters": [
+    {
+      "slug": "ch01",
+      "startPage": 6,
+      "source": "1",
+      "title": "ชีวิตคืออะไร ?"
+    },
+    {
+      "slug": "ch02",
+      "startPage": 12,
+      "source": "2",
+      "title": "ชีวควอนตัม"
+    },
+    {
+      "slug": "ch03",
+      "startPage": 22,
+      "source": "3",
+      "title": "ชีวควอนตัมกับวิวัฒนาการ"
+    },
+    {
+      "slug": "ch04",
+      "startPage": 30,
+      "source": "4",
+      "title": "สัญญาณเคมีกับชีวิต"
+    },
+    {
+      "slug": "ch05",
+      "startPage": 42,
+      "source": "5",
+      "title": "อุโมงค์ควอนตัมในโมเลกุล"
+    },
+    {
+      "slug": "ch06",
+      "startPage": 52,
+      "source": "6",
+      "title": "การจับคู่โปรตีนแบบผสม (1)"
+    },
+    {
+      "slug": "ch07",
+      "startPage": 66,
+      "source": "7",
+      "title": "การจับคู่โปรตีนแบบผสม (2)"
+    },
+    {
+      "slug": "ch08",
+      "startPage": 78,
+      "source": "8",
+      "title": "เอพิเจเนติกส์ เปิด-ปิดยีน"
+    },
+    {
+      "slug": "ch09",
+      "startPage": 86,
+      "source": "9",
+      "title": "เปิดยีนสุขภาพดี"
+    },
+    {
+      "slug": "ch10",
+      "startPage": 98,
+      "source": "10",
+      "title": "ซีโนบอต รูปแบบชีวิตใหม่ในจักรวาล"
+    },
+    {
+      "slug": "ch11",
+      "startPage": 112,
+      "source": "11",
+      "title": "ลูกอ๊อดปิกัสโซ"
+    },
+    {
+      "slug": "ch12",
+      "startPage": 116,
+      "source": "12",
+      "title": "อภิปรัชญาของชีววิทยา (1)"
+    },
+    {
+      "slug": "ch13",
+      "startPage": 126,
+      "source": "13",
+      "title": "อภิปรัชญาของชีววิทยา (2)"
+    },
+    {
+      "slug": "ch14",
+      "startPage": 136,
+      "source": "14",
+      "title": "พลานาเรีย สิ่งมีชีวิตอมตะ"
+    },
+    {
+      "slug": "ch15",
+      "startPage": 148,
+      "source": "15",
+      "title": "ไฟฟ้าชีวภาพควบคุมเซลล์มะเร็ง"
+    },
+    {
+      "slug": "ch16",
+      "startPage": 156,
+      "source": "16",
+      "title": "วิทยาศาสตร์กับจริยศาสตร์"
+    },
+    {
+      "slug": "ch17",
+      "startPage": 162,
+      "source": "17",
+      "title": "ทฤษฎีวิวัฒนาการทางจิต"
+    },
+    {
+      "slug": "ch18",
+      "startPage": 170,
+      "source": "18",
+      "title": "หมึกยักษ์ เอเลี่ยนจากต่างดาว"
+    },
+    {
+      "slug": "ch19",
+      "startPage": 178,
+      "source": "19",
+      "title": "วิญญาณวิวัฒนาการ"
+    },
+    {
+      "slug": "ch20",
+      "startPage": 184,
+      "source": "20",
+      "title": "บทสรุปของชีวิต"
+    }
+  ],
+  "preface": {
+    "startPage": 4
+  }
+}

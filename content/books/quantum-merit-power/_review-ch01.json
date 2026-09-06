@@ -1,0 +1,77 @@
+{
+  "book": "quantum-merit-power",
+  "chapter": "ch01",
+  "reviewedBy": "Opus reviewer",
+  "reviewedAt": "2026-09-06",
+  "verdict": "needs_fix",
+  "wordCount": 938,
+  "wordCountRange": "900-1400",
+  "schema": "pass (normalize.mjs 0 fixes, validate.mjs 142 files no errors)",
+  "copiedSpans": [],
+  "checks": {
+    "rule1_no_copying": "pass — longest common substring with raw/ch01.txt (whitespace-stripped) = 43 chars and it is the chapter title itself, which is fixed by book.json. No span >12 words copied.",
+    "rule2_structure": "pass — goal + 3 sections (2-4 para each) + interactive at position 2 (after the mechanism section) + exercise + 4 questions. No quote: raw ch01 contains no พุทธพจน์, only a researcher quotation, so omitting quote is correct.",
+    "rule3_terms_explained": "fail — see finding 2 (ควอนตัม) and finding 3 (fMRI).",
+    "rule4_tie_back_to_coreIdeas": "pass — s1 closes on สมองควอนตัม, s2 on ข้อมูลไม่สูญ, s3 on เส้นทางกรรม.",
+    "rule5_misconception_and_callout": "pass — s3 para2 'งานวิจัยอย่าง CHARM ไม่ได้พิสูจน์...' and the s2 callout answers a 'ทำไม'.",
+    "rule6_numbers_and_facts": "mostly pass — 10-20 ms, >1,000 participants, Physical Review E Jan 2025, Deco/Pompeu Fabra/Oxford/Buenos Aires all match raw. See finding 5 for one added inference.",
+    "rule7_hypotheses_marked": "fail — microtubule and holonomic are hedged, but the chapter's central claim is not. See finding 1.",
+    "rule8_tone": "pass — คุณ/เรา, short sentences, no bullets.",
+    "rule9_length": "pass (938) but near the floor. See finding 6.",
+    "rule10_exercise": "pass — 4 options x 3 steps, all present-day Thai everyday examples (social media, family, workplace, health).",
+    "rule11_questions": "pass — all four are questions a real reader would ask, none are recall questions.",
+    "s9_2_glossary_dfn": "mostly pass — dfn markup is legal everywhere, no dfn inside callout/headings/readouts, and the four shared terms (ไมโครทิวบูล, จิตสำนึก, อะตอม, ควาร์ก) reuse the trilaksana-quantum def/alt/kind verbatim with books[] extended. See finding 4.",
+    "s10_schema": "pass — keyPoints 8/8, keywords 14, suggestions 3, terms 9, interactive module 'particles' with 4 objects, colors gold|teal|pink|mint, shapes body|blob (both in SHAPES of particles.js), lensLabels/phases/initialT/timeLabel/emptyReadout all present."
+  },
+  "findings": [
+    {
+      "rule": "§9.1 ข้อ 7 (เรื่องที่ยังถกเถียงต้องระบุว่าเป็นสมมติฐาน)",
+      "severity": "major",
+      "where": "goal, summary, keyPoints[2] และ [3], terms[CHARM].def",
+      "problem": "ข้อความหลักของบท — ว่างานวิจัย CHARM คือ 'หลักฐาน' ที่ชี้ว่าสมองประมวลผล 'ในมิติควอนตัม' แบบไม่อิงระยะทาง — ถูกเขียนเป็นข้อสรุปที่ยุติแล้ว (terms[CHARM].def ปิดท้ายว่า 'จนพบหลักฐานว่าสมองประมวลผลแบบไม่อิงระยะทางจริง') ทั้งที่งานของ Deco 2025 เป็นกรอบคณิตศาสตร์ที่ 'ได้แรงบันดาลใจจาก' กลศาสตร์ควอนตัมนำมาวิเคราะห์สัญญาณ fMRI ซึ่งตัวเนื้อหา section 2 ย่อหน้าแรกก็เขียนไว้ถูกต้องแล้ว แต่กรอบรอบนอกกลับข้ามขั้นไปเป็นข้อสรุป บทนี้อุ้มสมมติฐานไมโครทิวบูลและโฮโลโนมิกไว้ครบ แต่ไม่ได้อุ้มข้อความแกนกลางของตัวเอง",
+      "fix": "เติมประโยคเดียวใน section 2 ย่อหน้าสุดท้าย (และปรับ terms[CHARM].def กับ goal ให้สอดคล้อง) ทำนองว่า 'ทั้งนี้ นักวิจัยใช้คณิตศาสตร์ที่ยืมมาจากควอนตัมมาอธิบายสมอง ไม่ได้สรุปว่าสมองเป็นคอมพิวเตอร์ควอนตัม การอ่านผลนี้ว่าสมองทำงานในมิติควอนตัมจริงเป็นการตีความที่ยังถกเถียงกันอยู่' — เคารพจุดยืนผู้เขียน ไม่ต้องหักล้าง"
+    },
+    {
+      "rule": "§9.1 ข้อ 3 (ศัพท์เทคนิคต้องอธิบายครั้งแรกที่ปรากฏในบท)",
+      "severity": "major",
+      "where": "sections[0].paragraphs[2] ท้ายย่อหน้า ('มีฐานอยู่ในโลกควอนตัมเหมือนกันหมด') และ sections[1].paragraphs[0] ('กลศาสตร์ควอนตัม')",
+      "problem": "คำว่า 'โลกควอนตัม' / 'มิติควอนตัม' / 'กลศาสตร์ควอนตัม' เป็นแกนกลางของทั้งบทและทั้งเล่ม แต่ไม่ถูกอธิบายเลยสักครั้งว่าหมายถึงอะไร ผู้อ่านที่ไม่มีพื้นตามที่ §9.1 กำหนดจะเจอคำนี้ครั้งแรกแบบลอยๆ ที่ท้าย section 1 ทั้งที่คำนี้คือบานพับที่ทำให้ประโยคปิด section ทำงาน และ glossary รวมมี term 'ฟิสิกส์ควอนตัม' อยู่แล้วแต่ไม่ได้ถูกใช้",
+      "fix": "เติมคำอธิบายหนึ่งประโยคในย่อหน้าเดียวกัน เช่น 'โลกควอนตัมคือระดับที่เล็กจนกฎของสิ่งของขนาดปกติใช้ไม่ได้ ที่นั่นสิ่งหนึ่งอยู่หลายสถานะพร้อมกันได้ และสองจุดที่อยู่คนละที่ส่งผลถึงกันได้ทันที' แล้วห่อการปรากฏครั้งแรกด้วย <dfn data-term=\"ฟิสิกส์ควอนตัม\" data-kind=\"วิทยาศาสตร์\"> พร้อมเพิ่ม term นั้นเข้า terms[] โดยใช้ def เดิมจาก trilaksana-quantum และเพิ่ม books ให้มี quantum-merit-power"
+    },
+    {
+      "rule": "§9.1 ข้อ 3",
+      "severity": "minor",
+      "where": "sections[1].paragraphs[1] — 'ภาพสมองจากเครื่อง fMRI ของอาสาสมัครกว่า 1,000 คน'",
+      "problem": "fMRI อยู่ใน keywords แต่ในเนื้อหาได้แค่คำใบ้จากบริบท ('ภาพสมองจากเครื่อง') ไม่ได้บอกว่ามันวัดอะไร ต้นฉบับเขียนไว้ครบกว่าว่า functional MRI สแกนสมอง",
+      "fix": "ขยายเป็น 'เครื่อง fMRI ซึ่งถ่ายภาพว่าเลือดไหลไปเลี้ยงสมองส่วนไหนมากขึ้นขณะกำลังทำงาน' หรือเติม term fMRI ลง terms[] แล้วห่อด้วย dfn"
+    },
+    {
+      "rule": "§9.2 (ห่อ dfn ที่การปรากฏครั้งแรกของแต่ละ section)",
+      "severity": "minor",
+      "where": "sections[1].callout.text ('Non-Local' 2 ครั้ง) และ sections[2].paragraphs[1] ('CHARM')",
+      "problem": "ทั้งสองคำโผล่ใน section ที่ยังไม่เคยห่อ dfn ในตัวมันเอง แล้วปล่อยเป็นข้อความเปล่า ต้นแบบ trilaksana-quantum/ch03 ห่อซ้ำข้าม section (รูปขันธ์ s0+s1, อนิจจัง s0+s2, ปัญญา s2+s3) การไม่ห่อทำให้ผู้อ่านที่กระโดดมาอ่าน section 3 กดดูความหมาย CHARM ไม่ได้",
+      "fix": "ห่อ CHARM ครั้งแรกใน sections[2] ด้วย dfn (callout ปล่อยไว้ได้ ต้นแบบ ch01 ก็ไม่ห่อใน callout)"
+    },
+    {
+      "rule": "§9.1 ข้อ 6 (ห้ามเติมข้อเท็จจริงที่หนังสือไม่ได้พูด)",
+      "severity": "minor",
+      "where": "sections[1].paragraphs[1] ประโยคท้าย",
+      "problem": "'แสดงว่าระดับการเชื่อมโยงข้ามระยะทางในสมองไม่คงที่ตายตัว แต่ขยับขึ้นลงตามสภาวะรู้ตัวของเราด้วย' เป็นการอนุมานที่เขียนเป็นข้อสรุป ต้นฉบับพูดแค่ว่าปฏิสัมพันธ์เหล่านี้ 'เห็นได้ชัดเจนเป็นพิเศษในการเปรียบเทียบกิจกรรมของสมองระหว่างการตื่นและการนอนหลับ' ซึ่งพูดถึงความชัดของการตรวจจับ ไม่ใช่ระดับการเชื่อมโยงที่ขยับตามสภาวะรู้ตัว",
+      "fix": "ลดรูปเป็น 'และรูปแบบนี้เห็นต่างกันชัดที่สุดเมื่อเทียบสมองตอนตื่นกับตอนหลับ' หรือใส่คำกำกับว่าเป็นการตีความ"
+    },
+    {
+      "rule": "§9.1 ข้อ 9 (ความยาว) — คุณภาพ 'เห็น' ไม่ใช่ 'รู้'",
+      "severity": "minor",
+      "where": "ทั้งบท (938 คำ จากช่วง 900–1,400)",
+      "problem": "raw/ch01.txt ยาว 27,696 ตัวอักษร ไม่ใช่บทสั้น แต่บทเขียนไว้เกือบชนพื้นล่าง จุดที่ทำให้ผู้อ่าน 'เห็น' ได้ดีที่สุดของต้นฉบับ — สมองแก้ปัญหาซับซ้อนได้เร็วกว่าคอมพิวเตอร์ทั่วไปทั้งที่กระแสประสาทช้ามาก — ถูกวางไว้แค่ในเลนส์ของ interactive ไม่ได้อยู่ในเนื้อหา ทำให้ section 2 ขึ้นต้นด้วยชื่อวารสารและชื่อทีมวิจัยแทนที่จะขึ้นด้วยปริศนาที่ชวนอยากรู้",
+      "fix": "ย้าย/ขยายปริศนา 'ช้าแต่เร็ว' ขึ้นเป็นย่อหน้าเปิดของ section 2 แล้วค่อยเข้าชื่องานวิจัย เพิ่มได้อีกราว 150–200 คำโดยไม่ต้องเติมข้อเท็จจริงใหม่"
+    },
+    {
+      "rule": "§10 / คุณภาพ interactive",
+      "severity": "minor",
+      "where": "interactive.config.objects — cells, network, flock ใช้ shape 'blob' ทั้งสามชิ้น",
+      "problem": "3 ใน 4 ชิ้นเป็นก้อนกลมเหมือนกันหมด ผู้ใช้สลับวัตถุแล้วภาพแทบไม่เปลี่ยน เสียจุดขายของโมดูล particles ที่ให้เห็นรูปทรงต่างกัน (trilaksana-quantum/ch05 ใช้ star 3 + blob 2)",
+      "fix": "เปลี่ยน network เป็น 'star' และ flock เป็น 'star' หรือ 'flower' — ทั้งสองมีอยู่ใน SHAPES ของ web/src/js/interactives/particles.js แล้ว"
+    }
+  ]
+}
