@@ -158,3 +158,14 @@ help:
 	@echo ""
 
 .DEFAULT_GOAL := help
+
+# อ่านเว็บบนเครื่อง Mac นี้โดยไม่ใช้ docker (Caddy ถูกแทนด้วย tools/dev-server.js)
+# ใช้ตอนอยากเปิดดูผลงานเร็วๆ — production ยังเป็น `make up` (docker compose) ตาม spec
+dev-mac: build
+	@echo "เปิด http://localhost:8080  (ในวง LAN: http://$$(ipconfig getifaddr en0 2>/dev/null):8080)"
+	@node proxy/src/index.js & node tools/dev-server.js --port 8080
+
+dev-mac-stop:
+	@pkill -f 'node proxy/src/index.js' 2>/dev/null || true
+	@pkill -f 'node tools/dev-server.js' 2>/dev/null || true
+	@echo "หยุดเซิร์ฟเวอร์อ่านเว็บบนเครื่องแล้ว"
