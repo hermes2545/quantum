@@ -33,6 +33,21 @@ import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
+// schema ย่อสำหรับ chNN.json ที่ status เป็น "building" (stub จาก pipeline/toc_init.py — §A.2 ต้องมีไฟล์เสมอ)
+const BUILDING_STUB_SCHEMA = {
+  type: "object",
+  required: ["book", "slug", "order", "thaiNum", "title", "sub", "status"],
+  properties: {
+    book: { type: "string", minLength: 1 },
+    slug: { type: "string", pattern: "^ch[0-9]{2}$" },
+    order: { type: "integer", minimum: 1 },
+    thaiNum: { type: "string", minLength: 1 },
+    title: { type: "string", minLength: 1 },
+    sub: { type: "string", minLength: 1 },
+    status: { type: "string", enum: ["building"] },
+  },
+};
+
 const SCHEMA_DIR = dirname(fileURLToPath(import.meta.url));
 
 // ---------- ตัวช่วยอ่านไฟล์ ----------
@@ -343,7 +358,13 @@ function main() {
         const label = `books/${bookSlug}/${meta.slug}.json`;
         const chapter = tryReadJson(chPath, label, errors);
         if (chapter === null) continue;
-        for (const e of validateAgainst(chapter, schemas.chapter, label)) errors.push(e);
+        // บท status "building" = stub ที่ยังไม่ได้เขียน (เล่ม 2–9 หลัง pipeline/toc_init.py) — ตรวจเฉพาะ meta
+        // ให้ตรงกับ book.json (ด้านล่าง) ไม่บังคับ sections/keyPoints/keywords ฯลฯ; draft/ready ตรวจเต็ม schema
+        if (chapter.status === "building") {
+          for (const e of validateAgainst(chapter, BUILDING_STUB_SCHEMA, label)) errors.push(e);
+        } else {
+          for (const e of validateAgainst(chapter, schemas.chapter, label)) errors.push(e);
+        }
 
         if (chapter.status !== meta.status) {
           errors.push(

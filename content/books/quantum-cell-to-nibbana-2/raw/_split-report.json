@@ -1,0 +1,150 @@
+{
+  "pdfPages": 260,
+  "pageOffset": 1,
+  "endPage": 260,
+  "chapters": {
+    "ch00-preface": {
+      "startPage": 3,
+      "endPage": 6,
+      "pages": 3,
+      "chars": 3096,
+      "preview": "3"
+    },
+    "ch01": {
+      "startPage": 6,
+      "endPage": 24,
+      "pages": 18,
+      "chars": 13392,
+      "preview": "6",
+      "source": "1"
+    },
+    "ch02": {
+      "startPage": 24,
+      "endPage": 42,
+      "pages": 18,
+      "chars": 13529,
+      "preview": "24",
+      "source": "2"
+    },
+    "ch03": {
+      "startPage": 42,
+      "endPage": 63,
+      "pages": 21,
+      "chars": 16404,
+      "preview": "42",
+      "source": "3"
+    },
+    "ch04": {
+      "startPage": 63,
+      "endPage": 69,
+      "pages": 6,
+      "chars": 4205,
+      "preview": "63",
+      "source": "4"
+    },
+    "ch05": {
+      "startPage": 69,
+      "endPage": 92,
+      "pages": 23,
+      "chars": 19309,
+      "preview": "69",
+      "source": "5"
+    },
+    "ch06": {
+      "startPage": 92,
+      "endPage": 104,
+      "pages": 12,
+      "chars": 9700,
+      "preview": "92",
+      "source": "6"
+    },
+    "ch07": {
+      "startPage": 104,
+      "endPage": 112,
+      "pages": 8,
+      "chars": 5983,
+      "preview": "104",
+      "source": "7"
+    },
+    "ch08": {
+      "startPage": 112,
+      "endPage": 120,
+      "pages": 8,
+      "chars": 5946,
+      "preview": "112",
+      "source": "8"
+    },
+    "ch09": {
+      "startPage": 120,
+      "endPage": 136,
+      "pages": 16,
+      "chars": 13589,
+      "preview": "120",
+      "source": "9"
+    },
+    "ch10": {
+      "startPage": 136,
+      "endPage": 146,
+      "pages": 10,
+      "chars": 7901,
+      "preview": "136",
+      "source": "10"
+    },
+    "ch11": {
+      "startPage": 146,
+      "endPage": 157,
+      "pages": 11,
+      "chars": 9171,
+      "preview": "146",
+      "source": "11"
+    },
+    "ch12": {
+      "startPage": 157,
+      "endPage": 196,
+      "pages": 39,
+      "chars": 33662,
+      "preview": "157",
+      "source": "Part 12 (1/2)"
+    },
+    "ch13": {
+      "startPage": 196,
+      "endPage": 231,
+      "pages": 35,
+      "chars": 31144,
+      "preview": "196",
+      "source": "Part 12 (2/2)"
+    },
+    "ch14": {
+      "startPage": 231,
+      "endPage": 240,
+      "pages": 9,
+      "chars": 7672,
+      "preview": "231",
+      "source": "Part 13"
+    },
+    "ch15": {
+      "startPage": 240,
+      "endPage": 246,
+      "pages": 6,
+      "chars": 5297,
+      "preview": "240",
+      "source": "Part 14"
+    },
+    "ch16": {
+      "startPage": 246,
+      "endPage": 251,
+      "pages": 5,
+      "chars": 3488,
+      "preview": "246",
+      "source": "Part 15"
+    },
+    "ch17": {
+      "startPage": 251,
+      "endPage": 260,
+      "pages": 9,
+      "chars": 6371,
+      "preview": "251",
+      "source": "Part 16"
+    }
+  }
+}

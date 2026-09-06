@@ -1,0 +1,175 @@
+{
+  "pdfPages": 240,
+  "pageOffset": 1,
+  "endPage": 239,
+  "chapters": {
+    "ch00-preface": {
+      "startPage": 4,
+      "endPage": 8,
+      "pages": 4,
+      "chars": 3395,
+      "preview": "4"
+    },
+    "ch01": {
+      "startPage": 8,
+      "endPage": 18,
+      "pages": 10,
+      "chars": 7918,
+      "preview": "8",
+      "source": "1"
+    },
+    "ch02": {
+      "startPage": 18,
+      "endPage": 24,
+      "pages": 6,
+      "chars": 4235,
+      "preview": "18",
+      "source": "2"
+    },
+    "ch03": {
+      "startPage": 24,
+      "endPage": 40,
+      "pages": 16,
+      "chars": 12822,
+      "preview": "24",
+      "source": "3"
+    },
+    "ch04": {
+      "startPage": 40,
+      "endPage": 49,
+      "pages": 9,
+      "chars": 7559,
+      "preview": "40",
+      "source": "4"
+    },
+    "ch05": {
+      "startPage": 49,
+      "endPage": 52,
+      "pages": 3,
+      "chars": 1895,
+      "preview": "49",
+      "source": "5",
+      "warning": "สั้นกว่า 3,000 ตัวอักษร — ตรวจว่าตัดถูกช่วง"
+    },
+    "ch06": {
+      "startPage": 52,
+      "endPage": 61,
+      "pages": 9,
+      "chars": 6428,
+      "preview": "52",
+      "source": "6"
+    },
+    "ch07": {
+      "startPage": 61,
+      "endPage": 79,
+      "pages": 18,
+      "chars": 15248,
+      "preview": "61",
+      "source": "7"
+    },
+    "ch08": {
+      "startPage": 79,
+      "endPage": 88,
+      "pages": 9,
+      "chars": 7434,
+      "preview": "79",
+      "source": "8"
+    },
+    "ch09": {
+      "startPage": 88,
+      "endPage": 109,
+      "pages": 21,
+      "chars": 17654,
+      "preview": "88",
+      "source": "9"
+    },
+    "ch10": {
+      "startPage": 109,
+      "endPage": 115,
+      "pages": 6,
+      "chars": 5170,
+      "preview": "109",
+      "source": "10"
+    },
+    "ch11": {
+      "startPage": 115,
+      "endPage": 124,
+      "pages": 9,
+      "chars": 6969,
+      "preview": "115",
+      "source": "11"
+    },
+    "ch12": {
+      "startPage": 124,
+      "endPage": 139,
+      "pages": 15,
+      "chars": 12117,
+      "preview": "124",
+      "source": "12"
+    },
+    "ch13": {
+      "startPage": 139,
+      "endPage": 149,
+      "pages": 10,
+      "chars": 8140,
+      "preview": "139",
+      "source": "13"
+    },
+    "ch14": {
+      "startPage": 149,
+      "endPage": 163,
+      "pages": 14,
+      "chars": 10973,
+      "preview": "149",
+      "source": "14"
+    },
+    "ch15": {
+      "startPage": 163,
+      "endPage": 169,
+      "pages": 6,
+      "chars": 4656,
+      "preview": "163",
+      "source": "15"
+    },
+    "ch16": {
+      "startPage": 169,
+      "endPage": 181,
+      "pages": 12,
+      "chars": 9684,
+      "preview": "169",
+      "source": "16"
+    },
+    "ch17": {
+      "startPage": 181,
+      "endPage": 196,
+      "pages": 15,
+      "chars": 13466,
+      "preview": "181",
+      "source": "17"
+    },
+    "ch18": {
+      "startPage": 196,
+      "endPage": 208,
+      "pages": 12,
+      "chars": 10672,
+      "preview": "196",
+      "source": "18"
+    },
+    "ch19": {
+      "startPage": 208,
+      "endPage": 227,
+      "pages": 19,
+      "chars": 17263,
+      "preview": "208",
+      "source": "19"
+    },
+    "ch20": {
+      "startPage": 227,
+      "endPage": 239,
+      "pages": 12,
+      "chars": 9600,
+      "preview": "227",
+      "source": "20"
+    }
+  }
+}

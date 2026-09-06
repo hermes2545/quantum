@@ -1,0 +1,127 @@
+{
+  "pdfPages": 228,
+  "pageOffset": 1,
+  "endPage": 227,
+  "chapters": {
+    "ch00-preface": {
+      "startPage": 3,
+      "endPage": 6,
+      "pages": 3,
+      "chars": 2932,
+      "preview": "3",
+      "warning": "สั้นกว่า 3,000 ตัวอักษร — ตรวจว่าตัดถูกช่วง"
+    },
+    "ch01": {
+      "startPage": 6,
+      "endPage": 25,
+      "pages": 19,
+      "chars": 16624,
+      "preview": "6",
+      "source": "1"
+    },
+    "ch02": {
+      "startPage": 25,
+      "endPage": 64,
+      "pages": 39,
+      "chars": 32631,
+      "preview": "25",
+      "source": "2"
+    },
+    "ch03": {
+      "startPage": 64,
+      "endPage": 72,
+      "pages": 8,
+      "chars": 5811,
+      "preview": "64",
+      "source": "3"
+    },
+    "ch04": {
+      "startPage": 72,
+      "endPage": 78,
+      "pages": 6,
+      "chars": 4595,
+      "preview": "72",
+      "source": "4"
+    },
+    "ch05": {
+      "startPage": 78,
+      "endPage": 101,
+      "pages": 23,
+      "chars": 19522,
+      "preview": "78",
+      "source": "5"
+    },
+    "ch06": {
+      "startPage": 101,
+      "endPage": 107,
+      "pages": 6,
+      "chars": 4358,
+      "preview": "101",
+      "source": "6"
+    },
+    "ch07": {
+      "startPage": 107,
+      "endPage": 133,
+      "pages": 26,
+      "chars": 21838,
+      "preview": "107",
+      "source": "7"
+    },
+    "ch08": {
+      "startPage": 133,
+      "endPage": 140,
+      "pages": 7,
+      "chars": 5236,
+      "preview": "133",
+      "source": "8"
+    },
+    "ch09": {
+      "startPage": 140,
+      "endPage": 152,
+      "pages": 12,
+      "chars": 9406,
+      "preview": "140",
+      "source": "9"
+    },
+    "ch10": {
+      "startPage": 152,
+      "endPage": 158,
+      "pages": 6,
+      "chars": 4723,
+      "preview": "152",
+      "source": "10"
+    },
+    "ch11": {
+      "startPage": 158,
+      "endPage": 170,
+      "pages": 12,
+      "chars": 9636,
+      "preview": "158",
+      "source": "11"
+    },
+    "ch12": {
+      "startPage": 170,
+      "endPage": 186,
+      "pages": 16,
+      "chars": 14241,
+      "preview": "170",
+      "source": "12"
+    },
+    "ch13": {
+      "startPage": 186,
+      "endPage": 211,
+      "pages": 25,
+      "chars": 20455,
+      "preview": "186",
+      "source": "13"
+    },
+    "ch14": {
+      "startPage": 211,
+      "endPage": 227,
+      "pages": 16,
+      "chars": 14334,
+      "preview": "211",
+      "source": "14"
+    }
+  }
+}

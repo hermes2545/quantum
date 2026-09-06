@@ -1,0 +1,141 @@
+{
+  "pageOffset": 1,
+  "endPage": 239,
+  "chapters": [
+    {
+      "slug": "ch01",
+      "startPage": 12,
+      "source": "1",
+      "title": "วิทยาศาสตร์แบบใหม่"
+    },
+    {
+      "slug": "ch02",
+      "startPage": 22,
+      "source": "2",
+      "title": "การแบ่งแยกเป็นส่วน ๆ"
+    },
+    {
+      "slug": "ch03",
+      "startPage": 34,
+      "source": "3",
+      "title": "ทฤษฎีคือมายา"
+    },
+    {
+      "slug": "ch04",
+      "startPage": 44,
+      "source": "4",
+      "title": "รูปร่างและรูปแบบ (Shape and Form)"
+    },
+    {
+      "slug": "ch05",
+      "startPage": 56,
+      "source": "5",
+      "title": "อะตอมคือความผิดพลาด"
+    },
+    {
+      "slug": "ch06",
+      "startPage": 64,
+      "source": "6",
+      "title": "ก่อตัวและสลายไป"
+    },
+    {
+      "slug": "ch07",
+      "startPage": 72,
+      "source": "7",
+      "title": "สาเหตุ 4 ประการของอริสโตเติล"
+    },
+    {
+      "slug": "ch08",
+      "startPage": 86,
+      "source": "8",
+      "title": "ปฏิจจสมุปบาท (1)"
+    },
+    {
+      "slug": "ch09",
+      "startPage": 124,
+      "source": "9",
+      "title": "ปฏิจจสมุปบาท (2)"
+    },
+    {
+      "slug": "ch10",
+      "startPage": 132,
+      "source": "10",
+      "title": "ปฏิจจสมุปบาท (3)"
+    },
+    {
+      "slug": "ch11",
+      "startPage": 138,
+      "source": "11",
+      "title": "สาเหตุ 4 ประการของอริสโตเติลกับการกำเนิดทารก"
+    },
+    {
+      "slug": "ch12",
+      "startPage": 142,
+      "source": "12",
+      "title": "The Rheomode การทดลองกับภาษาและความคิด"
+    },
+    {
+      "slug": "ch13",
+      "startPage": 154,
+      "source": "13",
+      "title": "บัญญัติอัตตา"
+    },
+    {
+      "slug": "ch14",
+      "startPage": 162,
+      "source": "14",
+      "title": "อัตตา ภาษา การเกิดใหม่"
+    },
+    {
+      "slug": "ch15",
+      "startPage": 166,
+      "source": "15",
+      "title": "เต๋า"
+    },
+    {
+      "slug": "ch16",
+      "startPage": 174,
+      "source": "16",
+      "title": "ซิงค์กับธรรมชาติ"
+    },
+    {
+      "slug": "ch17",
+      "startPage": 184,
+      "source": "17",
+      "title": "แบคทีเรียในดินคือยาต้านซึมเศร้า"
+    },
+    {
+      "slug": "ch18",
+      "startPage": 190,
+      "source": "18",
+      "title": "ชีวิตคือการเคลื่อนไหว"
+    },
+    {
+      "slug": "ch19",
+      "startPage": 198,
+      "source": "19",
+      "title": "ล้างพิษระดับเซลล์"
+    },
+    {
+      "slug": "ch20",
+      "startPage": 208,
+      "source": "20",
+      "title": "พลังความคิดบำบัด"
+    },
+    {
+      "slug": "ch21",
+      "startPage": 218,
+      "source": "21",
+      "title": "จัดระเบียบคลื่นสมองด้วยคลื่นเสียง"
+    },
+    {
+      "slug": "ch22",
+      "startPage": 232,
+      "source": "บทสรุป",
+      "title": "บทสรุป ควอนตัมบำบัด"
+    }
+  ],
+  "preface": {
+    "startPage": 4
+  }
+}

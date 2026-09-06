@@ -31,6 +31,9 @@ const COMMON = `
 อ่านก่อน: ${ROOT}/docs/handoff-spec.md §9.1 (11 ข้อ) §9.2 §10 · ต้นแบบคุณภาพ ${ROOT}/content/books/trilaksana-quantum/ch01.json และ ch03.json
 · ${DIR}/book.json (coreIdeas ของเล่มนี้ = แนวคิดหลักที่ทุก section ต้องโยงกลับ แทน "ไตรลักษณ์" ของเล่ม 1) · ${DIR}/raw/chNN.txt (ต้นฉบับ อาจมี OCR artifact)
 · glossary รวมทุกเล่ม: ถ้าคำมีใน ${ROOT}/content/books/trilaksana-quantum/glossary.json แล้ว ใช้ term/def เดิม (ใส่ใน terms[] ของบทได้ แต่เพิ่ม books ให้มี "${BOOK}")
+· ${DIR}/raw/ch00-preface.txt = คำนำผู้เขียน (อ่านครั้งเดียวเพื่อจับเจตนาของเล่ม) · ${DIR}/raw/_toc.json บอกว่าบทเรียนนี้รวมบทต้นฉบับไหน (field source) และช่วงหน้า PDF
+· ถ้า raw ของบทสั้น (<3,000 ตัวอักษร) ให้เขียนใกล้ขั้นต่ำ 900 คำ — ห้ามเติมเนื้อหาที่หนังสือไม่ได้พูดถึงเพื่อให้ยาวขึ้น (§9.1 ข้อ 6 ห้ามแต่งข้อเท็จจริง)
+· ไฟล์ ${DIR}/chNN.json ที่มีอยู่เป็น stub status "building" (มีแค่ meta) — เขียนทับทั้งไฟล์ได้เลย แต่คง book/slug/order/thaiNum/title ตามเดิม
 
 ธรรมเนียมที่ล็อกแล้ว: slug = "chNN" · <dfn data-term="X" data-kind="ธรรมะ|วิทยาศาสตร์"> ห่อครั้งแรกต่อ section · paragraphs ใช้ได้เฉพาะ <b> <i> <dfn>
 · interactive.module = "particles" พร้อม config.objects 4–5 ชิ้น {key,name,color(gold|teal|pink|star|mint),shape,lenses:{a,d,n}} + lensLabels/phases/initialT/timeLabel/emptyReadout (ดูแบบจาก trilaksana-quantum/ch05.json) — เล่มนี้ยังไม่มี interactive เขียนมือ

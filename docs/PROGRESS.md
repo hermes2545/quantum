@@ -14,19 +14,22 @@ Orchestrator: session หลัก (Fable 5.1) · Reviewer: Opus 5 · Implemente
 - [x] 1. โครง infra/proxy/pipeline/web/content — 6 package, Opus ตรวจ 59 findings (9 blocker) → แก้ครบ → smoke test ผ่าน
       (proxy health/traversal/maxRetries:0, Caddy SSE flush, pytest 34 passed, ไม่มี key/window.claude หลุด)
       ตกลงธรรมเนียมตามสัญญา Fable: chapter.slug = chNN, <dfn> มี data-kind, module = particles | {book}/chNN → `content/schema/normalize.mjs`
-- [ ] 2. PDF 9 เล่ม → content/source/
-- [ ] 3. extract + clean + split ทั้ง 9 เล่ม → raw/chNN.txt   ← เล่ม 1 เสร็จ (9 บท + คำนำ, แก้คำ 467 จุด); เล่ม 2–9 รอ PDF
+- [~] 2. PDF 9 เล่ม → content/source/ — **7/9 ดึงจาก Drive ผ่าน connector ได้เอง (6 ก.ย.)** ด้วย `download_file_content` (harness เก็บผล base64 ลงไฟล์ให้ถอดรหัสได้) เหลือ 1.1 (connector "session expired" ทุกครั้ง 6.8 MB) และ 1.5 (10.5 MB เกินลิมิต 10 MB ของ connector) — สองเล่มนี้ผู้ใช้ต้องวางเอง
+- [~] 3. extract + clean + split → raw/chNN.txt — เล่ม 1 เสร็จ; **7 เล่ม (2,3,4,6,7,8,9) เสร็จ 6 ก.ย.**: extract (pymupdf) → `pipeline/toc_init.py` (สเปกสารบัญที่คนเขียนจาก TOC ของ PDF → book.json.chapters + stub chNN.json status building + raw/_toc.json) → `pipeline/split_pages.py` (ตัดบทตามเลขหน้าพิมพ์ = ดัชนี PDF+1, clean ต่อบท) รวม 120 บท; เล่ม 5 รอ PDF
+      การตัดสินใจ: 1 บทเรียน = 1 บทต้นฉบับ ยกเว้น เล่ม 2 (41 บทสั้น 2–8 หน้า → รวมเป็น 17 บทตามส่วนของหนังสือ, `source` ใน raw/_toc.json บอกว่ารวมบทไหน) และ เล่ม 9 Part 12 (74 หน้า → แยก 2 บทที่หน้า 196 = เริ่มอริยสัจ 4)
+      clean.py: ฟอนต์เล่ม 2–9 ซ้อนเฉพาะสระ/วรรณยุกต์ ไม่ซ้อนพยัญชนะ (ตรวจสถิติแล้ว) → ค่าเริ่มต้นยุบเฉพาะสระ/วรรณยุกต์ + ลบ glyph ละตินแปลกปลอม (Ě ę š ć Ĝ …); โหมด spec เดิม = `--legacy-collapse`
 - [x] 4. author ทุกบท — **เล่ม 1 ครบ 9/9 ready** (บท 1–2 จาก prototype; บท 3–9 Sonnet เขียน → Opus ตรวจ 2–3 รอบ → แก้ → Opus ยืนยัน post-fix; reviewedBy=opus-5-agent)
       เล่ม 2–9 รอ PDF
 - [x] 6. interactives เขียนมือ — ch01 (particles config), ch02 zoom-scale 4 KB, ch03 aggregate-chain+ใส่สติ 21 KB, ch04 star-mass 22 KB, ch09 cell-turnover 30 KB; ch05–08 ใช้ particles กลาง (ch08 เก็บ requestedModule=evolution-timeline ไว้ทำภายหลัง)
 - [x] 5. glossary + auto-link + index.json — เล่ม 1: glossary 71 คำ (merge โดย normalize.mjs), validate ผ่าน 13 ไฟล์, build 13 หน้า, index.json 1 เล่ม
 - [ ] 6. interactives เขียนมือ (บท 1,2,3,4,9 ของเล่ม 1 อย่างน้อย)
 - [x] 7. build static + รัน proxy + ทดสอบ mobile 360/390/768/1280 — QA จริงด้วย Playwright 5 หน้า × 4 ขนาด (docs/qa/mobile-report.md + 29 ภาพ): ไม่มี horizontal scroll, AskPanel เต็มจอ, TermSheet ≤75vh, console error 0; ตกกฎข้อ 8 (ฟอนต์ 15px) → แก้แล้ว
+- [ ] 5b. เล่ม 2–9: blurb/coreIdeas จริงใน book.json (Sonnet จากคำนำ) → author ทีละเล่มด้วย `tools/workflow-author-book.js` (เริ่มเล่มเล็กสุด quantum-merit-power เป็นนำร่อง) → normalize/validate/build → push ต่อเล่ม
 - [ ] 8. docker compose ทดสอบบนเครื่องนี้ — `docker compose config` ผ่าน; daemon (colima) ไม่ได้รัน → ทดสอบจริงบน Ubuntu ตาม spec
 - [~] 9. ตรวจรับโดย Opus ตาม §11 (12 ข้อ): ผ่าน 9 / ข้อสังเกต 3 — blocker: **B1 PDF ยังไม่มีในเครื่อง (ผู้ใช้)**, **B2 ANTHROPIC_API_KEY ว่างใน .env (ผู้ใช้)**, B3 config ของ ch05–08 ไม่ตรงโมดูล particles → **แก้แล้ว** (objects 5/5/6/5 + guard ใน normalize.mjs); ข้อควรแก้ 14 ข้อ → แก้แล้ว 11 (ask effort/max_tokens notice, XFF, root, isFile, README, bulletsAfter, hint, .msg, review-ch03, วิธีนับคำมาตรฐาน = `pipeline/wordcount.py`) เหลือที่ตั้งใจไม่ทำในเฟสนี้: บันทึกเหตุผลตัดเนื้อหา raw ch06/ch08 (จะทำตอนทำ interactive มือให้บทเหล่านั้น), server-side fallbacks (ทางเลือก ไม่อยู่ใน spec), .scroll-x (ยังไม่มีเนื้อหากว้าง)
 
 ## สิ่งที่ผู้ใช้ต้องทำก่อนเปิดใช้เฟส 1 (ระบบทำแทนไม่ได้)
-1. วาง PDF 9 เล่มลง `content/source/` (ชื่อไฟล์ตาม `content/books/*/book.json → sourcePdf.file`) แล้ว `node content/schema/validate.mjs --strict-source`
+1. วาง PDF **2 เล่มที่เหลือ** (1.1 ไตรลักษณ์ในควอนตัม, 1.5 ควอนตัมในสิ่งมีชีวิต) ลง `content/source/` (ชื่อไฟล์ตาม `content/books/*/book.json → sourcePdf.file`) แล้ว `node content/schema/validate.mjs --strict-source`
 2. ใส่ `ANTHROPIC_API_KEY` ใน `.env` + ตั้ง spend limit ใน Anthropic Console
    วิธีที่ง่ายสุด: เปิดโฟลเดอร์ Drive `quantum book/E-Books ธรรมะ-ควอนตัม 9 เล่ม-20260905T055651Z-1-001/E-Books ธรรมะ-ควอนตัม 9 เล่ม`
    → ดาวน์โหลดทั้งโฟลเดอร์ (zip) → แตกไฟล์ลง `content/source/` (ชื่อไฟล์ใน Drive ตรงกับ `sourcePdf.file` อยู่แล้ว ไม่ต้องเปลี่ยนชื่อ)

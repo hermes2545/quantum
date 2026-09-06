@@ -190,7 +190,8 @@ class TestCleanTextEndToEnd(unittest.TestCase):
             "เนื้อหาเรื่องปัญาและธรมในบทนี้ พูดถึงกรมและเซล์ด้วย\n"
             "สังขารกับขันธ์ไม่ได้ถูกแตะต้องเพราะไม่มีตัวซ้อน\n"
         )
-        cleaned, report = clean.clean_text(raw)
+        # ข้อความสังเคราะห์นี้จำลอง "พยัญชนะซ้อน" ตาม spec §8 → ต้องใช้โหมด legacy (ค่าเริ่มต้นยุบเฉพาะสระ/วรรณยุกต์)
+        cleaned, report = clean.clean_text(raw, collapse_consonants=True)
         self.assertIn("ปัญญา", cleaned)
         self.assertIn("ธรรม", cleaned)
         self.assertIn("กรรม", cleaned)

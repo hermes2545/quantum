@@ -1,0 +1,150 @@
+{
+  "pdfPages": 236,
+  "pageOffset": 1,
+  "endPage": 235,
+  "chapters": {
+    "ch00-preface": {
+      "startPage": 5,
+      "endPage": 15,
+      "pages": 10,
+      "chars": 5484,
+      "preview": "..."
+    },
+    "ch01": {
+      "startPage": 15,
+      "endPage": 23,
+      "pages": 8,
+      "chars": 5831,
+      "preview": "...",
+      "source": "1-2"
+    },
+    "ch02": {
+      "startPage": 23,
+      "endPage": 33,
+      "pages": 10,
+      "chars": 9127,
+      "preview": "...",
+      "source": "3-5"
+    },
+    "ch03": {
+      "startPage": 33,
+      "endPage": 41,
+      "pages": 8,
+      "chars": 6198,
+      "preview": "...",
+      "source": "6-8"
+    },
+    "ch04": {
+      "startPage": 41,
+      "endPage": 49,
+      "pages": 8,
+      "chars": 6601,
+      "preview": "...",
+      "source": "9-11"
+    },
+    "ch05": {
+      "startPage": 49,
+      "endPage": 62,
+      "pages": 13,
+      "chars": 12656,
+      "preview": "...",
+      "source": "12-13"
+    },
+    "ch06": {
+      "startPage": 62,
+      "endPage": 75,
+      "pages": 13,
+      "chars": 11357,
+      "preview": "62",
+      "source": "14-15"
+    },
+    "ch07": {
+      "startPage": 75,
+      "endPage": 87,
+      "pages": 12,
+      "chars": 10684,
+      "preview": "...",
+      "source": "16-17"
+    },
+    "ch08": {
+      "startPage": 87,
+      "endPage": 103,
+      "pages": 16,
+      "chars": 13952,
+      "preview": "...",
+      "source": "18-21"
+    },
+    "ch09": {
+      "startPage": 103,
+      "endPage": 114,
+      "pages": 11,
+      "chars": 11418,
+      "preview": "...",
+      "source": "22-23"
+    },
+    "ch10": {
+      "startPage": 114,
+      "endPage": 131,
+      "pages": 17,
+      "chars": 14267,
+      "preview": "114",
+      "source": "24-26"
+    },
+    "ch11": {
+      "startPage": 131,
+      "endPage": 142,
+      "pages": 11,
+      "chars": 11725,
+      "preview": "...",
+      "source": "27"
+    },
+    "ch12": {
+      "startPage": 142,
+      "endPage": 159,
+      "pages": 17,
+      "chars": 15457,
+      "preview": "142",
+      "source": "28-30"
+    },
+    "ch13": {
+      "startPage": 159,
+      "endPage": 176,
+      "pages": 17,
+      "chars": 16061,
+      "preview": "...",
+      "source": "31-33"
+    },
+    "ch14": {
+      "startPage": 176,
+      "endPage": 194,
+      "pages": 18,
+      "chars": 15629,
+      "preview": "176",
+      "source": "34-35"
+    },
+    "ch15": {
+      "startPage": 194,
+      "endPage": 205,
+      "pages": 11,
+      "chars": 8794,
+      "preview": "194",
+      "source": "36"
+    },
+    "ch16": {
+      "startPage": 205,
+      "endPage": 221,
+      "pages": 16,
+      "chars": 15817,
+      "preview": "...",
+      "source": "37-38"
+    },
+    "ch17": {
+      "startPage": 221,
+      "endPage": 235,
+      "pages": 14,
+      "chars": 10588,
+      "preview": "...",
+      "source": "39-41+บทส่งท้าย"
+    }
+  }
+}

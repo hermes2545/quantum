@@ -1,0 +1,129 @@
+{
+  "pageOffset": 1,
+  "endPage": 191,
+  "chapters": [
+    {
+      "slug": "ch01",
+      "startPage": 6,
+      "source": "1",
+      "title": "นักมายากลแห่งธรรมชาติ"
+    },
+    {
+      "slug": "ch02",
+      "startPage": 20,
+      "source": "2",
+      "title": "ห่อหุ้ม-เผยออก ของเดวิด โบห์ม (The enfolding-unfolding)"
+    },
+    {
+      "slug": "ch03",
+      "startPage": 34,
+      "source": "3",
+      "title": "ลำดับแห่งโยงใยกับทฤษฎีควอนตัม"
+    },
+    {
+      "slug": "ch04",
+      "startPage": 40,
+      "source": "4",
+      "title": "ลำดับแห่งโยงใยกับชีวิต"
+    },
+    {
+      "slug": "ch05",
+      "startPage": 46,
+      "source": "5",
+      "title": "ลำดับแห่งโยงใยกับวิถีจิต"
+    },
+    {
+      "slug": "ch06",
+      "startPage": 54,
+      "source": "6",
+      "title": "ลำดับแห่งโยงใยกับเสียง"
+    },
+    {
+      "slug": "ch07",
+      "startPage": 60,
+      "source": "7",
+      "title": "ลำดับแห่งโยงใยกับภาพ"
+    },
+    {
+      "slug": "ch08",
+      "startPage": 72,
+      "source": "8",
+      "title": "โฮโลแกรม (Hologram)"
+    },
+    {
+      "slug": "ch09",
+      "startPage": 86,
+      "source": "9",
+      "title": "ลำดับแห่งโยงใยกับวิญญาณขันธ์"
+    },
+    {
+      "slug": "ch10",
+      "startPage": 96,
+      "source": "10",
+      "title": "โฮโลแกรมกับสัญญาขันธ์"
+    },
+    {
+      "slug": "ch11",
+      "startPage": 104,
+      "source": "11",
+      "title": "ลำดับแห่งโยงใยกับเวทนาขันธ์"
+    },
+    {
+      "slug": "ch12",
+      "startPage": 110,
+      "source": "12",
+      "title": "ลำดับแห่งโยงใยกับสังขารขันธ์"
+    },
+    {
+      "slug": "ch13",
+      "startPage": 116,
+      "source": "13",
+      "title": "ลำดับแห่งโยงใยกับรูปขันธ์"
+    },
+    {
+      "slug": "ch14",
+      "startPage": 120,
+      "source": "14",
+      "title": "ชุดที่ประสานกัน (Ensemble)"
+    },
+    {
+      "slug": "ch15",
+      "startPage": 128,
+      "source": "15",
+      "title": "เหตุแห่งความหลุดพ้น"
+    },
+    {
+      "slug": "ch16",
+      "startPage": 132,
+      "source": "16",
+      "title": "วิญญาณที่ไปเกิดใหม่"
+    },
+    {
+      "slug": "ch17",
+      "startPage": 140,
+      "source": "17",
+      "title": "ช่างสร้างเรือนของพระพุทธองค์กับรูปแบบ (Formal) ของอริสโตเติล"
+    },
+    {
+      "slug": "ch18",
+      "startPage": 148,
+      "source": "18",
+      "title": "อาหารของวิญญาณ (1)"
+    },
+    {
+      "slug": "ch19",
+      "startPage": 166,
+      "source": "19",
+      "title": "อาหารของวิญญาณ (2)"
+    },
+    {
+      "slug": "ch20",
+      "startPage": 176,
+      "source": "20",
+      "title": "นิพพาน (พุทธพจน์ที่เกี่ยวข้อง)"
+    }
+  ],
+  "preface": {
+    "startPage": 4
+  }
+}

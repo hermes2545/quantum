@@ -44,6 +44,8 @@ python3 -m pipeline.run --book trilaksana-quantum
 | `author.py` | `raw/chNN.txt` + กฎ §9.1 + ch01/ch02.json เป็น few-shot | `chNN.json` (`status: "draft"` เสมอ) |
 | `terms.py` | ทุก `chNN.json` + `glossary.json` เดิม (ถ้ามี) | `glossary.json` + `<dfn>` auto-link ใน `chNN.json` |
 | `run.py` | — | รันทั้งสายตามลำดับข้างบน |
+| `toc_init.py` (เล่ม 2–9) | สเปกสารบัญ JSON `{preface:{startPage}, endPage, chapters:[{title,startPage,source?}]}` ที่คนเขียนจาก TOC ของ PDF | `book.json.chapters[]` + stub `chNN.json` (status building) + `raw/_toc.json` |
+| `split_pages.py` (เล่ม 2–9) | `raw/_toc.json` + PDF | `raw/chNN.txt`, `raw/ch00-preface.txt`, `raw/_split-report.json` — ตัดตาม "เลขหน้าพิมพ์" (= ดัชนีหน้า PDF + 1) แทนการค้นหัวข้อ เพราะเล่ม 2–9 ใช้เลขอารบิก/Part และชื่อบทซ้ำในเนื้อหา; clean ต่อบทให้เสร็จในตัว |
 
 ## กฎเหล็กที่ pipeline นี้เคารพ
 
@@ -60,6 +62,15 @@ python3 -m pipeline.run --book trilaksana-quantum
   (ห้าม `budget_tokens`/`disabled` กับโมเดลตระกูลนี้ — 400) และใช้ `output_config.format`
   (structured outputs) แทนการบังคับ `tool_choice` (ก็ 400 เช่นกันบน Fable 5.1) ถ้าองค์กรใช้ Fable
   ไม่ได้ (เช่นไม่ผ่านเงื่อนไข data retention 30 วัน) ตั้ง `export AUTHOR_MODEL=claude-opus-5` แทนได้
+
+## หมายเหตุ clean.py สำหรับ PDF เล่ม 2–9 (6 ก.ย. 2026)
+
+ตรวจสถิติจาก pymupdf ของเล่ม 1.2–1.9 แล้ว ฟอนต์ซ้อนเฉพาะ **สระ/วรรณยุกต์** (้้ 2,799 จุด, ่่ 2,428, ีี 1,870 …)
+ไม่เคยซ้อนพยัญชนะ (ธรม 0 / ธรรม 95) — regex ตาม spec §8 ที่ยุบ "ทุกตัวอักษรไทย" จึงทำลายคำสะกดซ้ำโดยชอบ
+(สสาร→สาร, แบบ→แบ, ออก→อก, บุคคล→บุคล) ค่าเริ่มต้นตอนนี้ยุบเฉพาะสระ/วรรณยุกต์ (`DUP_RE`) และไม่รัน dictionary
+fixer (ไม่มีอะไรให้แก้คืน และ fuzzy pattern ของมันแก้เกิน เช่น แกรม→แกรรม) ต้องการพฤติกรรม spec ตรงตัวใช้
+`--legacy-collapse` (`LEGACY_DUP_RE` + fixture) นอกจากนี้ลบ glyph ละตินแปลกปลอมที่ฟอนต์ปล่อยติดตัวอักษรไทย
+(Ě ę š ć Ĝ Ⱦ … ช่วง U+0080–U+036F) เฉพาะที่ติดตัวอักษรไทย คำละตินจริง (EPR, Quantamagazine) ไม่โดน
 
 ## ข้อจำกัดที่ทราบแล้ว (บันทึกไว้ให้คนตรวจ ไม่ใช่บั๊กที่ไม่รู้ตัว)
 

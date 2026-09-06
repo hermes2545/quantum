@@ -1,0 +1,129 @@
+{
+  "pageOffset": 1,
+  "endPage": 239,
+  "chapters": [
+    {
+      "slug": "ch01",
+      "startPage": 8,
+      "source": "1",
+      "title": "ฟิสิกส์ควอนตัม อภิปรัชญา พุทธศาสน์"
+    },
+    {
+      "slug": "ch02",
+      "startPage": 18,
+      "source": "2",
+      "title": "ประวัติฟิสิกส์ควอนตัม"
+    },
+    {
+      "slug": "ch03",
+      "startPage": 24,
+      "source": "3",
+      "title": "จากกรีกโบราณถึงยุคใหม่"
+    },
+    {
+      "slug": "ch04",
+      "startPage": 40,
+      "source": "4",
+      "title": "การตีความแบบโคเปนเฮเกน"
+    },
+    {
+      "slug": "ch05",
+      "startPage": 49,
+      "source": "5",
+      "title": "แมวของชเรอดิงเงอร์"
+    },
+    {
+      "slug": "ch06",
+      "startPage": 52,
+      "source": "6",
+      "title": "ข้อโต้แย้งของไอน์สไตน์"
+    },
+    {
+      "slug": "ch07",
+      "startPage": 61,
+      "source": "7",
+      "title": "พระเจ้าของไอน์สไตน์"
+    },
+    {
+      "slug": "ch08",
+      "startPage": 79,
+      "source": "8",
+      "title": "ความพัวพันทางควอนตัม"
+    },
+    {
+      "slug": "ch09",
+      "startPage": 88,
+      "source": "9",
+      "title": "คอมพิวเตอร์ควอนตัม"
+    },
+    {
+      "slug": "ch10",
+      "startPage": 109,
+      "source": "10",
+      "title": "ดาวเทียมควอนตัม"
+    },
+    {
+      "slug": "ch11",
+      "startPage": 115,
+      "source": "11",
+      "title": "ข้อโต้แย้งในศตวรรษที่ 21"
+    },
+    {
+      "slug": "ch12",
+      "startPage": 124,
+      "source": "12",
+      "title": "กลศาสตร์ควอนตัมในสิ่งมีชีวิต"
+    },
+    {
+      "slug": "ch13",
+      "startPage": 139,
+      "source": "13",
+      "title": "กระแสไฟฟ้าในสมอง"
+    },
+    {
+      "slug": "ch14",
+      "startPage": 149,
+      "source": "14",
+      "title": "บทเพลงควอนตัมสร้างจิตรู้สำนึก"
+    },
+    {
+      "slug": "ch15",
+      "startPage": 163,
+      "source": "15",
+      "title": "สสารสร้างจิต หรือ จิตสร้างสสาร ?"
+    },
+    {
+      "slug": "ch16",
+      "startPage": 169,
+      "source": "16",
+      "title": "จิตรู้สำนึกแห่งจักรวาล"
+    },
+    {
+      "slug": "ch17",
+      "startPage": 181,
+      "source": "17",
+      "title": "นามขันธ์ในสมอง"
+    },
+    {
+      "slug": "ch18",
+      "startPage": 196,
+      "source": "18",
+      "title": "กฎแห่งกรรมคือความพัวพันทางควอนตัม"
+    },
+    {
+      "slug": "ch19",
+      "startPage": 208,
+      "source": "19",
+      "title": "สนามข้อมูลของกรรม (Morphic fields)"
+    },
+    {
+      "slug": "ch20",
+      "startPage": 227,
+      "source": "20",
+      "title": "บทสรุป พุทธศาสนากับวิทยาศาสตร์"
+    }
+  ],
+  "preface": {
+    "startPage": 4
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "pageOffset": 1,
+  "endPage": 227,
+  "chapters": [
+    {
+      "slug": "ch01",
+      "startPage": 6,
+      "source": "1",
+      "title": "เอนโทรปีกับชีวิต"
+    },
+    {
+      "slug": "ch02",
+      "startPage": 25,
+      "source": "2",
+      "title": "กำเนิดวิญญาณควอนตัมและความพัวพันของนามรูป"
+    },
+    {
+      "slug": "ch03",
+      "startPage": 64,
+      "source": "3",
+      "title": "สตริงแห่งชีวิต"
+    },
+    {
+      "slug": "ch04",
+      "startPage": 72,
+      "source": "4",
+      "title": "ฟิสิกส์ปะทะปรัชญากรีก"
+    },
+    {
+      "slug": "ch05",
+      "startPage": 78,
+      "source": "5",
+      "title": "โมเลกุลชีวิตในอวกาศ"
+    },
+    {
+      "slug": "ch06",
+      "startPage": 101,
+      "source": "6",
+      "title": "วิวัฒนาการแห่งสมองกับตัณหาและอุปาทาน"
+    },
+    {
+      "slug": "ch07",
+      "startPage": 107,
+      "source": "7",
+      "title": "แรงกดดันทางอุณหพลศาสตร์สร้างชีวิต"
+    },
+    {
+      "slug": "ch08",
+      "startPage": 133,
+      "source": "8",
+      "title": "สรีรวิทยาแห่งตัณหาและความทุกข์"
+    },
+    {
+      "slug": "ch09",
+      "startPage": 140,
+      "source": "9",
+      "title": "กิเลส ทุนนิยม และเอนโทรปี"
+    },
+    {
+      "slug": "ch10",
+      "startPage": 152,
+      "source": "10",
+      "title": "วิญญาณวิวัฒนาการ"
+    },
+    {
+      "slug": "ch11",
+      "startPage": 158,
+      "source": "11",
+      "title": "ปมทอพอโลจีแห่งตัณหาและอุปาทาน"
+    },
+    {
+      "slug": "ch12",
+      "startPage": 170,
+      "source": "12",
+      "title": "พุทธพจน์เรื่องทฤษฎีความน่าจะเป็น"
+    },
+    {
+      "slug": "ch13",
+      "startPage": 186,
+      "source": "13",
+      "title": "นามขันธ์กับโครงสร้างสมอง 11 มิติ"
+    },
+    {
+      "slug": "ch14",
+      "startPage": 211,
+      "source": "14",
+      "title": "คลื่นความถี่ควอนตัมในสภาวะนิพพาน"
+    }
+  ],
+  "preface": {
+    "startPage": 3
+  }
+}

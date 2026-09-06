@@ -1,0 +1,95 @@
+{
+  "pdfPages": 146,
+  "pageOffset": 1,
+  "endPage": 145,
+  "chapters": {
+    "ch00-preface": {
+      "startPage": 3,
+      "endPage": 8,
+      "pages": 5,
+      "chars": 4038,
+      "preview": "คุยกับผู้เขียน"
+    },
+    "ch01": {
+      "startPage": 8,
+      "endPage": 22,
+      "pages": 14,
+      "chars": 9990,
+      "preview": "8",
+      "source": "1"
+    },
+    "ch02": {
+      "startPage": 22,
+      "endPage": 30,
+      "pages": 8,
+      "chars": 4779,
+      "preview": "22",
+      "source": "2"
+    },
+    "ch03": {
+      "startPage": 30,
+      "endPage": 44,
+      "pages": 14,
+      "chars": 10381,
+      "preview": "30",
+      "source": "3"
+    },
+    "ch04": {
+      "startPage": 44,
+      "endPage": 52,
+      "pages": 8,
+      "chars": 4942,
+      "preview": "44",
+      "source": "4"
+    },
+    "ch05": {
+      "startPage": 52,
+      "endPage": 60,
+      "pages": 8,
+      "chars": 3772,
+      "preview": "52",
+      "source": "5"
+    },
+    "ch06": {
+      "startPage": 60,
+      "endPage": 66,
+      "pages": 6,
+      "chars": 2996,
+      "preview": "60",
+      "source": "6",
+      "warning": "สั้นกว่า 3,000 ตัวอักษร — ตรวจว่าตัดถูกช่วง"
+    },
+    "ch07": {
+      "startPage": 66,
+      "endPage": 90,
+      "pages": 24,
+      "chars": 14996,
+      "preview": "66",
+      "source": "7"
+    },
+    "ch08": {
+      "startPage": 90,
+      "endPage": 112,
+      "pages": 22,
+      "chars": 13705,
+      "preview": "90",
+      "source": "8"
+    },
+    "ch09": {
+      "startPage": 112,
+      "endPage": 122,
+      "pages": 10,
+      "chars": 4601,
+      "preview": "112",
+      "source": "9"
+    },
+    "ch10": {
+      "startPage": 122,
+      "endPage": 145,
+      "pages": 23,
+      "chars": 18755,
+      "preview": "122",
+      "source": "10"
+    }
+  }
+}

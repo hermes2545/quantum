@@ -56,8 +56,15 @@ COMBINING_MARKS = (
 )
 COMBINING_SET = set(COMBINING_MARKS)
 
-# regex ยุบตัวอักษรไทยที่ซ้ำติดกัน — คัดลอกจาก spec ตรงตัว (docs/handoff-spec.md §8)
-DUP_RE = re.compile(r"([" + THAI_BLOCK + r"])\1+")
+# regex ยุบตัวอักษรไทยที่ซ้ำติดกัน — spec §8 ให้ยุบ "ทุกตัวอักษรไทย" (LEGACY_DUP_RE) แต่ตรวจกับ PDF เล่ม 1.2–1.9
+# (pymupdf, 6 ก.ย. 2026) พบว่าฟอนต์ซ้อนเฉพาะ "สระ/วรรณยุกต์" (้้ 2,799 ่่ 2,428 ีี 1,870 ...) ไม่เคยซ้อน
+# พยัญชนะเลย (ธรม 0 / ธรรม 95, ปัญา 0 / ปัญญา 13) — การยุบพยัญชนะจึงมีแต่ทำลายคำที่สะกดซ้ำโดยชอบ
+# (สสาร→สาร, แบบ→แบ, ออก→อก, บุคคล→บุคล) ค่าเริ่มต้นจึงยุบเฉพาะสระ/วรรณยุกต์ (DUP_RE) และเปิดโหมด spec
+# ได้ด้วย collapse_consonants=True / --legacy-collapse สำหรับข้อความที่พยัญชนะซ้อนจริง (เช่น txt ของเล่ม 1)
+LEGACY_DUP_RE = re.compile(r"([" + THAI_BLOCK + r"])\1+")
+# สระ ะ า ำ ซ้ำติดกันก็ไม่มีในภาษาไทยเช่นกัน (พบ "สำĜำเร็จ" → หลังลบ glyph เหลือ ำำ)
+DUP_MARKS = COMBINING_MARKS + "ะาำ"
+DUP_RE = re.compile("([" + re.escape(DUP_MARKS) + "])\\1+")
 
 # � ตามด้วยสระ/วรรณยุกต์ลอย 0 ตัวขึ้นไป (สระที่ตามหลัง � มักเป็นสระของพยัญชนะที่ดึงไม่สำเร็จ)
 REPLACEMENT_ARTIFACT_RE = re.compile("�[" + re.escape(COMBINING_MARKS) + "]*")
@@ -197,7 +204,23 @@ def find_suspicious_lines(text: str, max_lines: int = 40) -> list[str]:
 # ---------------------------------------------------------------------------
 # ฟังก์ชันหลัก
 # ---------------------------------------------------------------------------
-def clean_text(raw_text: str, words: list[str] | None = None) -> tuple[str, dict]:
+# ---------------------------------------------------------------------------
+# pass 2b — ฟอนต์ของเล่ม 2–9 ปล่อย glyph ละติน/เครื่องหมายเสริม (Ě ę š ć Ĝ Ⱦ Ȳ ...) แทรกติดตัวอักษรไทย
+# (เช่น "ตั้Ěง", "ผู้šเขียน", "คำćถาม", "สำĜำเร็จ") — ลบเฉพาะที่ "ติด" ตัวอักษรไทยเท่านั้น คำละตินจริงในเนื้อหา
+# (EPR, Quantamagazine) ไม่โดน เพราะเป็น ASCII และไม่อยู่ในช่วง U+0080–U+036F
+# ---------------------------------------------------------------------------
+_STRAY = "\u0080-\u036F"
+STRAY_LATIN_GLYPH_RE = re.compile(
+    "(?<=[" + THAI_BLOCK + "])[" + _STRAY + "]+|[" + _STRAY + "]+(?=[" + THAI_BLOCK + "])"
+)
+
+
+def clean_text(
+    raw_text: str, words: list[str] | None = None, collapse_consonants: bool = False
+) -> tuple[str, dict]:
+    """collapse_consonants=False (ค่าเริ่มต้น): ยุบเฉพาะสระ/วรรณยุกต์ซ้ำ และ "ไม่" รัน dictionary fixer
+    (เพราะไม่มีพยัญชนะซ้อนให้แก้คืน — fuzzy pattern ของมันมีแต่จะแก้เกิน เช่น กรม→กรรม, แกรม→แกรรม)
+    collapse_consonants=True: พฤติกรรมตาม spec §8 ตรงตัว (ยุบทุกตัวอักษรไทย + dictionary แก้คืน)"""
     words = words if words is not None else load_fixture_words()
     compiled = build_word_fixer(words)
 
@@ -210,14 +233,18 @@ def clean_text(raw_text: str, words: list[str] | None = None) -> tuple[str, dict
     text = "\n".join(lines)
 
     text, replaced_artifacts = REPLACEMENT_ARTIFACT_RE.subn("", text)
+    text, stray_glyphs = STRAY_LATIN_GLYPH_RE.subn("", text)
 
     lines = text.split("\n")
     lines, removed_pagenum, removed_pagenum_lines, suspicious_pagenum = remove_page_number_lines(lines)
     text = "\n".join(lines)
 
-    text = DUP_RE.sub(r"\1", text)
-
-    text, word_fix_counts = fix_known_words(text, compiled)
+    if collapse_consonants:
+        text = LEGACY_DUP_RE.sub(r"\1", text)
+        text, word_fix_counts = fix_known_words(text, compiled)
+    else:
+        text = DUP_RE.sub(r"\1", text)
+        word_fix_counts = {}
 
     # เก็บกวาดช่องว่าง/บรรทัดว่างเกิน (ทำหลังสุดเพื่อไม่รบกวน pattern การจับคู่ด้านบน)
     text = re.sub(r"[ \t]{2,}", " ", text)
@@ -233,9 +260,11 @@ def clean_text(raw_text: str, words: list[str] | None = None) -> tuple[str, dict
         "char_count_after": len(text),
         "lines_merged_combining_mark": merged_count,
         "replacement_char_artifacts_removed": replaced_artifacts,
+        "stray_latin_glyphs_removed": stray_glyphs,
         "page_number_lines_removed": removed_pagenum,
         "page_number_lines_removed_detail": removed_pagenum_lines,
         "suspicious_page_number_lines": suspicious_pagenum,
+        "collapse_consonants": collapse_consonants,
         "dictionary_word_fixes": word_fix_counts,
         "remaining_ufffd_count": remaining_ufffd,
         "suspicious_lines": suspicious,
@@ -251,6 +280,7 @@ def format_report(report: dict, book_slug: str) -> str:
         f"จำนวนตัวอักษรหลังทำความสะอาด: {report['char_count_after']:,}",
         f"บรรทัดที่ถูกรวมกลับ (สระ/วรรณยุกต์ลอยขึ้นต้นบรรทัด): {report['lines_merged_combining_mark']}",
         f"ร่องรอย \\ufffd ที่ลบออก (พร้อมสระลอยตามหลัง): {report['replacement_char_artifacts_removed']}",
+        f"glyph ละตินแปลกปลอมที่ติดตัวอักษรไทยที่ลบออก: {report.get('stray_latin_glyphs_removed', 0)}",
         f"บรรทัดเลขหน้าเดี่ยวที่ลบออก (ล้อมด้วยบรรทัดว่างทั้งสองด้าน): {report['page_number_lines_removed']}",
         f"\\ufffd ที่เหลือค้างหลังทำความสะอาด (ควรเป็น 0): {report['remaining_ufffd_count']}",
         "",
@@ -303,6 +333,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--in", dest="in_path", default=None, help="ไฟล์ input (default: raw/book.txt)")
     parser.add_argument("--out", dest="out_path", default=None, help="ไฟล์ output (default: raw/book-cleaned.txt)")
     parser.add_argument("--report", action="store_true", help="พิมพ์รายงานออกจอด้วย (นอกจากเขียนไฟล์)")
+    parser.add_argument(
+        "--legacy-collapse", action="store_true",
+        help="ยุบพยัญชนะซ้ำด้วย + dictionary แก้คืน ตาม spec §8 ตรงตัว (ใช้กับข้อความที่พยัญชนะซ้อนจริง)",
+    )
     args = parser.parse_args(argv)
 
     book_slug = args.book
@@ -313,7 +347,7 @@ def main(argv: list[str] | None = None) -> int:
         common.die(f"ไม่พบไฟล์ input: {in_path} (รัน extract.py --book {book_slug} ก่อน)")
 
     raw_text = in_path.read_text(encoding="utf-8", errors="replace")
-    cleaned, report = clean_text(raw_text)
+    cleaned, report = clean_text(raw_text, collapse_consonants=args.legacy_collapse)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(cleaned, encoding="utf-8")
