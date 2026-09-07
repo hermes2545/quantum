@@ -49,3 +49,13 @@ Orchestrator: session หลัก (Fable 5.1) · Reviewer: Opus 5 · Implemente
 - python บนเครื่อง 3.9 (spec ว่า 3.11) ใช้ pymupdf แทน pdftotext เพราะไม่มี poppler
 - A-02: เจ้าของลิขสิทธิ์อนุมัติแจกจ่ายเนื้อหาเต็มเล่มบน public repo → PDF + raw text commit ได้ (§11 ข้อห้าม #2 ยกเลิก)
 - GitHub: repo hermes2545/quantum (public) — push ติด 403 เพราะ keychain credential เป็น user p2544 รอผู้ใช้เพิ่มเป็น collaborator
+
+## เผยแพร่สาธารณะ (GitHub Pages) — ตั้งค่า 7 ก.ย. 2026
+- workflow `.github/workflows/pages.yml` build ด้วย `BUILD_STATIC=1 BASE_PATH=/quantum` แล้ว deploy อัตโนมัติทุกครั้งที่ `content/**` หรือ `web/**` เปลี่ยนบน main
+- โหมด static: `pageData.api.ask = null` -> ปุ่มถามตอบว่าเป็นเว็บอ่านอย่างเดียว, เมนู PDF ต้นฉบับชี้ไป raw.githubusercontent.com (ยังห้าม .pdf ใน web/public ตามกฎเหล็ก #2)
+- เผยแพร่เฉพาะบท ready — บท draft/building render เป็นหน้า "กำลังสร้าง" ไม่มีเนื้อหา และอภิธานศัพท์รวมตัดคำที่มีแต่บทยังไม่ผ่านการตรวจใช้อยู่ออก
+- ค้างอยู่ที่ผู้ใช้ 1 คลิก: Settings -> Pages -> Source = "GitHub Actions" (ถ้ายังไม่ผ่าน: Settings -> Actions -> General -> Workflow permissions = Read and write) เพราะ configure-pages enablement:true ถูก 403 เมื่อ repo ยังไม่เคยเปิด Pages
+- URL หลังเปิด: https://hermes2545.github.io/quantum/
+
+## อ่านบนเครื่องนี้ / ผ่าน Tailscale
+`make dev-mac` (proxy + tools/dev-server.js แทน Caddy) -> http://localhost:8080 · LAN http://192.168.0.220:8080 · Tailscale http://paperclip-mac.tail54c3.ts.net:8080 (เครื่องนี้ = paperclip-mac 100.74.177.75) — หยุดด้วย `make dev-mac-stop`
