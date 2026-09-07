@@ -35,6 +35,15 @@ const COMMON = `
 · ถ้า raw ของบทสั้น (<3,000 ตัวอักษร) ให้เขียนใกล้ขั้นต่ำ 900 คำ — ห้ามเติมเนื้อหาที่หนังสือไม่ได้พูดถึงเพื่อให้ยาวขึ้น (§9.1 ข้อ 6 ห้ามแต่งข้อเท็จจริง)
 · ไฟล์ ${DIR}/chNN.json ที่มีอยู่เป็น stub status "building" (มีแค่ meta) — เขียนทับทั้งไฟล์ได้เลย แต่คง book/slug/order/thaiNum/title ตามเดิม
 
+กับดัก 4 ข้อที่ทำให้เล่มนำร่อง (quantum-merit-power) มี finding 86 จุด — ตรวจตัวเองก่อนส่งงานทุกครั้ง:
+1. §9.1 ข้อ 6 ห้ามใส่คำที่หนังสือไม่ได้พูดลงในปากพุทธพจน์ — โดยเฉพาะเรื่อง "น้ำหนัก" ของกรรม ถ้า raw บอกแค่ว่า "นับรวมอยู่ในชุดเดียวกัน" ห้ามเขียนว่า "หนักเท่ากัน" · ห้ามอ้างการทดลอง/ตัวเลข/ชื่อธาตุ/บทบาท ที่ raw ไม่ได้ระบุ
+2. §9.1 ข้อ 3 ศัพท์ทุกคำ (ทั้งธรรมะและวิทยาศาสตร์) ต้องมีคำขยายในประโยคเดียวกันหรือประโยคถัดไป "ครั้งแรกที่ปรากฏในบท" แม้จะมีใน glossary แล้ว — คำที่พลาดบ่อย: อบาย ทุคติ วินิบาต สุคติ คนพาล บัณฑิต วิถีจิต ภพ สถานะบริสุทธิ์/ผสม
+3. §9.1 ข้อ 7 กลไกที่วิทยาศาสตร์ยังไม่ยุติ (สมองควอนตัม จิตไม่อิงระยะทาง) ต้องมีตัวบ่งสถานะอย่างน้อยหนึ่งจุดต่อบท เช่น "ในกรอบที่หนังสือเสนอไว้" — และต้องมีในข้อความของ interactive/exercise ด้วย ไม่ใช่แค่เนื้อบท
+4. interactive: เลนส์แต่ละอันต้องพูดในนามแนวคิดที่ป้ายของมันบอก (เลนส์ a = แนวคิดหลักข้อ 1 ของเล่ม) ทุกชิ้น ไม่ใช่แค่บางชิ้น · และ objects ของ interactive ต้อง "ไม่ซ้ำ" สถานการณ์กับ exercise.options
+
+ห้ามห่อ <dfn> ด้วยมือ — เขียนเนื้อความให้เสร็จก่อน แล้วรัน `cd ${ROOT} && .venv/bin/python -m pipeline.terms --book ${BOOK} --report` ซึ่งจะห่อครั้งแรกของทุกศัพท์ในทุก section ให้เอง (idempotent) แล้วค่อย normalize/validate
+ถ้ารายงานมี ⚠ ว่าตัวตัดคำติดกับคำข้างเคียง ให้เปิดดูจุดนั้น ถ้าห่อผิด (ศัพท์สั้นไปแอบในคำยาว) ให้เพิ่มลง pipeline/fixtures/term_exclusions.json แล้วรันใหม่
+
 ธรรมเนียมที่ล็อกแล้ว: slug = "chNN" · <dfn data-term="X" data-kind="ธรรมะ|วิทยาศาสตร์"> ห่อครั้งแรกต่อ section · paragraphs ใช้ได้เฉพาะ <b> <i> <dfn>
 · interactive.module = "particles" พร้อม config.objects 4–5 ชิ้น {key,name,color(gold|teal|pink|star|mint),shape,lenses:{a,d,n}} + lensLabels/phases/initialT/timeLabel/emptyReadout (ดูแบบจาก trilaksana-quantum/ch05.json) — เล่มนี้ยังไม่มี interactive เขียนมือ
 · status เริ่มที่ "draft" เสมอ · ความยาว 900–1,400 คำ วัดด้วย: cd ${ROOT} && .venv/bin/python -m pipeline.wordcount ${DIR}/chNN.json
@@ -79,7 +88,7 @@ const results = await pipeline(
     const a = await agent(
       `เขียนบทที่ ${ch.n} "${ch.title}" ของเล่ม ${BOOK} → ${DIR}/${f}.json (slug "${f}", order ${ch.n}, thaiNum "${ch.thai}", status "draft")
 ${COMMON}
-ขั้นตอน: อ่าน raw/${f}.txt จนเข้าใจว่าบทนี้ต้องการให้คน "เห็น" อะไร → อ่าน ch01.json/ch03.json ของเล่ม 1 เป็นบรรทัดฐานสำเนียง/โครง → เขียนด้วยคำของคุณเอง (ห้ามลอกประโยคจาก raw ยกเว้นพุทธพจน์ที่ใส่ใน quote ให้ตรงตัวอักษร) → รัน wordcount + normalize + validate จนผ่าน
+ขั้นตอน: อ่าน raw/${f}.txt จนเข้าใจว่าบทนี้ต้องการให้คน "เห็น" อะไร → อ่าน ch01.json/ch03.json ของเล่ม 1 เป็นบรรทัดฐานสำเนียง/โครง → เขียนด้วยคำของคุณเอง (ห้ามลอกประโยคจาก raw ยกเว้นพุทธพจน์ที่ใส่ใน quote ให้ตรงตัวอักษร) → ทวนกับดัก 4 ข้อข้างบนทีละข้อ → รัน terms.py + wordcount + normalize + validate จนผ่าน
 รายงานสั้นๆ: sections, คำ, term ใหม่, จุดที่ raw คลุมเครือ`,
       { model: 'sonnet', phase: 'Author', label: `author:${BOOK}/${f}` }
     )
@@ -99,7 +108,7 @@ verdict = pass เฉพาะเมื่อไม่มี blocker และ m
         `แก้บทที่ ${ch.n} — ${DIR}/${f}.json ตาม ${DIR}/_review-${f}.json แก้ทุก blocker/major (minor เฉพาะที่ไม่เพิ่มความยาว)
 ${COMMON}
 ${review.copiedSpans.length ? 'ข้อความที่ถูกชี้ว่าคัดลอก (เขียนใหม่ทั้งหมด):\n' + review.copiedSpans.map((s) => ' - ' + s).join('\n') : ''}
-รัน wordcount + normalize + validate ให้ผ่าน คง status "draft"`,
+รัน terms.py + wordcount + normalize + validate ให้ผ่าน คง status "draft"`,
         { model: 'sonnet', phase: 'Fix', label: `fix:${BOOK}/${f}` }
       )
       if (fixed) {
