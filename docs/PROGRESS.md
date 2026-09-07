@@ -59,3 +59,11 @@ Orchestrator: session หลัก (Fable 5.1) · Reviewer: Opus 5 · Implemente
 
 ## อ่านบนเครื่องนี้ / ผ่าน Tailscale
 `make dev-mac` (proxy + tools/dev-server.js แทน Caddy) -> http://localhost:8080 · LAN http://192.168.0.220:8080 · Tailscale http://paperclip-mac.tail54c3.ts.net:8080 (เครื่องนี้ = paperclip-mac 100.74.177.75) — หยุดด้วย `make dev-mac-stop`
+
+## วิธีทำงานช่วงเขียนเล่ม 2–9 (ตกลง 7 ก.ย. 2026)
+- **push ทีละเล่ม ไม่รอให้ครบ 9 เล่ม** (ผู้ใช้ให้ตัดสินใจเอง) — แต่ละเล่มอ่านจบได้ในตัวเอง, build เผยแพร่เฉพาะบท ready อยู่แล้ว, เล่มที่ยังไม่เสร็จขึ้น "กำลังสร้าง" และ diff ต่อเล่มเล็กพอให้ย้อนได้
+- ลำดับ: order 2 → 3 → 4 → 5 → 6 → 8 → 9 (เล่ม 1 และ 7 เสร็จแล้ว) รวมที่เหลือ 130 บท
+- args พร้อมยิงของทุกเล่มอยู่ที่ scratchpad/args/{slug}.json (สร้างจาก book.json.chapters ใหม่ได้เสมอ)
+- workflow ชนโควตาเป็นระยะ — resume ด้วย `Workflow({scriptPath, resumeFromRunId})` args เดิม เอเจนต์ที่สำเร็จแล้วจะ replay จาก cache
+  ⚠ ถ้าแก้ prompt ในสคริปต์ cache จะ miss ทั้งหมด ให้แก้เฉพาะตอนไม่มี run ค้าง
+- ถ้าโควตาเอเจนต์หมดยาว: session หลัก (Opus 5) ทำขั้น fix/verify เองได้ ตามที่ทำกับ ch09/ch10 ของเล่ม 7 — ใช้ _review-chNN.json เป็นรายการงาน แล้วตรวจเชิงกลด้วย pipeline/terms.py + wordcount + สคริปต์หาช่วงคัดลอก (SequenceMatcher ≥60 ตัวอักษรเทียบ raw ยกเว้นพุทธพจน์ใน quote)
