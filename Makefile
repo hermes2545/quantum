@@ -162,7 +162,12 @@ help:
 # อ่านเว็บบนเครื่อง Mac นี้โดยไม่ใช้ docker (Caddy ถูกแทนด้วย tools/dev-server.js)
 # ใช้ตอนอยากเปิดดูผลงานเร็วๆ — production ยังเป็น `make up` (docker compose) ตาม spec
 dev-mac: build
-	@echo "เปิด http://localhost:8080  (ในวง LAN: http://$$(ipconfig getifaddr en0 2>/dev/null):8080)"
+	@echo "เปิด http://localhost:8080"
+	@echo "  ในวง LAN:   http://$$(ipconfig getifaddr en0 2>/dev/null):8080"
+	@TS=/Applications/Tailscale.app/Contents/MacOS/Tailscale; \
+	 if [ -x $$TS ] && $$TS status >/dev/null 2>&1; then \
+	   echo "  ผ่าน Tailscale: http://$$($$TS status --json | sed -n 's/.*\"DNSName\":\"\([^\"]*\)\.\".*/\1/p' | head -1):8080"; \
+	 fi
 	@node proxy/src/index.js & node tools/dev-server.js --port 8080
 
 dev-mac-stop:
