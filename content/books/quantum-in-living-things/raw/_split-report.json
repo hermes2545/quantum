@@ -85,22 +85,13 @@
     },
     "ch10": {
       "startPage": 98,
-      "endPage": 112,
-      "pages": 14,
-      "chars": 8606,
+      "endPage": 116,
+      "pages": 18,
+      "chars": 10484,
       "preview": "98",
-      "source": "10"
+      "source": "10+11"
     },
     "ch11": {
-      "startPage": 112,
-      "endPage": 116,
-      "pages": 4,
-      "chars": 1877,
-      "preview": "112",
-      "source": "11",
-      "warning": "สั้นกว่า 3,000 ตัวอักษร — ตรวจว่าตัดถูกช่วง"
-    },
-    "ch12": {
       "startPage": 116,
       "endPage": 126,
       "pages": 10,
@@ -108,7 +99,7 @@
       "preview": "116",
       "source": "12"
     },
-    "ch13": {
+    "ch12": {
       "startPage": 126,
       "endPage": 136,
       "pages": 10,
@@ -116,7 +107,7 @@
       "preview": "126",
       "source": "13"
     },
-    "ch14": {
+    "ch13": {
       "startPage": 136,
       "endPage": 148,
       "pages": 12,
@@ -124,7 +115,7 @@
       "preview": "136",
       "source": "14"
     },
-    "ch15": {
+    "ch14": {
       "startPage": 148,
       "endPage": 156,
       "pages": 8,
@@ -132,7 +123,7 @@
       "preview": "148",
       "source": "15"
     },
-    "ch16": {
+    "ch15": {
       "startPage": 156,
       "endPage": 162,
       "pages": 6,
@@ -140,7 +131,7 @@
       "preview": "156",
       "source": "16"
     },
-    "ch17": {
+    "ch16": {
       "startPage": 162,
       "endPage": 170,
       "pages": 8,
@@ -148,7 +139,7 @@
       "preview": "162",
       "source": "17"
     },
-    "ch18": {
+    "ch17": {
       "startPage": 170,
       "endPage": 178,
       "pages": 8,
@@ -156,7 +147,7 @@
       "preview": "170",
       "source": "18"
     },
-    "ch19": {
+    "ch18": {
       "startPage": 178,
       "endPage": 184,
       "pages": 6,
@@ -164,7 +155,7 @@
       "preview": "178",
       "source": "19"
     },
-    "ch20": {
+    "ch19": {
       "startPage": 184,
       "endPage": 190,
       "pages": 6,

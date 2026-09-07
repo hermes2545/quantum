@@ -59,65 +59,59 @@
     {
       "slug": "ch10",
       "startPage": 98,
-      "source": "10",
-      "title": "ซีโนบอต รูปแบบชีวิตใหม่ในจักรวาล"
+      "source": "10+11",
+      "title": "ซีโนบอตและลูกอ๊อดปิกัสโซ ชีวิตที่ประกอบร่างขึ้นใหม่ได้"
     },
     {
       "slug": "ch11",
-      "startPage": 112,
-      "source": "11",
-      "title": "ลูกอ๊อดปิกัสโซ"
-    },
-    {
-      "slug": "ch12",
       "startPage": 116,
       "source": "12",
       "title": "อภิปรัชญาของชีววิทยา (1)"
     },
     {
-      "slug": "ch13",
+      "slug": "ch12",
       "startPage": 126,
       "source": "13",
       "title": "อภิปรัชญาของชีววิทยา (2)"
     },
     {
-      "slug": "ch14",
+      "slug": "ch13",
       "startPage": 136,
       "source": "14",
       "title": "พลานาเรีย สิ่งมีชีวิตอมตะ"
     },
     {
-      "slug": "ch15",
+      "slug": "ch14",
       "startPage": 148,
       "source": "15",
       "title": "ไฟฟ้าชีวภาพควบคุมเซลล์มะเร็ง"
     },
     {
-      "slug": "ch16",
+      "slug": "ch15",
       "startPage": 156,
       "source": "16",
       "title": "วิทยาศาสตร์กับจริยศาสตร์"
     },
     {
-      "slug": "ch17",
+      "slug": "ch16",
       "startPage": 162,
       "source": "17",
       "title": "ทฤษฎีวิวัฒนาการทางจิต"
     },
     {
-      "slug": "ch18",
+      "slug": "ch17",
       "startPage": 170,
       "source": "18",
       "title": "หมึกยักษ์ เอเลี่ยนจากต่างดาว"
     },
     {
-      "slug": "ch19",
+      "slug": "ch18",
       "startPage": 178,
       "source": "19",
       "title": "วิญญาณวิวัฒนาการ"
     },
     {
-      "slug": "ch20",
+      "slug": "ch19",
       "startPage": 184,
       "source": "20",
       "title": "บทสรุปของชีวิต"

@@ -84,22 +84,13 @@
     },
     "ch10": {
       "startPage": 132,
-      "endPage": 138,
-      "pages": 6,
-      "chars": 4042,
+      "endPage": 142,
+      "pages": 10,
+      "chars": 7038,
       "preview": "132",
-      "source": "10"
+      "source": "10+11"
     },
     "ch11": {
-      "startPage": 138,
-      "endPage": 142,
-      "pages": 4,
-      "chars": 2995,
-      "preview": "138",
-      "source": "11",
-      "warning": "สั้นกว่า 3,000 ตัวอักษร — ตรวจว่าตัดถูกช่วง"
-    },
-    "ch12": {
       "startPage": 142,
       "endPage": 154,
       "pages": 12,
@@ -107,24 +98,15 @@
       "preview": "142",
       "source": "12"
     },
-    "ch13": {
+    "ch12": {
       "startPage": 154,
-      "endPage": 162,
-      "pages": 8,
-      "chars": 5329,
-      "preview": "154",
-      "source": "13"
-    },
-    "ch14": {
-      "startPage": 162,
       "endPage": 166,
-      "pages": 4,
-      "chars": 2609,
-      "preview": "162",
-      "source": "14",
-      "warning": "สั้นกว่า 3,000 ตัวอักษร — ตรวจว่าตัดถูกช่วง"
+      "pages": 12,
+      "chars": 7939,
+      "preview": "154",
+      "source": "13+14"
     },
-    "ch15": {
+    "ch13": {
       "startPage": 166,
       "endPage": 174,
       "pages": 8,
@@ -132,7 +114,7 @@
       "preview": "166",
       "source": "15"
     },
-    "ch16": {
+    "ch14": {
       "startPage": 174,
       "endPage": 184,
       "pages": 10,
@@ -140,7 +122,7 @@
       "preview": "174",
       "source": "16"
     },
-    "ch17": {
+    "ch15": {
       "startPage": 184,
       "endPage": 190,
       "pages": 6,
@@ -148,7 +130,7 @@
       "preview": "184",
       "source": "17"
     },
-    "ch18": {
+    "ch16": {
       "startPage": 190,
       "endPage": 198,
       "pages": 8,
@@ -156,7 +138,7 @@
       "preview": "190",
       "source": "18"
     },
-    "ch19": {
+    "ch17": {
       "startPage": 198,
       "endPage": 208,
       "pages": 10,
@@ -164,7 +146,7 @@
       "preview": "198",
       "source": "19"
     },
-    "ch20": {
+    "ch18": {
       "startPage": 208,
       "endPage": 218,
       "pages": 10,
@@ -172,7 +154,7 @@
       "preview": "208",
       "source": "20"
     },
-    "ch21": {
+    "ch19": {
       "startPage": 218,
       "endPage": 232,
       "pages": 14,
@@ -180,7 +162,7 @@
       "preview": "218",
       "source": "21"
     },
-    "ch22": {
+    "ch20": {
       "startPage": 232,
       "endPage": 239,
       "pages": 7,

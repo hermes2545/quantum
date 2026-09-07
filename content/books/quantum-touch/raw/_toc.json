@@ -71,53 +71,41 @@
     {
       "slug": "ch12",
       "startPage": 110,
-      "source": "12",
-      "title": "ลำดับแห่งโยงใยกับสังขารขันธ์"
+      "source": "12+13",
+      "title": "ลำดับแห่งโยงใยกับสังขารขันธ์และรูปขันธ์"
     },
     {
       "slug": "ch13",
-      "startPage": 116,
-      "source": "13",
-      "title": "ลำดับแห่งโยงใยกับรูปขันธ์"
-    },
-    {
-      "slug": "ch14",
       "startPage": 120,
       "source": "14",
       "title": "ชุดที่ประสานกัน (Ensemble)"
     },
     {
-      "slug": "ch15",
+      "slug": "ch14",
       "startPage": 128,
-      "source": "15",
-      "title": "เหตุแห่งความหลุดพ้น"
+      "source": "15+16",
+      "title": "เหตุแห่งความหลุดพ้นและวิญญาณที่ไปเกิดใหม่"
     },
     {
-      "slug": "ch16",
-      "startPage": 132,
-      "source": "16",
-      "title": "วิญญาณที่ไปเกิดใหม่"
-    },
-    {
-      "slug": "ch17",
+      "slug": "ch15",
       "startPage": 140,
       "source": "17",
       "title": "ช่างสร้างเรือนของพระพุทธองค์กับรูปแบบ (Formal) ของอริสโตเติล"
     },
     {
-      "slug": "ch18",
+      "slug": "ch16",
       "startPage": 148,
       "source": "18",
       "title": "อาหารของวิญญาณ (1)"
     },
     {
-      "slug": "ch19",
+      "slug": "ch17",
       "startPage": 166,
       "source": "19",
       "title": "อาหารของวิญญาณ (2)"
     },
     {
-      "slug": "ch20",
+      "slug": "ch18",
       "startPage": 176,
       "source": "20",
       "title": "นิพพาน (พุทธพจน์ที่เกี่ยวข้อง)"
