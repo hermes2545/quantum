@@ -50,7 +50,8 @@ export function init() {
     started = true;
     setState('loading');
     try {
-      mod = await import(`/assets/js/interactives/${moduleName}.js`);
+      const base = (pageData && pageData.base) || '';
+      mod = await import(`${base}/assets/js/interactives/${moduleName}.js`);
       mod.mount(root, opts);
       if (visible) mod.resume();
       setState('ready');

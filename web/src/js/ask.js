@@ -104,6 +104,14 @@ export async function send(question) {
   }
 
   addMsg('u', q);
+
+  // build แบบ static (GitHub Pages) ไม่มี proxy — pageData.api.ask เป็น null
+  // ตอบด้วยข้อความอธิบายแทนการยิง request ไปที่ URL ที่ไม่มีอยู่ (กฎ 7: ห้าม retry/ยิงมั่ว)
+  if (!pageData.api || !pageData.api.ask) {
+    addMsg('a err', 'หน้านี้เป็นเว็บอ่านอย่างเดียว ผู้ช่วย AI ใช้ได้เมื่อเปิดจากเซิร์ฟเวอร์ที่ตั้งค่าไว้แล้ว');
+    return;
+  }
+
   const thinkEl = addMsg('a think', 'กำลังคิด…');
   setBusy(true);
 

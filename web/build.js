@@ -25,7 +25,20 @@ class BuildError extends Error {}
 /* ============================================================ */
 /* ค่าคงที่ตามสัญญา §J / §D.7                                    */
 /* ============================================================ */
-const API = { ask: '/api/ask', feedback: '/api/feedback', source: '/api/source/' };
+// โหมด static (BUILD_STATIC=1 หรือ --static) = deploy ขึ้น GitHub Pages ที่ไม่มี proxy:
+//   - ไม่มี /api/ask, /api/feedback  → pageData.api.* = null (ask.js ตอบว่าเป็นเว็บอ่านอย่างเดียว)
+//   - PDF ต้นฉบับ (A-01) ชี้ไปที่ไฟล์จริงใน repo สาธารณะแทน /api/source/ — ไม่ก็อป PDF เข้า web/public
+//     (กฎเหล็ก #2 ห้าม .pdf ใน web/public ยังบังคับใช้อยู่)
+const STATIC_MODE = process.env.BUILD_STATIC === '1' || process.argv.includes('--static');
+// BASE_PATH = โฟลเดอร์ย่อยที่เว็บถูกเสิร์ฟอยู่ (GitHub Pages ของ repo = "/quantum") — ว่างไว้เมื่อเสิร์ฟที่ราก
+// ทุกลิงก์ภายในและ asset ต้องมี prefix นี้ ไม่งั้นหน้า /quantum/b/... จะไปเรียก /assets/... ที่ไม่มีอยู่
+const BASE = (process.env.BASE_PATH || '').replace(/\/+$/, '');
+const STATIC_PDF_BASE =
+  process.env.STATIC_PDF_BASE || 'https://raw.githubusercontent.com/hermes2545/quantum/main/content/source/';
+const PAGE_BASE = BASE;
+const API = STATIC_MODE
+  ? { ask: null, feedback: null, source: STATIC_PDF_BASE, static: true }
+  : { ask: '/api/ask', feedback: '/api/feedback', source: '/api/source/' };
 const LIMITS = { question: 1000, reflection: 2000 };
 const SERIES = { title: 'ไตรลักษณ์ในควอนตัม', author: 'สิรวิชญ์ รัตน์จินดา' };
 const ALLOWED_INLINE_TAGS = new Set(['b', 'i', 'dfn']);
@@ -234,20 +247,48 @@ function loadBooks(contentDir) {
 
 /** merge glossary รวมทุกเล่มตาม §9.2: ซ้ำ term ใช้ def จากเล่ม order น้อยกว่า, รวม books[] */
 function mergeGlobalGlossary(books) {
+  // อภิธานศัพท์รวมต้องมีเฉพาะคำที่ "อ่านได้จริง" — คือคำที่ปรากฏในบทที่ status = ready
+  // บทที่ยัง draft/building ยังไม่ผ่านการตรวจ นิยามของมันจึงต้องไม่ถูกเผยแพร่ (สำคัญกับ build --static
+  // ที่ขึ้นเว็บสาธารณะ) และคำที่ไม่มีบทให้กดเข้าไปอ่านก็เป็นรายการค้างเปล่าๆ บนหน้าอภิธานศัพท์
+  const readyTermBooks = new Map(); // term -> Set(bookSlug ที่เผยแพร่คำนี้ได้
+  const pendingTerms = new Set(); // คำที่ถูกใช้เฉพาะในบทที่ยังไม่ ready
+  const add = (term, slug) => {
+    if (!readyTermBooks.has(term)) readyTermBooks.set(term, new Set());
+    readyTermBooks.get(term).add(slug);
+  };
+  for (const b of books) {
+    let bookHasReady = false;
+    for (const ch of b.chapters || []) {
+      if (ch.status === 'ready') bookHasReady = true;
+      for (const t of ch.terms || []) {
+        if (ch.status === 'ready') add(t.term, b.meta.slug);
+        else pendingTerms.add(t.term);
+      }
+    }
+    // คำใน glossary.json ที่ไม่มีบทไหนอ้างถึงเลย (เช่น "พุทธพจน์" ที่ใส่ไว้ให้ค้นหา) ยังเผยแพร่ได้
+    // ถ้าเล่มนั้นมีบทที่อ่านได้แล้ว — แต่คำที่ "บทซึ่งยังไม่ผ่านการตรวจ" เป็นผู้ใช้ ต้องรอบทนั้น ready ก่อน
+    if (bookHasReady) {
+      for (const t of b.glossary.terms || []) {
+        if (!pendingTerms.has(t.term)) add(t.term, b.meta.slug);
+      }
+    }
+  }
+
   const map = new Map();
   for (const b of books) {
     for (const t of b.glossary.terms || []) {
+      if (!readyTermBooks.has(t.term)) continue;
       if (!map.has(t.term)) {
         map.set(t.term, {
           term: t.term,
           kind: t.kind,
           alt: t.alt || '',
           def: t.def,
-          books: new Set(t.books && t.books.length ? t.books : [b.meta.slug]),
+          books: new Set(readyTermBooks.get(t.term)),
         });
       } else {
         const existing = map.get(t.term);
-        (t.books && t.books.length ? t.books : [b.meta.slug]).forEach((bs) => existing.books.add(bs));
+        readyTermBooks.get(t.term).forEach((bs) => existing.books.add(bs));
         // def ไม่ต้องเปลี่ยน: books ถูกวนตามลำดับ order ขึ้นมาแล้ว (ascending) ค่าที่เจอก่อนคือ order น้อยกว่าเสมอ
       }
     }
@@ -309,7 +350,7 @@ function renderMapRows(book) {
       const ok = c.status === 'ready';
       const cls = ok ? 'ok' : 'soon';
       const statusLabel = ok ? 'อ่านได้' : 'กำลังสร้าง';
-      return `    <a class="maprow ${cls}" href="/b/${book.slug}/${c.slug}" data-chapter="${escapeAttr(
+      return `    <a class="maprow ${cls}" href="${BASE}/b/${book.slug}/${c.slug}" data-chapter="${escapeAttr(
         c.slug
       )}"><span class="n">${escapeText(c.thaiNum)}</span><span><span class="ti">${escapeText(
         c.title
@@ -325,7 +366,7 @@ function renderBookCards(books) {
       const totalReady = meta.chapters.filter((c) => c.status === 'ready').length;
       const statusCls = meta.status === 'building' ? 'building' : 'ready';
       const statusLabel = meta.status === 'building' ? 'กำลังสร้าง' : 'อ่านได้';
-      return `    <a class="bookcard ${statusCls}" href="/b/${meta.slug}" data-book="${escapeAttr(
+      return `    <a class="bookcard ${statusCls}" href="${BASE}/b/${meta.slug}" data-book="${escapeAttr(
         meta.slug
       )}" data-total="${totalReady}">
       <span class="bc-cover"><span class="n">${toThaiDigits(meta.order)}</span></span>
@@ -467,8 +508,8 @@ function renderSuggestionButtons(suggestions) {
 
 function computeChapterNav(book, idx) {
   const chapters = book.chapters;
-  const prevUrl = idx === 0 ? `/b/${book.slug}` : `/b/${book.slug}/${chapters[idx - 1].slug}`;
-  const nextUrl = idx === chapters.length - 1 ? `/b/${book.slug}` : `/b/${book.slug}/${chapters[idx + 1].slug}`;
+  const prevUrl = idx === 0 ? `${BASE}/b/${book.slug}` : `${BASE}/b/${book.slug}/${chapters[idx - 1].slug}`;
+  const nextUrl = idx === chapters.length - 1 ? `${BASE}/b/${book.slug}` : `${BASE}/b/${book.slug}/${chapters[idx + 1].slug}`;
   return { prevUrl, nextUrl };
 }
 
@@ -479,22 +520,22 @@ function renderChnav(book, idx) {
 
   let prevHtml;
   if (isFirst) {
-    prevHtml = `<a class="chnav-prev" href="/b/${book.slug}"><small>ก่อนหน้า</small>แผนที่การเดินทาง</a>`;
+    prevHtml = `<a class="chnav-prev" href="${BASE}/b/${book.slug}"><small>ก่อนหน้า</small>แผนที่การเดินทาง</a>`;
   } else {
     const prev = chapters[idx - 1];
     const suffix = prev.status !== 'ready' ? ' (กำลังสร้าง)' : '';
-    prevHtml = `<a class="chnav-prev" href="/b/${book.slug}/${prev.slug}"><small>ก่อนหน้า</small>${escapeText(
+    prevHtml = `<a class="chnav-prev" href="${BASE}/b/${book.slug}/${prev.slug}"><small>ก่อนหน้า</small>${escapeText(
       prev.thaiNum
     )} · ${escapeText(prev.title)}${suffix}</a>`;
   }
 
   let nextHtml;
   if (isLast) {
-    nextHtml = `<a class="chnav-next" href="/b/${book.slug}"><small>กลับ</small>แผนที่การเดินทาง</a>`;
+    nextHtml = `<a class="chnav-next" href="${BASE}/b/${book.slug}"><small>กลับ</small>แผนที่การเดินทาง</a>`;
   } else {
     const next = chapters[idx + 1];
     const suffix = next.status !== 'ready' ? ' (กำลังสร้าง)' : '';
-    nextHtml = `<a class="chnav-next" href="/b/${book.slug}/${next.slug}"><small>บทถัดไป</small>${escapeText(
+    nextHtml = `<a class="chnav-next" href="${BASE}/b/${book.slug}/${next.slug}"><small>บทถัดไป</small>${escapeText(
       next.thaiNum
     )} · ${escapeText(next.title)}${suffix}</a>`;
   }
@@ -520,7 +561,10 @@ function renderSourceFooterItems(books, currentBookSlug) {
         const mb = (meta.sourcePdf.bytes / 1e6).toFixed(1) + ' MB';
         const liOpen = isCurrent ? '<li class="sf-current">' : '<li>';
         const ariaCurrent = isCurrent ? ' aria-current="true"' : '';
-        return `    ${liOpen}<a class="sf-item" href="/api/source/${meta.slug}.pdf" target="_blank" rel="noopener" data-book="${escapeAttr(
+        const pdfHref = STATIC_MODE
+          ? STATIC_PDF_BASE + encodeURIComponent(meta.sourcePdf.file)
+          : `/api/source/${meta.slug}.pdf`;
+        return `    ${liOpen}<a class="sf-item" href="${pdfHref}" target="_blank" rel="noopener" data-book="${escapeAttr(
           meta.slug
         )}"${ariaCurrent}><span class="sf-num">${thaiOrder}</span><span class="sf-title">${escapeText(
           meta.title
@@ -557,7 +601,7 @@ function renderGlossaryItems(terms) {
 /* ============================================================ */
 function renderRail(pageType, series, book, currentChapterSlug) {
   const seriesLevel = pageType === 'shelf' || pageType === 'glossary';
-  const homeHref = seriesLevel ? '/' : `/b/${book.slug}`;
+  const homeHref = seriesLevel ? `${BASE}/` : `${BASE}/b/${book.slug}`;
   const homeText = seriesLevel ? 'ชั้นหนังสือ' : 'แผนที่การเดินทาง';
 
   let nav = '';
@@ -568,7 +612,7 @@ function renderRail(pageType, series, book, currentChapterSlug) {
         const isCurrent = c.slug === currentChapterSlug;
         const classAttr = ok ? '' : ' class="soon"';
         const currentAttr = isCurrent ? ' aria-current="page"' : '';
-        return `      <a href="/b/${book.slug}/${c.slug}" data-chapter="${escapeAttr(c.slug)}"${classAttr}${currentAttr}><span class="n">${escapeText(
+        return `      <a href="${BASE}/b/${book.slug}/${c.slug}" data-chapter="${escapeAttr(c.slug)}"${classAttr}${currentAttr}><span class="n">${escapeText(
           c.thaiNum
         )}</span><span>${escapeText(c.title)}</span></a>`;
       })
@@ -582,7 +626,7 @@ function renderRail(pageType, series, book, currentChapterSlug) {
     : `อ้างอิงจากหนังสือชุด <i>${escapeText(series.title)}</i> โดย สิรวิชญ์ รัตน์จินดา<br>เนื้อหาในคู่มือนี้เรียบเรียงใหม่เพื่อการเรียนรู้`;
 
   return `<aside class="rail">
-  <div class="brand"><a class="t" href="/">${escapeText(series.title)}</a><div class="s">คู่มือเดินทางแบบโต้ตอบ</div></div>
+  <div class="brand"><a class="t" href="${BASE}/">${escapeText(series.title)}</a><div class="s">คู่มือเดินทางแบบโต้ตอบ</div></div>
   <div class="home"><a class="ask-inline" href="${homeHref}">${homeText}</a></div>
   <nav id="railnav" aria-label="บทเรียน">
 ${nav}
@@ -593,7 +637,7 @@ ${nav}
 
 function renderTopbar(pageType, series, book, currentChapterSlug) {
   const seriesLevel = pageType === 'shelf' || pageType === 'glossary';
-  const href = seriesLevel ? '/' : `/b/${book.slug}`;
+  const href = seriesLevel ? `${BASE}/` : `${BASE}/b/${book.slug}`;
   const text = seriesLevel ? series.title : book.title;
 
   let selectHtml;
@@ -628,7 +672,7 @@ function buildBookMetaForPageData(book) {
     title: book.title,
     author: book.author,
     status: book.status,
-    url: `/b/${book.slug}`,
+    url: `${BASE}/b/${book.slug}`,
     chapters: book.chapters.map((c) => ({
       slug: c.slug,
       order: c.order,
@@ -636,7 +680,7 @@ function buildBookMetaForPageData(book) {
       title: c.title,
       sub: c.sub,
       status: c.status,
-      url: `/b/${book.slug}/${c.slug}`,
+      url: `${BASE}/b/${book.slug}/${c.slug}`,
     })),
   };
 }
@@ -647,7 +691,7 @@ function buildShelfForPageData(books) {
     order: b.meta.order,
     title: b.meta.title,
     status: b.meta.status,
-    url: `/b/${b.meta.slug}`,
+    url: `${BASE}/b/${b.meta.slug}`,
     chapters: b.meta.chapters.map((c) => c.slug),
     readyChapters: b.meta.chapters.filter((c) => c.status === 'ready').map((c) => c.slug),
   }));
@@ -666,6 +710,7 @@ function bodyAttrs(page, bookSlug, chapterSlug) {
 function renderLayout(templates, opts) {
   const askHtml = renderTemplate(templates.ask, { ASKCTX: escapeText(opts.askCtx) });
   return renderTemplate(templates.layout, {
+    BASE,
     TITLE: escapeText(opts.title),
     DESCRIPTION: escapeAttr(opts.description || ''),
     BODY_ATTRS: opts.bodyAttrs,
@@ -691,6 +736,7 @@ function renderShelfPage(outDir, templates, books) {
     page: 'shelf',
     series: SERIES,
     api: API,
+    base: PAGE_BASE,
     limits: LIMITS,
     book: null,
     chapter: null,
@@ -726,6 +772,7 @@ function renderBookPage(outDir, templates, allBooks, bookRecord) {
     page: 'book',
     series: SERIES,
     api: API,
+    base: PAGE_BASE,
     limits: LIMITS,
     book: buildBookMetaForPageData(book),
     chapter: null,
@@ -771,6 +818,7 @@ function renderChapterPage(outDir, templates, allBooks, bookRecord, idx, chFull)
     page: 'chapter',
     series: SERIES,
     api: API,
+    base: PAGE_BASE,
     limits: LIMITS,
     book: buildBookMetaForPageData(book),
     chapter: {
@@ -780,7 +828,7 @@ function renderChapterPage(outDir, templates, allBooks, bookRecord, idx, chFull)
       title: chFull.title,
       sub: chFull.sub,
       status: chFull.status,
-      url: `/b/${book.slug}/${cm.slug}`,
+      url: `${BASE}/b/${book.slug}/${cm.slug}`,
       prevUrl,
       nextUrl,
       suggestions: chFull.suggestions || [],
@@ -833,6 +881,7 @@ function renderSoonPage(outDir, templates, allBooks, bookRecord, idx, chFull) {
     page: 'soon',
     series: SERIES,
     api: API,
+    base: PAGE_BASE,
     limits: LIMITS,
     book: buildBookMetaForPageData(book),
     chapter: {
@@ -842,7 +891,7 @@ function renderSoonPage(outDir, templates, allBooks, bookRecord, idx, chFull) {
       title: chFull.title,
       sub: chFull.sub,
       status: chFull.status,
-      url: `/b/${book.slug}/${cm.slug}`,
+      url: `${BASE}/b/${book.slug}/${cm.slug}`,
       prevUrl,
       nextUrl,
       suggestions: chFull.suggestions || [],
@@ -875,6 +924,7 @@ function renderGlossaryPage(outDir, templates, allBooks, globalGlossary) {
     page: 'glossary',
     series: SERIES,
     api: API,
+    base: PAGE_BASE,
     limits: LIMITS,
     book: null,
     chapter: null,
@@ -904,11 +954,11 @@ function render404Page(outDir, templates) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ไม่พบหน้านี้ · ${escapeText(SERIES.title)}</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chonburi&family=Sarabun:ital,wght@0,300;0,400;0,500;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="/assets/css/tokens.css">
-<link rel="stylesheet" href="/assets/css/base.css">
+<link rel="stylesheet" href="${BASE}/assets/css/tokens.css">
+<link rel="stylesheet" href="${BASE}/assets/css/base.css">
 </head>
 <body>
-${templates.notFound}
+${renderTemplate(templates.notFound, { BASE })}
 </body>
 </html>
 `;
