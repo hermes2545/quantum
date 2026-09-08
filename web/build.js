@@ -33,8 +33,11 @@ const STATIC_MODE = process.env.BUILD_STATIC === '1' || process.argv.includes('-
 // BASE_PATH = โฟลเดอร์ย่อยที่เว็บถูกเสิร์ฟอยู่ (GitHub Pages ของ repo = "/quantum") — ว่างไว้เมื่อเสิร์ฟที่ราก
 // ทุกลิงก์ภายในและ asset ต้องมี prefix นี้ ไม่งั้นหน้า /quantum/b/... จะไปเรียก /assets/... ที่ไม่มีอยู่
 const BASE = (process.env.BASE_PATH || '').replace(/\/+$/, '');
+// ใช้หน้า blob ของ GitHub ไม่ใช่ raw.githubusercontent เพราะ raw ส่ง Content-Type: application/octet-stream
+// เบราว์เซอร์จึง "ดาวน์โหลด" ไฟล์ 3–10 MB แทนที่จะ "เปิด" ให้อ่าน ซึ่งขัดเจตนาของ A-01 (เมนูเปิด PDF ต้นฉบับ)
+// หน้า blob แสดง PDF ในตัวอ่านของ GitHub ได้ทันทีและยังมีปุ่มดาวน์โหลดให้อยู่
 const STATIC_PDF_BASE =
-  process.env.STATIC_PDF_BASE || 'https://raw.githubusercontent.com/hermes2545/quantum/main/content/source/';
+  process.env.STATIC_PDF_BASE || 'https://github.com/hermes2545/quantum/blob/main/content/source/';
 const PAGE_BASE = BASE;
 const API = STATIC_MODE
   ? { ask: null, feedback: null, source: STATIC_PDF_BASE, static: true }
