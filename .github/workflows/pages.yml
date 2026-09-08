@@ -31,6 +31,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - name: ตรวจว่า PDF ต้นฉบับครบทั้ง 9 เล่ม (เมนู A-01 บนเว็บลิงก์ไปที่ไฟล์เหล่านี้)
+        run: node content/schema/validate.mjs --strict-source
       - name: ตรวจ schema + build (static, base = ชื่อ repo)
         env:
           BUILD_STATIC: '1'
