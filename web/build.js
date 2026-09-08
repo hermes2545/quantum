@@ -131,6 +131,10 @@ function cleanOutDir(outDir) {
   }
 }
 
+// เขียนหน้าเป็นไฟล์ "{path}.html" (ไม่ใช่ "{path}/index.html") เพราะ GitHub Pages จะ 301 จาก
+// /b/x/ch01 ไป /b/x/ch01/ เมื่อเจอไดเรกทอรี ซึ่งขัด §0/§I ที่กำหนดว่า URL บทต้องไม่มี slash ท้าย
+// (Caddy ของ docker-compose และ tools/dev-server.js ลอง {path}/index.html ก่อน {path}.html อยู่แล้ว
+// จึงรองรับทั้งสองแบบ) — หน้าแรกยังต้องเป็น index.html ตามข้อกำหนดของ web server ทุกตัว
 function writePage(outDir, relPath, html) {
   const full = path.join(outDir, relPath);
   fs.mkdirSync(path.dirname(full), { recursive: true });
@@ -789,7 +793,7 @@ function renderBookPage(outDir, templates, allBooks, bookRecord) {
     articleHtml: article,
     askCtx: `บริบท: เล่ม ${toThaiDigits(book.order)} ${book.title} · แผนที่`,
   });
-  writePage(outDir, `b/${book.slug}/index.html`, html);
+  writePage(outDir, `b/${book.slug}.html`, html);
 }
 
 function renderChapterPage(outDir, templates, allBooks, bookRecord, idx, chFull) {
@@ -862,7 +866,7 @@ function renderChapterPage(outDir, templates, allBooks, bookRecord, idx, chFull)
     articleHtml: article,
     askCtx: `บริบท: เล่ม ${toThaiDigits(book.order)} ${book.title} · บทที่ ${chFull.thaiNum} ${chFull.title}`,
   });
-  writePage(outDir, `b/${book.slug}/${cm.slug}/index.html`, html);
+  writePage(outDir, `b/${book.slug}/${cm.slug}.html`, html);
 }
 
 function renderSoonPage(outDir, templates, allBooks, bookRecord, idx, chFull) {
@@ -911,7 +915,7 @@ function renderSoonPage(outDir, templates, allBooks, bookRecord, idx, chFull) {
     articleHtml: article,
     askCtx: `บริบท: เล่ม ${toThaiDigits(book.order)} ${book.title} · บทที่ ${chFull.thaiNum} ${chFull.title}`,
   });
-  writePage(outDir, `b/${book.slug}/${cm.slug}/index.html`, html);
+  writePage(outDir, `b/${book.slug}/${cm.slug}.html`, html);
 }
 
 function renderGlossaryPage(outDir, templates, allBooks, globalGlossary) {
@@ -941,7 +945,7 @@ function renderGlossaryPage(outDir, templates, allBooks, globalGlossary) {
     articleHtml: article,
     askCtx: 'บริบท: ศัพท์รวม',
   });
-  writePage(outDir, 'glossary/index.html', html);
+  writePage(outDir, 'glossary.html', html);
 }
 
 /** หน้า 404 เป็นเอกสารอิสระ ไม่พึ่ง rail/topbar/ask/PageData เพราะไม่มีบริบทเล่ม/บทให้อ้างอิง
