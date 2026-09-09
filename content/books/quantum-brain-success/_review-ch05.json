@@ -91,5 +91,28 @@
       "problem": "3 ใน 5 ชิ้นใช้ shape \"blob\" เหมือนกันหมด ผู้ใช้กดสลับวัตถุแล้วเห็นก้อนกลมเดิมสามครั้ง ทำให้ interactive ไม่ช่วยให้ 'เห็น' ความต่างของสถานการณ์ (particles.js มี flower/anger/phone/star/body ให้ใช้)",
       "fix": "กระจาย shape เช่น two-magnets → anger (ก้อนหยัก) หรือ flower, vibrating-string → flower, คง blob ไว้ชิ้นเดียว"
     }
-  ]
+  ],
+  "postFixVerify": {
+    "by": "opus-5 (session หลัก ทำขั้น fix/verify เอง ตามแผน docs/PROGRESS.md)",
+    "at": "2026-09-10",
+    "verdict": "pass",
+    "fixed": [
+      "major #1 — 'รังสีกาย' นิยามใหม่ให้ตรง raw: มาจากไขสันหลังและระบบประสาทส่วนปลาย (ไม่ใช่ 'ระบบประสาททั้งระบบ' ซึ่งกินสมองเข้าไปด้วย) แก้ 9 จุด ทั้ง goal/summary/keyPoints/เนื้อบท/callout/terms/เลนส์",
+      "major #2 — ภาพถ่ายออร่า: ตัดคำว่า 'ได้จริง' ออก และระบุว่าเป็นสิ่งที่หนังสือเล่า พร้อมตัวบ่งสถานะว่าวิทยาศาสตร์กระแสหลักไม่ได้ยืนยัน",
+      "major #3 — เลนส์ n ของ two-magnets และ vibrating-string เขียนใหม่ให้พูดจากมุมสติ/ความพอเพียง และเลนส์ d ของ two-magnets เปลี่ยนเป็นแรงที่ส่งถึงคนตรงหน้า ไม่ใช่ฝ่ามือตัวเอง",
+      "major #4 — เติมคำขยายศัพท์ธรรมะ 4 คำ (ปัญญา ภพ กรรม สติ)",
+      "minor — เติมคำขยายฝั่งวิทยาศาสตร์ (สสาร สนามแม่เหล็กไฟฟ้า เซลล์ประสาท บุคลิกภาพ)",
+      "minor — quote.source สั้นลงและเลิกอ้าง 'งานวิจัย' ที่ raw ไม่ได้ระบุ",
+      "minor — ประโยคเปิด §4 เขียนใหม่เป็นภาพของเราเอง (รังสีความคิด = เสียง, รังสีกาย = กำลังของลำโพง) แทนการเรียงคำตามต้นฉบับ",
+      "minor — กระจาย shape ของ interactive: two-magnets -> anger, vibrating-string -> flower เหลือ blob ชิ้นเดียว"
+    ],
+    "gates": {
+      "wordcount": "1,389 คำ (900-1,400) ✓ — ตัดคำฟุ่มเฟือย 8 จุดแลกที่ให้คำขยายและคำนิยามที่ยาวขึ้น",
+      "terms": "pipeline.terms: idempotent ✓",
+      "copyscan": "pipeline/copyscan.py: 0 ช่วง >= 60 อักษรไทย ✓",
+      "normalize": "แก้ 0 จุด ✓",
+      "validate": "157 ไฟล์ ผ่าน ✓"
+    },
+    "statusChange": "draft -> ready (reviewedBy=opus-5-agent)"
+  }
 }
