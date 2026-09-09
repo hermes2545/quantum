@@ -18,7 +18,9 @@ Orchestrator: session หลัก (Fable 5.1) · Reviewer: Opus 5 · Implemente
 - [~] 3. extract + clean + split → raw/chNN.txt — เล่ม 1 เสร็จ; **7 เล่ม (2,3,4,6,7,8,9) เสร็จ 6 ก.ย.**: extract (pymupdf) → `pipeline/toc_init.py` (สเปกสารบัญที่คนเขียนจาก TOC ของ PDF → book.json.chapters + stub chNN.json status building + raw/_toc.json) → `pipeline/split_pages.py` (ตัดบทตามเลขหน้าพิมพ์ = ดัชนี PDF+1, clean ต่อบท) รวม 140 บท (เล่ม 5 = 20 บท เพิ่ม 6 ก.ย. หลังได้ PDF)
       การตัดสินใจ: 1 บทเรียน = 1 บทต้นฉบับ ยกเว้น เล่ม 2 (41 บทสั้น 2–8 หน้า → รวมเป็น 17 บทตามส่วนของหนังสือ, `source` ใน raw/_toc.json บอกว่ารวมบทไหน) และ เล่ม 9 Part 12 (74 หน้า → แยก 2 บทที่หน้า 196 = เริ่มอริยสัจ 4)
       clean.py: ฟอนต์เล่ม 2–9 ซ้อนเฉพาะสระ/วรรณยุกต์ ไม่ซ้อนพยัญชนะ (ตรวจสถิติแล้ว) → ค่าเริ่มต้นยุบเฉพาะสระ/วรรณยุกต์ + ลบ glyph ละตินแปลกปลอม (Ě ę š ć Ĝ …); โหมด spec เดิม = `--legacy-collapse`
-- [~] 4. author ทุกบท — **เล่ม 1 ครบ 9/9 ready**; เล่มนำร่อง quantum-merit-power เขียนครบ 10/10 (draft) รอบตรวจแรกชน session limit (reset 18:30) → resume workflow ต่อ
+- [~] 4. author ทุกบท — **เล่ม 1 ครบ 9/9 ready · เล่ม 7 quantum-merit-power ครบ 10/10 ready · เล่ม 2 quantum-brain-success ครบ 17/17 ready (10 ก.ย. 2026)**
+      เล่ม 2 รอบสุดท้าย: บท 1–6 มีไฟล์ตรวจของ Opus อยู่แล้ว (needs_fix ทุกบท) → session หลักแก้ตาม finding แล้วบันทึก `postFixVerify` ต่อท้ายไฟล์เดิม; บท 7–17 ไม่มีไฟล์ตรวจ → **session หลัก (Opus 5) ตรวจเองแล้วเขียน `_review-chNN.json` ใหม่** โดยบันทึกไว้ตรงๆ ว่าผู้ตรวจกับผู้แก้เป็นคนเดียวกัน (โควตาเอเจนต์หมด ใช้ทางสำรองตามแผนด้านล่าง)
+      ข้อผิดพลาดที่พบซ้ำทั้งเล่ม: ศัพท์ไม่มีคำขยายครั้งแรก · เลนส์ n ไม่พูดในนามบุญ/สติ/ความพอเพียง · วลี "แนวคิดหลักข้อที่N" ที่ผู้อ่านไม่รู้ว่าคือข้อไหน · นิยาม "รังสีกาย" ที่ขัดกับ raw · dfn ห่อกลางคำ (กรรมพันธุ์ ตรวจทาน อุปาทาน ชะตากรรม ทานมื้อ) · shape ซ้ำ
       **ค่าใช้จ่ายจริง: ~2.3M token ต่อ 10 บท (เขียน+ตรวจบางส่วน)** — 140 บทที่เหลือจะชน session limit หลายรอบ ต้องทยอยทีละเล่มและ resume
 - [x] 4b. เดิม: (บท 1–2 จาก prototype; บท 3–9 Sonnet เขียน → Opus ตรวจ 2–3 รอบ → แก้ → Opus ยืนยัน post-fix; reviewedBy=opus-5-agent)
       เล่ม 2–9 รอ PDF
@@ -26,7 +28,7 @@ Orchestrator: session หลัก (Fable 5.1) · Reviewer: Opus 5 · Implemente
 - [x] 5. glossary + auto-link + index.json — เล่ม 1: glossary 71 คำ (merge โดย normalize.mjs), validate ผ่าน 13 ไฟล์, build 13 หน้า, index.json 1 เล่ม
 - [ ] 6. interactives เขียนมือ (บท 1,2,3,4,9 ของเล่ม 1 อย่างน้อย)
 - [x] 7. build static + รัน proxy + ทดสอบ mobile 360/390/768/1280 — QA จริงด้วย Playwright 5 หน้า × 4 ขนาด (docs/qa/mobile-report.md + 29 ภาพ): ไม่มี horizontal scroll, AskPanel เต็มจอ, TermSheet ≤75vh, console error 0; ตกกฎข้อ 8 (ฟอนต์ 15px) → แก้แล้ว
-- [ ] 5b. เล่ม 2–9: blurb/coreIdeas จริงใน book.json (Sonnet จากคำนำ) → author ทีละเล่มด้วย `tools/workflow-author-book.js` (เริ่มเล่มเล็กสุด quantum-merit-power เป็นนำร่อง) → normalize/validate/build → push ต่อเล่ม
+- [~] 5b. เล่ม 2–9: blurb/coreIdeas จริงใน book.json (Sonnet จากคำนำ) → author ทีละเล่มด้วย `tools/workflow-author-book.js` (เริ่มเล่มเล็กสุด quantum-merit-power เป็นนำร่อง) → normalize/validate/build → push ต่อเล่ม
 - [ ] 8. docker compose ทดสอบบนเครื่องนี้ — `docker compose config` ผ่าน; daemon (colima) ไม่ได้รัน → ทดสอบจริงบน Ubuntu ตาม spec
 - [~] 9. ตรวจรับโดย Opus ตาม §11 (12 ข้อ): ผ่าน 9 / ข้อสังเกต 3 — blocker: **B1 PDF ยังไม่มีในเครื่อง (ผู้ใช้)**, **B2 ANTHROPIC_API_KEY ว่างใน .env (ผู้ใช้)**, B3 config ของ ch05–08 ไม่ตรงโมดูล particles → **แก้แล้ว** (objects 5/5/6/5 + guard ใน normalize.mjs); ข้อควรแก้ 14 ข้อ → แก้แล้ว 11 (ask effort/max_tokens notice, XFF, root, isFile, README, bulletsAfter, hint, .msg, review-ch03, วิธีนับคำมาตรฐาน = `pipeline/wordcount.py`) เหลือที่ตั้งใจไม่ทำในเฟสนี้: บันทึกเหตุผลตัดเนื้อหา raw ch06/ch08 (จะทำตอนทำ interactive มือให้บทเหล่านั้น), server-side fallbacks (ทางเลือก ไม่อยู่ใน spec), .scroll-x (ยังไม่มีเนื้อหากว้าง)
 
@@ -66,4 +68,8 @@ Orchestrator: session หลัก (Fable 5.1) · Reviewer: Opus 5 · Implemente
 - args พร้อมยิงของทุกเล่มอยู่ที่ scratchpad/args/{slug}.json (สร้างจาก book.json.chapters ใหม่ได้เสมอ)
 - workflow ชนโควตาเป็นระยะ — resume ด้วย `Workflow({scriptPath, resumeFromRunId})` args เดิม เอเจนต์ที่สำเร็จแล้วจะ replay จาก cache
   ⚠ ถ้าแก้ prompt ในสคริปต์ cache จะ miss ทั้งหมด ให้แก้เฉพาะตอนไม่มี run ค้าง
+- **เครื่องมือตรวจเชิงกลที่เพิ่มรอบนี้ (10 ก.ย. 2026)** ใช้ได้กับทุกเล่ม:
+  - `python -m pipeline.copyscan --book <slug> [--chapter chNN]` — หาช่วงที่ลอก raw ตรงๆ ยาว >= 60 อักษรไทย (คำพูดในเครื่องหมายคำพูดถูกแยกออกมานับต่างหาก จึงไม่ลากข้อความเล่าเรื่องรอบๆ ติดไปด้วย)
+  - `python -m pipeline.chapterlint --book <slug> [--chapter chNN]` — เช็คลิสต์ก่อนตรวจด้วยสายตา: dfn ครั้งแรกพร้อมบริบท, เลนส์ที่ไม่พูดในนามป้ายตัวเอง, object ที่ซ้ำกับ exercise, วลีที่ยัดคำใส่ปากหนังสือ, ตัวเลขที่ไม่มีใน raw, shape ซ้ำ
+  - สแกนขอบเขตคำของ dfn ที่มีอยู่แล้ว (ไม่ใช่แค่ที่ห่อใหม่) ด้วย pythainlp — รอบนี้เจอ 4 จุดใน 2 เล่มที่ห่อกลางคำ แก้แล้วและเพิ่ม exclusion ครบ
 - ถ้าโควตาเอเจนต์หมดยาว: session หลัก (Opus 5) ทำขั้น fix/verify เองได้ ตามที่ทำกับ ch09/ch10 ของเล่ม 7 — ใช้ _review-chNN.json เป็นรายการงาน แล้วตรวจเชิงกลด้วย pipeline/terms.py + wordcount + สคริปต์หาช่วงคัดลอก (SequenceMatcher ≥60 ตัวอักษรเทียบ raw ยกเว้นพุทธพจน์ใน quote)
