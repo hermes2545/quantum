@@ -22,9 +22,34 @@ THAI = re.compile(r"[^ก-๛]")
 # วลีที่มักยัดคำใส่ปากหนังสือ หรือเขียนข้อเสนอเป็นข้อสรุป
 SUSPECT = ["หนังสือเตือน", "ย้ำมาตั้งแต่ต้น", "ชี้ชัด", "พิสูจน์แล้วว่า", "ได้จริง", "แน่นอนว่า", "ทุกคนรู้ดีว่า"]
 HEDGE = ["ในกรอบที่หนังสือเสนอ", "สมมติฐาน", "ยังไม่ใช่ข้อสรุป", "ยังไม่ยุติ", "หนังสือเสนอ"]
-# คำที่เลนส์แต่ละอันควรพูดถึง (ป้าย a/d/n ของเล่มนี้)
-LENS_HINTS = {"a": ["เกิด", "ดับ", "ต่อเนื่อง", "ไม่หยุด"], "d": ["แผ่", "ส่ง", "รังสี", "ถึงคนอื่น", "รอบตัว"],
-              "n": ["บุญ", "สติ", "พอเพียง", "ธรรม"]}
+# คำที่เลนส์แต่ละอันควรพูดถึง — ดึงจาก lensLabels ของบทเอง (เล่มละชุด) ถ้าไม่มีค่อยใช้ชุดสำรองของเล่ม 2
+FALLBACK_HINTS = {"a": ["เกิด", "ดับ", "ต่อเนื่อง", "ไม่หยุด"], "d": ["แผ่", "ส่ง", "รังสี", "ถึงคนอื่น", "รอบตัว"],
+                  "n": ["บุญ", "สติ", "พอเพียง", "ธรรม"]}
+
+
+STOP = {"ของ", "และ", "หรือ", "แต่", "ที่", "ใน", "กับ", "จาก", "ไป", "มา", "ให้", "ได้", "เป็น", "คือ", "ไม่",
+        "ทุก", "ตั้งแต่", "จนถึง", "ด้วย", "กัน", "อยู่", "อาจ", "ว่า", "การ", "ความ", "เดียวกัน", "นำมา", "ถูก"}
+
+
+def lens_hints(cfg, core_ideas):
+    """คำใบ้ต่อเลนส์ = คำ (ตัดด้วย newmm) จากป้ายของเลนส์นั้น + coreIdeas ข้อเดียวกันใน book.json
+
+    เป็นแค่ตัวเตือนให้เปิดดู ไม่ใช่คำตัดสิน — เลนส์อาจพูดในนามป้ายได้โดยไม่ใช้คำเดียวกันเป๊ะ
+    """
+    try:
+        from pythainlp.tokenize import word_tokenize
+    except ImportError:
+        return FALLBACK_HINTS
+    out = {}
+    for i, lab in enumerate(cfg.get("lensLabels") or []):
+        text = f"{lab.get('pali','')} {lab.get('th','')}"
+        if i < len(core_ideas):
+            idea = core_ideas[i]
+            text += f" {idea.get('label','')} {idea.get('pali','')} {idea.get('text','')}"
+        toks = {t for t in word_tokenize(text, engine="newmm") if len(t) >= 3 and t not in STOP and re.match(r"^[ก-๛]+$", t)}
+        if toks:
+            out[lab.get("key")] = sorted(toks, key=len, reverse=True)
+    return out or FALLBACK_HINTS
 
 
 def plain(s):
@@ -42,7 +67,7 @@ def strings(node, path=""):
             yield from strings(v, f"{path}.{k}" if path else k)
 
 
-def lint(ch_path: Path, raw_path: Path):
+def lint(ch_path: Path, raw_path: Path, core_ideas=()):
     ch = json.loads(ch_path.read_text(encoding="utf-8"))
     raw = raw_path.read_text(encoding="utf-8") if raw_path.exists() else ""
     out = []
@@ -66,8 +91,9 @@ def lint(ch_path: Path, raw_path: Path):
     dup = {s for s in shapes if shapes.count(s) > 1}
     if dup:
         out.append(f"  ⚠ shape ซ้ำ {sorted(dup)} จาก {shapes}")
+    hints_by_key = lens_hints(cfg, list(core_ideas))
     for o in objs:
-        for k, hints in LENS_HINTS.items():
+        for k, hints in hints_by_key.items():
             text = (o.get("lenses") or {}).get(k, "")
             if text and not any(h in text for h in hints):
                 out.append(f"  ⚠ เลนส์ {o.get('key')}.{k} ไม่มีคำของป้ายเลย ({'/'.join(hints[:3])}) → {text[:70]}")
@@ -121,9 +147,10 @@ def main():
     ap.add_argument("--chapter")
     a = ap.parse_args()
     book = ROOT / "content" / "books" / a.book
+    core = json.loads((book / "book.json").read_text(encoding="utf-8")).get("coreIdeas", [])
     for ch_path in sorted(book.glob(f"{a.chapter or 'ch'}*.json")):
         print(f"\n=== {ch_path.stem} ===")
-        for line in lint(ch_path, book / "raw" / f"{ch_path.stem}.txt"):
+        for line in lint(ch_path, book / "raw" / f"{ch_path.stem}.txt", core):
             print(line)
 
 
