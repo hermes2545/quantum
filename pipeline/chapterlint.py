@@ -20,7 +20,12 @@ DFN = re.compile(r'<dfn data-term="([^"]+)"[^>]*>(.*?)</dfn>', re.S)
 THAI = re.compile(r"[^ก-๛]")
 
 # วลีที่มักยัดคำใส่ปากหนังสือ หรือเขียนข้อเสนอเป็นข้อสรุป
-SUSPECT = ["หนังสือเตือน", "ย้ำมาตั้งแต่ต้น", "ชี้ชัด", "พิสูจน์แล้วว่า", "ได้จริง", "แน่นอนว่า", "ทุกคนรู้ดีว่า"]
+# หมายเหตุ: เคยมี "ได้จริง" อยู่ในชุดนี้ แต่กวาดทั้งซีรีส์แล้วยิง 171 ครั้งโดยถูกจริงศูนย์ครั้ง
+# เพราะในภาษาไทยมันเป็นคำวิเศษณ์ปกติ ("วิธีที่ทำได้จริง" "ค่าที่วัดได้จริง") ไม่ใช่ตัวบ่งการโอ้อวด
+SUSPECT = ["ย้ำมาตั้งแต่ต้น", "ชี้ชัด", "พิสูจน์แล้วว่า", "แน่นอนว่า", "ทุกคนรู้ดีว่า"]
+# กริยาที่อ้างว่าหนังสือพูดอะไรบางอย่าง — ตัววลีเองไม่ผิด ที่ผิดคืออ้างสิ่งที่ raw ไม่ได้พูด
+# จึงเช็คกับ raw แทนการจับวลีลอยๆ (แบบเดิมยิง 43 ครั้งโดยถูกต้องทั้ง 43)
+ATTRIB = {"หนังสือเตือน": ["เตือน", "ระวัง", "อย่า", "ข้อควร", "ไม่ควร", "พึง", "โทษ", "อันตราย", "ห้าม"]}
 HEDGE = ["ในกรอบที่หนังสือเสนอ", "สมมติฐาน", "ยังไม่ใช่ข้อสรุป", "ยังไม่ยุติ", "หนังสือเสนอ"]
 # คำที่เลนส์แต่ละอันควรพูดถึง — ดึงจาก lensLabels ของบทเอง (เล่มละชุด) ถ้าไม่มีค่อยใช้ชุดสำรองของเล่ม 2
 FALLBACK_HINTS = {"a": ["เกิด", "ดับ", "ต่อเนื่อง", "ไม่หยุด"], "d": ["แผ่", "ส่ง", "รังสี", "ถึงคนอื่น", "รอบตัว"],
@@ -50,6 +55,22 @@ def lens_hints(cfg, core_ideas):
         if toks:
             out[lab.get("key")] = sorted(toks, key=len, reverse=True)
     return out or FALLBACK_HINTS
+
+
+def covers(text, hints):
+    """เลนส์พูดถึงคำใบ้ไหม — เทียบระดับคำที่ตัดแล้ว ไม่ใช่ substring ดิบ
+
+    จำเป็นเพราะคำแปรรูปอย่าง "เปลี่ยนไป" สื่อความเดียวกับคำใบ้ "เปลี่ยนแปลง"
+    แต่ substring ดิบจับไม่ได้ ทำให้เตือนผิดเป็นกอง
+    """
+    if any(h in text for h in hints):
+        return True
+    try:
+        from pythainlp.tokenize import word_tokenize
+    except ImportError:
+        return False
+    toks = [t for t in word_tokenize(text, engine="newmm") if len(t) >= 3]
+    return any(t in h or h in t for h in hints for t in toks)
 
 
 def plain(s):
@@ -88,14 +109,15 @@ def lint(ch_path: Path, raw_path: Path, core_ideas=()):
     cfg = ix.get("config") or {}
     objs = cfg.get("objects") or []
     shapes = [o.get("shape") for o in objs]
-    dup = {s for s in shapes if shapes.count(s) > 1}
+    # โมดูลบางแบบไม่ใช้ shape เลย (None ล้วน) — ไม่ใช่การซ้ำ
+    dup = {s for s in shapes if s and shapes.count(s) > 1}
     if dup:
         out.append(f"  ⚠ shape ซ้ำ {sorted(dup)} จาก {shapes}")
     hints_by_key = lens_hints(cfg, list(core_ideas))
     for o in objs:
         for k, hints in hints_by_key.items():
             text = (o.get("lenses") or {}).get(k, "")
-            if text and not any(h in text for h in hints):
+            if text and not covers(text, hints):
                 out.append(f"  ⚠ เลนส์ {o.get('key')}.{k} ไม่มีคำของป้ายเลย ({'/'.join(hints[:3])}) → {text[:70]}")
 
     # 3. object ซ้ำสถานการณ์กับ exercise.options (กับดักข้อ 4)
@@ -113,6 +135,12 @@ def lint(ch_path: Path, raw_path: Path, core_ideas=()):
                 i = s.index(w)
                 out.append(f"  ⚠ '{w}' ที่ {path} → …{plain(s[max(0,i-40):i+60])}…")
 
+    # 4b. อ้างว่าหนังสือพูดอะไร แต่ raw ของบทไม่มีภาษานั้นเลย
+    whole = "\n".join(plain(v) for _, v in strings(ch))
+    for phrase, evidence in ATTRIB.items():
+        if phrase in whole and raw and not any(e in raw for e in evidence):
+            out.append(f"  ⚠ อ้าง '{phrase}' แต่ raw ของบทนี้ไม่มีภาษาแบบนั้นเลย ({'/'.join(evidence[:4])})")
+
     # 5. ตัวบ่งสถานะสมมติฐาน มีกี่จุด และอยู่ใน interactive/exercise ด้วยไหม (§9.1 ข้อ 7)
     where = {"sections": 0, "interactive": 0, "exercise": 0, "อื่นๆ": 0}
     for path, s in strings(ch):
@@ -125,15 +153,19 @@ def lint(ch_path: Path, raw_path: Path, core_ideas=()):
     if raw:
         NUM = re.compile(r"\d[\d,\.]*|ล้านล้าน|แสนล้าน|พันล้าน|ร้อยล้าน|แสนโกฏิ|โกฏิ")
         rawnums = set(NUM.findall(raw.replace(",", "")))
+        # เฉพาะร้อยแก้วที่กล่าวอ้างข้อเท็จจริง — เลขพิกัด/รหัสโมดูล/คีย์ ไม่ใช่ข้ออ้าง
+        # และ terms[].def คือนิยามที่คู่มือเขียนเอง ไม่ต้องมีใน raw ของบทนั้น
+        SKIP = ("book", "slug", "reviewed", "terms", "thaiNum", "keywords")
+        STRUCT = re.compile(r"\.(key|col|row|module|position|remnantSize|size|index|order)$|lensLabels")
         chnums = {}
         for path, s in strings(ch):
-            if path.startswith(("book", "slug", "reviewed")):
+            if path.startswith(SKIP) or STRUCT.search(path):
                 continue
             for n in NUM.findall(s.replace(",", "")):
                 chnums.setdefault(n, path)
         missing = {n: p for n, p in chnums.items() if n not in rawnums}
         if missing:
-            out.append(f"  ⚠ ตัวเลขที่ไม่มีใน raw: " + ", ".join(f"{n} ({p})" for n, p in missing.items()))
+            out.append(f"  ตัวเลขที่คู่มือเติมเอง (ต้องมีที่มา ไม่ใช่ข้อผิดพลาดเสมอไป): " + ", ".join(f"{n} ({p})" for n, p in missing.items()))
 
     # 7. quote box
     q = ch.get("quote")
