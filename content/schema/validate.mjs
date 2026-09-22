@@ -392,6 +392,28 @@ function main() {
             );
           }
         }
+        // shape/color ของ objects ต้องอยู่ในชุดที่ particles.js รู้จักจริง
+        // particles.js ใช้ SHAPES[shape] || SHAPES.blob และ color || 'mint' — ค่าที่พิมพ์ผิดจึง
+        // ไม่พังแต่ยุบไปเป็น blob/mint เงียบๆ ทำให้ object คนละตัวกลายเป็นรูปเดียวกันโดยไม่มีใครรู้
+        {
+          const SHAPES = new Set(["phone", "flower", "body", "star", "anger", "blob"]);
+          const COLORS = new Set(["gold", "teal", "pink", "star", "mint"]);
+          const objects = chapter.interactive?.config?.objects;
+          if (Array.isArray(objects)) {
+            objects.forEach((o, i) => {
+              if (o && o.shape !== undefined && !SHAPES.has(o.shape)) {
+                errors.push(
+                  `${label}: interactive.config.objects[${i}].shape "${o.shape}" ไม่อยู่ในชุดที่เรนเดอร์รองรับ (${[...SHAPES].join(", ")})`
+                );
+              }
+              if (o && o.color !== undefined && !COLORS.has(o.color)) {
+                errors.push(
+                  `${label}: interactive.config.objects[${i}].color "${o.color}" ไม่อยู่ในชุดที่เรนเดอร์รองรับ (${[...COLORS].join(", ")})`
+                );
+              }
+            });
+          }
+        }
         // bulletsAfter ห้ามเกินจำนวน paragraphs ของ section เดียวกัน
         if (Array.isArray(chapter.sections)) {
           chapter.sections.forEach((section, i) => {
