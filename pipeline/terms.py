@@ -301,6 +301,11 @@ def wrap_first_occurrence(
             end_aligned = end in ends
             if not start_aligned and not end_aligned:
                 return term  # ตัดกลาง token เดียวกันทั้งสองฝั่งตามตัวตัดคำ (เช่น "สติ" ใน "พลาสติก") — ปฏิเสธ
+            # ศัพท์สั้นอย่าง กรรม สาร ธรรม จิต เป็นส่วนท้ายของคำประสมได้เยอะมาก
+            # (อุตสาหกรรม สถาปัตยกรรม วรรณกรรม นวัตกรรม วารสาร เอกสาร การสื่อสาร มวลสาร)
+            # ตัวตัดคำมองคำพวกนี้เป็น token เดียว ถ้า match ไม่ได้เริ่มที่ขอบ token จึงแปลว่ากินท้ายคำอื่นแน่
+            if len(term) <= 5 and not start_aligned:
+                return term
             if not start_aligned and leaves_word_fragment(html, start, starts):
                 # match เริ่มกลางคำแล้วทิ้งเศษที่ไม่ใช่คำไว้ข้างหน้า = แท็กไปกินตัวอักษรของคำก่อนหน้า
                 # เคสจริง: "สิ่งที่ท่านอ้างคือวิชชาสาม" ถูกจับเป็น "คื" + [อวิชชา] + "สาม"
