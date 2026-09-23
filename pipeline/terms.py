@@ -114,6 +114,40 @@ def strip_html_with_map(html: str) -> tuple[str, list[int]]:
     return "".join(out), idx_map
 
 
+def leaves_word_fragment(html: str, start: int, starts: set[int]) -> bool:
+    """match เริ่มกลาง token — เศษที่เหลือข้างหน้าเป็นคำจริงไหม
+
+    ถ้าเป็นคำจริง (เช่น "มี" ใน "มีสติ" ที่ตัวตัดคำรวมเป็น token เดียว) แปลว่าขอบเขตยังถูก
+    ถ้าไม่ใช่คำ (เช่น "คื" ที่เหลือจาก "คือ" หลังถูกกิน "อ" ไป) แปลว่าแท็กกินตัวอักษรของคำหน้า
+    คืน False เสมอเมื่อไม่มีพจนานุกรม เพื่อไม่ให้พฤติกรรมเปลี่ยนในเครื่องที่ไม่มี pythainlp"""
+    words = _get_thai_words()
+    if not words:
+        return False
+    tok_start = max((s for s in starts if s <= start), default=None)
+    if tok_start is None or tok_start == start:
+        return False
+    fragment = _TAG_RE.sub("", html[tok_start:start])
+    if not fragment or not _THAI_LETTER_RE.match(fragment):
+        return False
+    return fragment not in words
+
+
+_TAG_RE = re.compile(r"<[^>]+>")
+_THAI_LETTER_RE = re.compile(r"[ก-ฮ]")
+_THAI_WORDS_CACHE: set[str] | None = None
+
+
+def _get_thai_words() -> set[str] | None:
+    global _THAI_WORDS_CACHE
+    if _THAI_WORDS_CACHE is None:
+        try:
+            from pythainlp.corpus import thai_words
+        except ImportError:
+            return None
+        _THAI_WORDS_CACHE = set(thai_words())
+    return _THAI_WORDS_CACHE
+
+
 def thai_token_boundaries(html: str) -> tuple[set[int], set[int]] | None:
     """ตัดคำ (word segmentation) ข้อความ plain-text ของ html ด้วย pythainlp คืน (token_starts,
     token_ends) เป็นเซตของตำแหน่ง offset ใน html เดิม — คืน None ถ้าไม่ได้ติดตั้ง pythainlp
@@ -267,6 +301,11 @@ def wrap_first_occurrence(
             end_aligned = end in ends
             if not start_aligned and not end_aligned:
                 return term  # ตัดกลาง token เดียวกันทั้งสองฝั่งตามตัวตัดคำ (เช่น "สติ" ใน "พลาสติก") — ปฏิเสธ
+            if not start_aligned and leaves_word_fragment(html, start, starts):
+                # match เริ่มกลางคำแล้วทิ้งเศษที่ไม่ใช่คำไว้ข้างหน้า = แท็กไปกินตัวอักษรของคำก่อนหน้า
+                # เคสจริง: "สิ่งที่ท่านอ้างคือวิชชาสาม" ถูกจับเป็น "คื" + [อวิชชา] + "สาม"
+                # ซึ่งพลิกความหมายพระสูตรเป็นตรงข้าม end_aligned เป็นจริงจึงรอดด่านบนมาได้
+                return term
             boundary_ok_both_sides = start_aligned and end_aligned
         if inside_excluded_word(term, start, end):
             return term  # อยู่ในคำที่ยาวกว่าตามรายการ exclusions (เช่น "กรรม" ใน "พันธุกรรม") — ข้าม
