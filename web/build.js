@@ -436,7 +436,11 @@ function renderInteractive(chapter, interactive) {
 }
 
 function renderQuote(quote) {
-  let out = `  <div class="quote"><div class="eyebrow">พุทธพจน์ที่หนังสือยกมา</div><p>${escapeText(
+  // ป้ายนี้เคย hardcode ว่า "พุทธพจน์ที่หนังสือยกมา" ทุกบททุกเล่ม ทั้งที่ใน 125 บทมีพุทธพจน์จริง 42 บท
+  // ที่เหลือเป็นคำของนักฟิสิกส์ ของผู้เขียน หรือจากบทสนทนากับ AI — ผู้อ่านที่เชื่อป้ายจะอ้างต่อผิด
+  // default จึงต้องเป็นป้ายที่เป็นจริงเสมอ ส่วนบทที่ยกพุทธพจน์จริงระบุ quote.label เอง
+  const label = quote.label || 'คำที่หนังสือยกมา';
+  let out = `  <div class="quote"><div class="eyebrow">${escapeText(label)}</div><p>${escapeText(
     quote.text
   )}</p><div class="src">${escapeText(quote.source)}</div></div>\n`;
   (quote.after || []).forEach((p) => {
