@@ -18,6 +18,9 @@ ROOT = Path(__file__).resolve().parent.parent
 TAG = re.compile(r"<[^>]+>")
 DFN = re.compile(r'<dfn data-term="([^"]+)"[^>]*>(.*?)</dfn>', re.S)
 THAI = re.compile(r"[^ก-๛]")
+# ชื่อไฟล์/ฟิลด์/โฟลเดอร์ของไปป์ไลน์ที่ต้องไม่โผล่ในข้อความที่ผู้อ่านเห็น
+LEAK = re.compile(r"(?<![A-Za-z])(raw|chNN|glossary\.json|book\.json|keyPoints|sections\[|paragraphs\[)(?![A-Za-z])")
+SKIP_FIELDS = {"book", "slug", "status", "thaiNum", "reviewedBy", "reviewedAt"}
 
 # วลีที่มักยัดคำใส่ปากหนังสือ หรือเขียนข้อเสนอเป็นข้อสรุป
 # หมายเหตุ: เคยมี "ได้จริง" อยู่ในชุดนี้ แต่กวาดทั้งซีรีส์แล้วยิง 171 ครั้งโดยถูกจริงศูนย์ครั้ง
@@ -103,6 +106,14 @@ def lint(ch_path: Path, raw_path: Path, core_ideas=()):
         seen.append(term)
         after = plain(body[m.end(): m.end() + 90]).replace("\n", " ")
         out.append(f"  dfn ครั้งแรก · {term} → …{after}")
+
+    # 1b. ศัพท์ของไปป์ไลน์ที่หลุดถึงผู้อ่าน — "raw" คือชื่อโฟลเดอร์ต้นฉบับ ไม่ใช่คำที่ผู้อ่านรู้จัก
+    # เคยหลุดไป 186 จุดในสามเล่ม รวม summary ที่ build.js ส่งต่อเป็น meta description ของหน้า
+    for path, val in strings(ch):
+        if path.split(".")[0] in SKIP_FIELDS:
+            continue
+        for m in LEAK.finditer(val):
+            out.append(f"  ⚠ ศัพท์ไปป์ไลน์หลุดถึงผู้อ่าน · {path} → …{val[max(0, m.start() - 20):m.end() + 20]}…")
 
     # 2. เลนส์พูดในนามป้ายของตัวเองไหม + shape ซ้ำ (กับดักข้อ 4)
     ix = ch.get("interactive") or {}
