@@ -6,7 +6,10 @@
   "verdict": "needs_fix",
   "wordCount": 1058,
   "wordCountOk": true,
-  "schema": { "normalize": "0 แก้", "validate": "ผ่าน 162 ไฟล์" },
+  "schema": {
+    "normalize": "0 แก้",
+    "validate": "ผ่าน 162 ไฟล์"
+  },
   "copiedSpans": [
     "คลื่นความถี่ทางควอนตัมของจิตที่มีพลังเชิงบวก (sec3.p1 + terms บุญ/บาป, 44 ตัวอักษร ≈ 11 คำ — เป็นนิยามศัพท์ที่ผู้เขียนบัญญัติเอง เลี่ยงยาก ยังไม่เกินเพดาน 12 คำ)",
     "มีลักษณะของความน่าจะเป็นและการสุ่มทางควอนตัม (sec3.callout, 44 ตัวอักษร ≈ 9 คำ)",
@@ -92,5 +95,42 @@
     "§9.1 ข้อ 10-11: exercise 4 ตัวเลือก × 3 ขั้น เป็นฉากไทยปัจจุบันทั้งหมด; questions 4 ข้อเป็นข้อสงสัยจริง (ขอขมาช่วยได้ไหม / สนามกรรมกับสวรรค์นรก / คิดชั่วในใจนับไหม / morphic resonance เชื่อได้แค่ไหน)",
     "§9.2 glossary ข้ามเล่ม: \"กรรม\" มีอยู่แล้วใน trilaksana-quantum/glossary.json ใช้ term/alt/def เดิมคำต่อคำและเพิ่ม books ครบ 2 เล่ม; \"Non-Local\" และ \"การพัวพันเชิงควอนตัม\" ตรงกับ def ที่ ch01-ch03 ของเล่มนี้ใช้",
     "interactive contract: module particles, objects 5 ชิ้น, color อยู่ใน enum (gold/teal/pink/star/mint) และ shape อยู่ใน enum ที่ particles.js รองรับ (star/blob/flower/body/anger), lensLabels 3 ผูกกับ coreIdeas ของเล่มถูกต้อง, มี phases/initialT/timeLabel/emptyReadout ครบ, ใช้เฉพาะ <b> ใน lenses ตาม §E.4"
-  ]
+  ],
+  "independentReview": {
+    "reviewedBy": "opus-5-subagent (ผู้ตรวจอิสระ ไม่ได้เขียนบทนี้)",
+    "reviewedAt": "2026-09-24",
+    "findingsRaised": 11,
+    "findingsConfirmed": 7,
+    "fixes": [
+      {
+        "what": "แบบฝึกหัดสอนว่าความรู้สึกผิดคือตัวบาป กลับหลักหิริโอตตัปปะ"
+      },
+      {
+        "what": "เติมคำเตือนไม่ให้อ่านผลกรรมย้อนกลับ"
+      },
+      {
+        "what": "ประโยคแรกของบทยืนยันแรงกว่าบท 2-3 และแรงกว่าฟิสิกส์ พร้อมอธิบายว่าข้อมูลไม่สูญในฟิสิกส์หมายถึงอะไร"
+      },
+      {
+        "what": "ซิงโครไนซ์ถูกนิยามแบบ synchronicity ของยุง ทั้งที่ raw ใช้ในความหมายการเข้าจังหวะ"
+      },
+      {
+        "what": "นิยามวิญญาณตรงกับความเห็นของภิกษุสาติ"
+      },
+      {
+        "what": "ตัดคำว่า \"ควรจะ\" ของผู้เขียนทิ้ง"
+      },
+      {
+        "what": "คู่มือสร้างสะพานฟิสิกส์-กรรมด้วยเสียงตัวเอง"
+      }
+    ],
+    "deferred": [
+      {
+        "what": "dfn สนามบนคำว่าสนามความจำร่วม, โปรตอนประกอบจากควาร์ก, เลนส์ระฆัง",
+        "why": "minor ไม่กระทบความเข้าใจหลัก"
+      }
+    ],
+    "verifiedPassing": [],
+    "gates": "terms/wordcount/copyscan/glossdiff --strict/normalize/validate 163 ไฟล์/build 143 หน้า ผ่านครบ"
+  }
 }

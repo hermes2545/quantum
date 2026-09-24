@@ -56,5 +56,36 @@
     "wordcount": "944 คำ (900–1400)",
     "copyscan": "0 ช่วงที่ต้องแก้",
     "chapterlint": "เหลือเฉพาะคำเตือนเลขไทยของ thaiNum และดัชนี books ซึ่งไม่ใช่ข้อผิดพลาด"
+  },
+  "independentReview": {
+    "reviewedBy": "opus-5-subagent (ผู้ตรวจอิสระ ไม่ได้เขียนบทนี้)",
+    "reviewedAt": "2026-09-24",
+    "findingsRaised": 8,
+    "findingsConfirmed": 6,
+    "fixes": [
+      {
+        "what": "ความอยากในรสถูกเรียกว่าภวตัณหา ผิดหมวด ต้องเป็นกามตัณหา"
+      },
+      {
+        "what": "เติม callout แบบจำลองสมองสามชั้นที่เลิกใช้แล้ว"
+      },
+      {
+        "what": "quote กับแบบฝึกหัดว่ากลิ่นถึงฮิปโปแคมปัสโดยตรง ขัดกับบทเอง"
+      },
+      {
+        "what": "dfn การติดป้ายอารมณ์ (affect labeling) แปะผิดความหมาย"
+      },
+      {
+        "what": "โดพามีนสร้างความพอใจ ขัดกับบทเอง"
+      },
+      {
+        "what": "summary ตัดคำว่า \"จนถึงตอนนี้\""
+      }
+    ],
+    "deferred": [],
+    "verifiedPassing": [
+      "ปีติในฌาน การปฏิเสธการทรมานตน ทางลัดของกลิ่น ตรวจแล้วถูกทั้งหมด"
+    ],
+    "gates": "terms/wordcount/copyscan/glossdiff --strict/normalize/validate 163 ไฟล์/build 143 หน้า ผ่านครบ"
   }
 }

@@ -89,5 +89,39 @@
     "§9.1 ข้อ 11: questions 4 ข้อเป็นข้อสงสัยจริงของคนอ่าน ไม่ใช่คำถามท่องจำ",
     "§10 schema + normalize/validate ผ่านทั้งหมด · interactive.config มี objects 5, lensLabels 3, phases 3, initialT, timeLabel, emptyReadout ครบ · <b> ใน lenses ผ่าน allowlist ของ particles.js",
     "terms 'กรรม' ใช้ def เดิมจาก trilaksana-quantum ตรงตัวอักษร ✓"
-  ]
+  ],
+  "independentReview": {
+    "reviewedBy": "opus-5-subagent (ผู้ตรวจอิสระ ไม่ได้เขียนบทนี้)",
+    "reviewedAt": "2026-09-24",
+    "findingsRaised": 8,
+    "findingsConfirmed": 6,
+    "fixes": [
+      {
+        "what": "blocker: ตั้งคำถามคนดีเจอเรื่องร้ายแล้วตอบด้วยกรรมอย่างเดียว ไม่มีคำเตือน — เติมย่อหน้าสีวกสูตรและอจินไตย"
+      },
+      {
+        "what": "ตัด \"กฎของกรรมที่ไม่มีข้อยกเว้น\" ที่ไม่มีใน raw"
+      },
+      {
+        "what": "keyPoint ฝ่ามือไม่มีแผลหมายถึงบาปคนอื่นไม่ซึมมาเป็นของเรา"
+      },
+      {
+        "what": "เนื้อบทเขียนสนามกฎแห่งกรรมเป็นข้อเท็จจริง"
+      },
+      {
+        "what": "callout อธิบายธรรมบท 127 ด้วย Non-Local ด้วยเสียงคู่มือ"
+      },
+      {
+        "what": "นิยามนรกอ้างว่าพุทธพจน์ยืนยันสิ่งที่ผู้เขียนเพียงอนุมาน"
+      }
+    ],
+    "deferred": [
+      {
+        "what": "ระบุชื่อพระสูตรใน quote.source และเลนส์ที่พูดแทนพุทธพจน์",
+        "why": "ต้องเทียบเลขพระสูตรกับฉบับแปลไทยก่อน"
+      }
+    ],
+    "verifiedPassing": [],
+    "gates": "terms/wordcount/copyscan/glossdiff --strict/normalize/validate 163 ไฟล์/build 143 หน้า ผ่านครบ"
+  }
 }
