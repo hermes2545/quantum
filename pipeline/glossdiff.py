@@ -90,6 +90,18 @@ def main():
             print(f"    ‼ kind ไม่ตรงกัน: {ks}")
             hard += 1
 
+    # นิยามพูดว่า "บทนี้" แต่ถูกใช้หลายบทในเล่มเดียวกัน — ผิดในทุกบทยกเว้นบทเดียว
+    use = defaultdict(set)
+    for ch in BOOKS.glob("*/ch*.json"):
+        for t in json.loads(ch.read_text("utf-8")).get("terms", []):
+            use[(ch.parent.name, t["term"])].add(ch.stem)
+    for gj in sorted(BOOKS.glob("*/glossary.json")):
+        for t in json.loads(gj.read_text("utf-8"))["terms"]:
+            chs = use[(gj.parent.name, t["term"])]
+            if "บทนี้" in t["def"] and len(chs) > 1 and (not args.term or args.term == t["term"]):
+                print(f"‼ {gj.parent.name} · {t['term']}: นิยามพูดว่า 'บทนี้' แต่ใช้ใน {sorted(chs)}")
+                hard += 1
+
     if not args.term:
         print(
             f"\nศัพท์ที่ใช้ร่วมหลายเล่ม {len(shared)} · นิยามไม่ตรงกัน {divergent} · "
