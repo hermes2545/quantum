@@ -51,5 +51,27 @@
     "wordcount": "944 คำ (900–1400)",
     "copyscan": "0 ช่วงที่ต้องแก้",
     "chapterlint": "เหลือเฉพาะคำเตือนเลขไทยของ thaiNum ปีในคำอธิบายศัพท์ และดัชนี books ซึ่งไม่ใช่ข้อผิดพลาด"
+  },
+  "independentReview": {
+    "reviewedBy": "opus-5-subagent (ผู้ตรวจอิสระ ไม่ได้เขียนบทนี้)",
+    "reviewedAt": "2026-09-26",
+    "findingsRaised": 3,
+    "findingsConfirmed": 3,
+    "fixes": [
+      {
+        "what": "ป้าย quote 'พุทธพจน์ที่หนังสือยกมา' ทั้งที่ติตถายตนสูตรคู่มือนำมาเทียบเอง (grep ทั้งเล่มได้ 0)"
+      },
+      {
+        "what": "เสียงสะท้อนสปิน 'หายไป' เมื่อมีการรบกวน ขัดกับย่อหน้าก่อนที่ว่าเป็นฐานของเอ็มอาร์ไอ"
+      },
+      {
+        "what": "'สองสุดโต่ง' แต่เนื้อบทนับลัทธิสามอย่าง"
+      }
+    ],
+    "deferred": [],
+    "verifiedPassing": [
+      "กลศาสตร์โบห์ม สมดุลควอนตัม OTOC spin echo ติตถายตนสูตร ตัวชี้ข้ามเล่มถูกทั้งหมด"
+    ],
+    "gates": "terms/wordcount/copyscan/glossdiff --strict/normalize/validate 163 ไฟล์/build 143 หน้า ผ่านครบ"
   }
 }
