@@ -68,7 +68,7 @@ function chapterToFullText(chapter) {
     lines.push(`กิจกรรมโต้ตอบในบทนี้: ${chapter.interactive.title} — ${chapter.interactive.intro ?? ''}`);
   }
   if (chapter.quote?.text) {
-    lines.push(`พุทธพจน์ที่หนังสือยกมา: ${chapter.quote.text} (ที่มา: ${chapter.quote.source ?? ''})`);
+    lines.push(`${chapter.quote.label || 'คำที่หนังสือยกมา'}: ${chapter.quote.text} (ที่มา: ${chapter.quote.source ?? ''})`);
   }
   if (chapter.exercise) {
     const ex = chapter.exercise;
