@@ -10,7 +10,7 @@
     "term": { "type": "string", "minLength": 1 },
     "kind": {
       "type": "string",
-      "enum": ["ธรรมะ", "วิทยาศาสตร์"]
+      "enum": ["ธรรมะ", "วิทยาศาสตร์", "ปรัชญา"]
     },
     "alt": {
       "type": "string",

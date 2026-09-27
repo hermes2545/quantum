@@ -20,7 +20,7 @@
         "required": ["term", "kind", "alt", "def", "books"],
         "properties": {
           "term": { "type": "string", "minLength": 1 },
-          "kind": { "type": "string", "enum": ["ธรรมะ", "วิทยาศาสตร์"] },
+          "kind": { "type": "string", "enum": ["ธรรมะ", "วิทยาศาสตร์", "ปรัชญา"] },
           "alt": { "type": "string" },
           "def": { "type": "string", "minLength": 1 },
           "books": {

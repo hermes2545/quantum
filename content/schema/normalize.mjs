@@ -4,7 +4,7 @@
 // ทำไมต้องมี: เนื้อหาบทมาจากหลายทาง (prototype, agent เขียน, pipeline/author.py) ซึ่งใช้
 // ธรรมเนียมต่างกัน แต่ validate.mjs/build.js/TermSheet ยึดสัญญาเดียว:
 //   1. chapter.slug = ชื่อไฟล์ (chNN) — ตรงกับ book.json.chapters[].slug และโฟลเดอร์ interactives
-//   2. <dfn data-term="X"> ต้องมี data-kind="ธรรมะ|วิทยาศาสตร์" (TermSheet ใช้ลงสีโดยไม่ต้อง lookup)
+//   2. <dfn data-term="X"> ต้องมี data-kind="ธรรมะ|วิทยาศาสตร์|ปรัชญา" (TermSheet ใช้ลงสีโดยไม่ต้อง lookup)
 //   3. interactive.module เป็น "particles" หรือ "{bookSlug}/chNN" ถ้ามี web/src/js/interactives/{bookSlug}/chNN.js
 //   4. terms[] ทุกตัวมี alt (ว่างได้) และ books[]
 //   5. book.json.chapters[] status/title/sub ตรงกับ chNN.json (สถานะเก็บสองที่ตาม §10 ต้องตรงกัน)

@@ -114,6 +114,8 @@ dfn{font-style:normal;text-decoration:underline dotted var(--gold);text-underlin
 dfn:hover,dfn:focus-visible{background:var(--gold-soft)}
 dfn[data-kind="วิทยาศาสตร์"]{text-decoration-color:var(--teal)}
 dfn[data-kind="วิทยาศาสตร์"]:hover,dfn[data-kind="วิทยาศาสตร์"]:focus-visible{background:var(--teal-soft)}
+dfn[data-kind="ปรัชญา"]{text-decoration-color:var(--ink-3)}
+dfn[data-kind="ปรัชญา"]:hover,dfn[data-kind="ปรัชญา"]:focus-visible{background:var(--paper-2)}
 
 .quote{margin:26px 0;padding:18px 22px;border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);background:linear-gradient(180deg,transparent,var(--gold-soft) 50%,transparent)}
 .quote .eyebrow{color:var(--gold);margin-bottom:6px}

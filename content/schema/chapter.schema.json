@@ -325,8 +325,8 @@
   "$defs": {
     "InnerHtml": {
       "type": "string",
-      "description": "inner HTML ของ <p>/<li> — อนุญาตเฉพาะ <b> <i> <dfn data-term=\"…\" data-kind=\"ธรรมะ|วิทยาศาสตร์\"> เท่านั้น ห้ามแท็กอื่น (บังคับโดย pattern นี้ และตรวจซ้ำแบบเข้มงวดกว่าใน validate.mjs)",
-      "pattern": "^(?:[^<]|<\\/?(?:b|i)>|<dfn data-term=\"[^\"]*\" data-kind=\"(?:ธรรมะ|วิทยาศาสตร์)\">|<\\/dfn>)*$"
+      "description": "inner HTML ของ <p>/<li> — อนุญาตเฉพาะ <b> <i> <dfn data-term=\"…\" data-kind=\"ธรรมะ|วิทยาศาสตร์|ปรัชญา\"> เท่านั้น ห้ามแท็กอื่น (บังคับโดย pattern นี้ และตรวจซ้ำแบบเข้มงวดกว่าใน validate.mjs)",
+      "pattern": "^(?:[^<]|<\\/?(?:b|i)>|<dfn data-term=\"[^\"]*\" data-kind=\"(?:ธรรมะ|วิทยาศาสตร์|ปรัชญา)\">|<\\/dfn>)*$"
     },
     "Section": {
       "type": "object",
@@ -399,7 +399,8 @@
           "type": "string",
           "enum": [
             "ธรรมะ",
-            "วิทยาศาสตร์"
+            "วิทยาศาสตร์",
+            "ปรัชญา"
           ]
         },
         "alt": {
