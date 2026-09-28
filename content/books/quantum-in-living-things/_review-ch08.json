@@ -36,5 +36,25 @@
   "openItems": [
     "ต้องการ Opus รอบอิสระที่ไม่ใช่ผู้เขียน มาอ่านซ้ำทั้งบท",
     "callout เรื่องภาวะอดอยากในเนเธอร์แลนด์ระบุไว้แล้วว่ายังเถียงกันว่าเป็นสาเหตุหรือร่องรอย — ถ้ามีรอบแก้ ควรเติมชื่องานวิจัยรุ่นหลังที่เตือนเรื่องการสรุปเกินข้อมูล"
-  ]
+  ],
+  "independentReview": {
+    "reviewedBy": "opus-5-subagent (ผู้ตรวจอิสระ ไม่ได้เขียนบทนี้)",
+    "reviewedAt": "2026-09-28",
+    "findingsRaised": 3,
+    "findingsConfirmed": 3,
+    "fixes": [
+      {
+        "what": "blocker: เลนส์ methyl-tag.n ผูกป้ายเคมีบนดีเอ็นเอกับกรรม — กระบวนการไม่มีเจตนาไม่ใช่กรรม"
+      },
+      {
+        "what": "h2/เลนส์ bistable/questions[1] เรื่องกลไกเปิดปิดยีน"
+      },
+      {
+        "what": "keyPoints[6] และ s2p3 ยีนยามานากะ — ใส่ยีนโปรตีนควบคุมสี่ตัว, ตอบคำถามของหนังสือได้ส่วนหนึ่ง"
+      }
+    ],
+    "deferred": [],
+    "verifiedPassing": [],
+    "gates": "terms/wordcount/copyscan/glossdiff --strict/normalize/validate 163 ไฟล์/build 143 หน้า ผ่านครบ"
+  }
 }

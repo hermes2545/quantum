@@ -46,5 +46,22 @@
   "openItems": [
     "ต้องการ Opus รอบอิสระที่ไม่ใช่ผู้เขียน มาอ่านซ้ำทั้งบท",
     "ตรวจตัวเลขตัวรับกลิ่นของมนุษย์ — ยีนตัวรับกลิ่นมีราว 800 ยีน แต่ที่ใช้งานได้จริงราว 400 บทใช้ตัวเลขหลังตาม raw ซึ่งถูก แต่ควรระบุให้ชัดขึ้นถ้ามีรอบแก้"
-  ]
+  ],
+  "independentReview": {
+    "reviewedBy": "opus-5-subagent (ผู้ตรวจอิสระ ไม่ได้เขียนบทนี้)",
+    "reviewedAt": "2026-09-28",
+    "findingsRaised": 2,
+    "findingsConfirmed": 2,
+    "fixes": [
+      {
+        "what": "keyPoints และคำของทีมวิจัย Wnt ถูกเล่าเป็นข้อสรุป → 'ทีมวิจัยคาดว่า'"
+      },
+      {
+        "what": "เลนส์ mouse-cells.n พูดแรงกว่าเนื้อบท"
+      }
+    ],
+    "deferred": [],
+    "verifiedPassing": [],
+    "gates": "terms/wordcount/copyscan/glossdiff --strict/normalize/validate 163 ไฟล์/build 143 หน้า ผ่านครบ"
+  }
 }
