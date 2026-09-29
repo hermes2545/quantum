@@ -31,22 +31,80 @@
     "status": "draft",
     "order": 7,
     "thaiNum": "๗",
-    "paragraphsPerSection": [5, 5, 5],
-    "interactive": { "module": "particles", "position": 1, "note": "เปลี่ยนจาก trilaksana-quantum/ch07 มาใช้ interactive กลาง เพราะยังไม่มีไฟล์ ch07.js — ตรง fallback ที่ normalize.mjs และ handoff-spec บรรทัด 145 กำหนด จึงปิด finding 8/9 ของรอบก่อนไปด้วย" },
+    "paragraphsPerSection": [
+      5,
+      5,
+      5
+    ],
+    "interactive": {
+      "module": "particles",
+      "position": 1,
+      "note": "เปลี่ยนจาก trilaksana-quantum/ch07 มาใช้ interactive กลาง เพราะยังไม่มีไฟล์ ch07.js — ตรง fallback ที่ normalize.mjs และ handoff-spec บรรทัด 145 กำหนด จึงปิด finding 8/9 ของรอบก่อนไปด้วย"
+    },
     "dfn": "ทุก data-term มี data-kind และมีอยู่ใน terms[] ครบ",
     "pass": true
   },
   "resolvedFromRound2": [
-    { "id": 1, "severity": "major", "status": "fixed", "evidence": "scene = 'ทุ่งดอกไม้ผืนเดียวกัน มองคนละช่วงเวลา'; view ของผึ้ง/นกพิราบขึ้นต้น 'ตอนกลางวัน…', มนุษย์/งู/ค้างคาว 'พอตกกลางคืน…', สุนัข 'ไม่ว่ากลางวันหรือกลางคืน…' และ intro บอกสองช่วงเวลาแล้ว ไม่มีพาเนลไหนขัดฟิสิกส์อีก" },
-    { "id": 2, "severity": "major", "status": "fixed", "evidence": "S3 P0 เขียนใหม่เป็น 'ไม่มีคำตอบตายตัวรออยู่ก่อน คำตอบเพิ่งชัดขึ้นตอนที่ถูกวัดหรือถูกสังเกต' ไม่มีคำว่า 'พร้อมกัน' แล้ว สอดคล้องกับย่อหน้าแก้ความเข้าใจผิดใน S2 P3" },
-    { "id": 3, "severity": "minor", "status": "fixed", "evidence": "keyPoints[6] แยกที่มา 'หนังสืออธิบาย…' กับ 'วิทยาศาสตร์การนอนปัจจุบันมองว่า…'" },
-    { "id": 4, "severity": "minor", "status": "fixed", "evidence": "S2 P0 เปิดด้วยภาษาชาวบ้าน 'เรื่องที่ว่าอะไรจะปรากฏออกมาแบบไหนขึ้นอยู่กับเงื่อนไขของผู้มอง' ไม่มีคำว่า 'สัมพัทธ์' ลอยๆ ในเนื้อหาแล้ว (คงอยู่เฉพาะ keyPoints[2] ที่มีคำขยายกำกับ)" },
-    { "id": 5, "severity": "minor", "status": "fixed", "evidence": "S3 P1 เติม 'สัญญาณในสมองเดินทางเป็นคลื่นไฟฟ้าที่ต้องใช้พลังงานเลี้ยงตลอด กลุ่มคลื่นหนึ่งก่อตัวขึ้นแล้วก็สลายไป' ก่อนประโยคปิดบทอ้างถึงคลื่นสมอง" },
-    { "id": 6, "severity": "minor", "status": "fixed", "evidence": "def ทวิภาวะคลื่น-อนุภาค ตัดอุปมานก-กระต่ายออก ปิดด้วยการโยงชีวิตจริงตาม §9.2" },
-    { "id": 7, "severity": "minor", "status": "fixed (พอเพียง)", "evidence": "paragraphsPerSection [5,5,5] มีย่อหน้าสั้นทุก section (102 / 59 / 170 ตัวอักษร) และ <b> เพิ่มจาก 2 เป็น 7 จุด — เหลือ S3 P4 ยาว 809 ตัวอักษร แต่เป็นย่อหน้าสรุปปิดบท ไม่ขวางการอนุมัติ" },
-    { "id": 8, "severity": "minor", "status": "resolved by fallback", "evidence": "module = 'particles' ตาม fallback ที่สเปกกำหนด ผู้อ่านจึงไม่เจอ 'โหลดส่วนโต้ตอบไม่สำเร็จ'; งานเขียน ch07.js เฉพาะบทยังเป็นคิวระดับโปรเจกต์ร่วมกับ ch05/ch06/ch08" },
-    { "id": 9, "severity": "minor", "status": "resolved", "evidence": "slug = 'ch07' และ dfn มี data-kind ครบ validate.mjs ผ่านทั้งโปรเจกต์แล้ว" },
-    { "id": 10, "severity": "minor", "status": "fixed (บางส่วน)", "evidence": "summary เหลือ 309 ตัวอักษร (จาก 383) รวบเป็น 2-3 ท่อนความ ยังยาวกว่า ch01/ch02 เล็กน้อย ถือเป็น minor ที่ไม่ขวาง" }
+    {
+      "id": 1,
+      "severity": "major",
+      "status": "fixed",
+      "evidence": "scene = 'ทุ่งดอกไม้ผืนเดียวกัน มองคนละช่วงเวลา'; view ของผึ้ง/นกพิราบขึ้นต้น 'ตอนกลางวัน…', มนุษย์/งู/ค้างคาว 'พอตกกลางคืน…', สุนัข 'ไม่ว่ากลางวันหรือกลางคืน…' และ intro บอกสองช่วงเวลาแล้ว ไม่มีพาเนลไหนขัดฟิสิกส์อีก"
+    },
+    {
+      "id": 2,
+      "severity": "major",
+      "status": "fixed",
+      "evidence": "S3 P0 เขียนใหม่เป็น 'ไม่มีคำตอบตายตัวรออยู่ก่อน คำตอบเพิ่งชัดขึ้นตอนที่ถูกวัดหรือถูกสังเกต' ไม่มีคำว่า 'พร้อมกัน' แล้ว สอดคล้องกับย่อหน้าแก้ความเข้าใจผิดใน S2 P3"
+    },
+    {
+      "id": 3,
+      "severity": "minor",
+      "status": "fixed",
+      "evidence": "keyPoints[6] แยกที่มา 'หนังสืออธิบาย…' กับ 'วิทยาศาสตร์การนอนปัจจุบันมองว่า…'"
+    },
+    {
+      "id": 4,
+      "severity": "minor",
+      "status": "fixed",
+      "evidence": "S2 P0 เปิดด้วยภาษาชาวบ้าน 'เรื่องที่ว่าอะไรจะปรากฏออกมาแบบไหนขึ้นอยู่กับเงื่อนไขของผู้มอง' ไม่มีคำว่า 'สัมพัทธ์' ลอยๆ ในเนื้อหาแล้ว (คงอยู่เฉพาะ keyPoints[2] ที่มีคำขยายกำกับ)"
+    },
+    {
+      "id": 5,
+      "severity": "minor",
+      "status": "fixed",
+      "evidence": "S3 P1 เติม 'สัญญาณในสมองเดินทางเป็นคลื่นไฟฟ้าที่ต้องใช้พลังงานเลี้ยงตลอด กลุ่มคลื่นหนึ่งก่อตัวขึ้นแล้วก็สลายไป' ก่อนประโยคปิดบทอ้างถึงคลื่นสมอง"
+    },
+    {
+      "id": 6,
+      "severity": "minor",
+      "status": "fixed",
+      "evidence": "def ทวิภาวะคลื่น-อนุภาค ตัดอุปมานก-กระต่ายออก ปิดด้วยการโยงชีวิตจริงตาม §9.2"
+    },
+    {
+      "id": 7,
+      "severity": "minor",
+      "status": "fixed (พอเพียง)",
+      "evidence": "paragraphsPerSection [5,5,5] มีย่อหน้าสั้นทุก section (102 / 59 / 170 ตัวอักษร) และ <b> เพิ่มจาก 2 เป็น 7 จุด — เหลือ S3 P4 ยาว 809 ตัวอักษร แต่เป็นย่อหน้าสรุปปิดบท ไม่ขวางการอนุมัติ"
+    },
+    {
+      "id": 8,
+      "severity": "minor",
+      "status": "resolved by fallback",
+      "evidence": "module = 'particles' ตาม fallback ที่สเปกกำหนด ผู้อ่านจึงไม่เจอ 'โหลดส่วนโต้ตอบไม่สำเร็จ'; งานเขียน ch07.js เฉพาะบทยังเป็นคิวระดับโปรเจกต์ร่วมกับ ch05/ch06/ch08"
+    },
+    {
+      "id": 9,
+      "severity": "minor",
+      "status": "resolved",
+      "evidence": "slug = 'ch07' และ dfn มี data-kind ครบ validate.mjs ผ่านทั้งโปรเจกต์แล้ว"
+    },
+    {
+      "id": 10,
+      "severity": "minor",
+      "status": "fixed (บางส่วน)",
+      "evidence": "summary เหลือ 309 ตัวอักษร (จาก 383) รวบเป็น 2-3 ท่อนความ ยังยาวกว่า ch01/ch02 เล็กน้อย ถือเป็น minor ที่ไม่ขวาง"
+    }
   ],
   "unresolved": [],
   "newBlockers": [],
@@ -61,5 +119,28 @@
     "newFactualErrors": "ไม่พบ — พาเนล interactive ทุกอันสอดคล้องกับช่วงเวลาที่ระบุแล้ว, ประโยคคลื่นไฟฟ้าในสมองที่เติมใหม่เป็นการย่ออย่างถูกต้อง",
     "fabricatedBuddhaWords": "ไม่พบ — quote เดิม ตรงธรรมบท ๒๗๗-๒๗๙",
     "schemaBreak": "ไม่พบ — normalize แก้ 0 จุด, validate ผ่าน"
+  },
+  "independentReview": {
+    "reviewedBy": "opus-5-subagent (ผู้ตรวจอิสระ ไม่ได้เขียนบทนี้)",
+    "reviewedAt": "2026-09-29",
+    "findingsRaised": 4,
+    "findingsConfirmed": 4,
+    "fixes": [
+      {
+        "what": "ประโยคตัวหนา 'เบรกตั้งแต่วิญญาณขันธ์' = หยุดรู้สึก → สัลลัตถสูตร"
+      },
+      {
+        "what": "จิตเป็นดวงย่อยเป็นชั้นอภิธรรม · คำสอนไม่ต้องรอ Orch OR"
+      },
+      {
+        "what": "'หนังสือย้ำว่าอนัตตา' raw ไม่มี · 'ไม่มีคุณสมบัติตายตัว' · การวัดไม่ต้องมีคนมอง"
+      },
+      {
+        "what": "'คนมักเข้าใจผิด' ซ่อนคำของหนังสือเอง · เลนส์ทุกขังใช้นิยามผิด · กระแสจิต"
+      }
+    ],
+    "deferred": [],
+    "verifiedPassing": [],
+    "gates": "terms/wordcount/copyscan/glossdiff --strict (11)/normalize/validate 163 ไฟล์/build 143 หน้า ผ่านครบ"
   }
 }

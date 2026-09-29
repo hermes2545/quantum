@@ -10,8 +10,18 @@
     "round": 2,
     "verdict": "needs_fix",
     "findings": 8,
-    "major": ["R2-1", "R2-2"],
-    "minor": ["R2-3", "R2-4", "R2-5", "R2-6", "R2-7", "R2-8"]
+    "major": [
+      "R2-1",
+      "R2-2"
+    ],
+    "minor": [
+      "R2-3",
+      "R2-4",
+      "R2-5",
+      "R2-6",
+      "R2-7",
+      "R2-8"
+    ]
   },
   "wordCount": {
     "method": "pythainlp newmm นับเฉพาะ sections (h2 + paragraphs + bullets + callout) ตัด tag ออกก่อน ไม่รวม interactive/exercise/questions",
@@ -104,5 +114,28 @@
     "fabricatedBuddhaQuote": "none — บทนี้ไม่มี field quote ตามเดิม (raw ไม่มีพุทธพจน์พร้อมที่มา) ถูกต้องตาม §10",
     "schemaViolations": "none — normalize แก้ 0 จุด, validate ผ่านทั้งหมด, status ยังเป็น \"draft\""
   },
-  "verdictReason": "major ทั้งสองข้อของรอบ 2 (R2-1 สีดาว/ดาวยักษ์แดง และ R2-2 interactive.module) ถูกแก้จริงและยืนยันจากไฟล์แล้ว minor แก้ครบอีก 4 ข้อ (R2-3, R2-5, R2-6, R2-8) เหลือ R2-4 และ R2-7 แก้ได้บางส่วนแต่ไม่ขวาง ไม่มีการคัดลอก raw เกินเกณฑ์ ไม่มีข้อเท็จจริงผิดใหม่ระดับ major ไม่มีพุทธพจน์แต่งเอง JSON ผ่าน schema และจำนวนคำ 1,388 อยู่ในช่วง 900-1,400"
+  "verdictReason": "major ทั้งสองข้อของรอบ 2 (R2-1 สีดาว/ดาวยักษ์แดง และ R2-2 interactive.module) ถูกแก้จริงและยืนยันจากไฟล์แล้ว minor แก้ครบอีก 4 ข้อ (R2-3, R2-5, R2-6, R2-8) เหลือ R2-4 และ R2-7 แก้ได้บางส่วนแต่ไม่ขวาง ไม่มีการคัดลอก raw เกินเกณฑ์ ไม่มีข้อเท็จจริงผิดใหม่ระดับ major ไม่มีพุทธพจน์แต่งเอง JSON ผ่าน schema และจำนวนคำ 1,388 อยู่ในช่วง 900-1,400",
+  "independentReview": {
+    "reviewedBy": "opus-5-subagent (ผู้ตรวจอิสระ ไม่ได้เขียนบทนี้)",
+    "reviewedAt": "2026-09-29",
+    "findingsRaised": 4,
+    "findingsConfirmed": 4,
+    "fixes": [
+      {
+        "what": "E=mc² callout รายงานคำผู้เขียนกลับด้าน"
+      },
+      {
+        "what": "'พลังงานก้อนเดียว' เป็นภาพอนัตตา กลับหัวกับหลักธรรม"
+      },
+      {
+        "what": "'จุดที่ไม่มีอะไรเลย' · แบบฝึกความสัมพันธ์ 'ไม่เคยมีจริง'"
+      },
+      {
+        "what": "แก้เงียบ: จุดศูนย์กลางระเบิด, หลุมดำมวลศูนย์ · ธาตุหนัก · วงโคจร · ซิงกูลาริตี้"
+      }
+    ],
+    "deferred": [],
+    "verifiedPassing": [],
+    "gates": "terms/wordcount/copyscan/glossdiff --strict (11)/normalize/validate 163 ไฟล์/build 143 หน้า ผ่านครบ"
+  }
 }

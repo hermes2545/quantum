@@ -183,5 +183,28 @@
         "fix": "ยกไปตัดสินระดับโปรเจกต์ครั้งเดียว: เลือกว่าจะให้ chapter.slug เป็น chNN ตามสคีมา หรือแก้สคีมาให้รับ slug เชิงความหมาย และตัดสินว่าจะเพิ่ม data-kind ใน <dfn> (ให้ terms.py เติมตอน build) หรือถอดออกจาก pattern — แล้วรัน make validate ให้ผ่านทั้งชุดพร้อมกัน"
       }
     ]
+  },
+  "independentReview": {
+    "reviewedBy": "opus-5-subagent (ผู้ตรวจอิสระ ไม่ได้เขียนบทนี้)",
+    "reviewedAt": "2026-09-29",
+    "findingsRaised": 4,
+    "findingsConfirmed": 4,
+    "fixes": [
+      {
+        "what": "blocker: ดวงวิญญาณไปปฏิสนธิ ไม่แยกจากพระสูตร และ callout ขัด glossary → มหาตัณหาสังขยสูตร"
+      },
+      {
+        "what": "จุดจบโลกเป็นทางพ้นทุกข์ช้าๆ · 'นิพพาน' ที่ raw ไม่ได้ใช้"
+      },
+      {
+        "what": "นิวเคลียสจากดีเอ็นเอหลายเซลล์ · 'สูงขึ้น' แก้เงียบ · เลนส์บีบให้ปรับร่าง/ก่อนบิ๊กแบงไม่มีอะไร"
+      },
+      {
+        "what": "เจตนา=ตัณหา เสียงคู่มือ · ข้าวหอมมะลิ · ธรณีฟิสิกส์→ดาราศาสตร์"
+      }
+    ],
+    "deferred": [],
+    "verifiedPassing": [],
+    "gates": "terms/wordcount/copyscan/glossdiff --strict (11)/normalize/validate 163 ไฟล์/build 143 หน้า ผ่านครบ"
   }
 }

@@ -34,5 +34,28 @@
     "copyscan": "0 ช่วงที่ต้องแก้",
     "validate": "ผ่าน",
     "chapterlint": "เหลือเฉพาะคำเตือนที่มาจากรุ่นสคีมาเดิม"
+  },
+  "independentReview": {
+    "reviewedBy": "opus-5-subagent (ผู้ตรวจอิสระ ไม่ได้เขียนบทนี้)",
+    "reviewedAt": "2026-09-29",
+    "findingsRaised": 4,
+    "findingsConfirmed": 4,
+    "fixes": [
+      {
+        "what": "callout ลำดับไตรลักษณ์กลับข้าง"
+      },
+      {
+        "what": "'ทุกสิ่ง' → สิ่งที่ถูกปรุงแต่ง (อนัตตาใช้กับธรรมทั้งปวงรวมนิพพาน) · glossary ไตรลักษณ์ระดับชุด"
+      },
+      {
+        "what": "ความถ่อมตัว 'แผนที่' ยกให้หนังสือ ทั้งที่ raw ว่าศึกษาแล้วเห็นเหมือนพระอรหันต์"
+      },
+      {
+        "what": "เลนส์เซลล์/ดาว/ความโกรธ · glossary พุทธพจน์ เซลล์"
+      }
+    ],
+    "deferred": [],
+    "verifiedPassing": [],
+    "gates": "terms/wordcount/copyscan/glossdiff --strict (11)/normalize/validate 163 ไฟล์/build 143 หน้า ผ่านครบ"
   }
 }
