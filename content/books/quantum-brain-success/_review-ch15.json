@@ -47,5 +47,28 @@
     "normalize": "แก้ 0 จุด ✓",
     "validate": "157 ไฟล์ ผ่าน ✓"
   },
-  "statusChange": "draft -> ready (reviewedBy=opus-5-agent)"
+  "statusChange": "draft -> ready (reviewedBy=opus-5-agent)",
+  "independentReview": {
+    "reviewedBy": "opus-5-subagent (ผู้ตรวจอิสระ ไม่ได้เขียนบทนี้)",
+    "reviewedAt": "2026-09-30",
+    "findingsRaised": 4,
+    "findingsConfirmed": 4,
+    "fixes": [
+      {
+        "what": "blocker: คำเตือนจริยธรรมมีประโยคเดียว + 'จิตด้อยกำลังต้องคล้อยตาม' ถูกละ"
+      },
+      {
+        "what": "blocker: เลนส์ 10 ช่องใส่ปากหนังสือ"
+      },
+      {
+        "what": "blocker: รังสีความคิดเป็นข้อเท็จจริง + สลับคำศัพท์กับรังสีส่วนตัว"
+      },
+      {
+        "what": "แบบฝึกจัดฉากให้เพื่อนลงเงิน · เทคนิคชักจูงถูกทำให้อ่อนลง (ยกความคิดคุณให้เป็นของเขา, ควบคุมต่อหน้า)"
+      }
+    ],
+    "deferred": [],
+    "verifiedPassing": [],
+    "gates": "terms/wordcount/copyscan ทุกเล่ม/glossdiff --strict (11)/normalize/validate 163 ไฟล์/build 143 หน้า ผ่านครบ"
+  }
 }

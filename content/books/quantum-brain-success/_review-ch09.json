@@ -64,5 +64,31 @@
     "normalize": "แก้ 0 จุด ✓",
     "validate": "157 ไฟล์ ผ่าน ✓"
   },
-  "statusChange": "draft -> ready (reviewedBy=opus-5-agent)"
+  "statusChange": "draft -> ready (reviewedBy=opus-5-agent)",
+  "independentReview": {
+    "reviewedBy": "opus-5-subagent (ผู้ตรวจอิสระ ไม่ได้เขียนบทนี้)",
+    "reviewedAt": "2026-09-30",
+    "findingsRaised": 5,
+    "findingsConfirmed": 5,
+    "fixes": [
+      {
+        "what": "blocker: 'ได้จริง' เสียงคู่มือ ไม่มีราวกันตกฟิสิกส์"
+      },
+      {
+        "what": "blocker: ธรรมค้ำจุนและบุญเป็นตัวเบรก"
+      },
+      {
+        "what": "blocker: 'ไม่สำเร็จเพราะสงสัย' ไม่มีราวกันตก · Oettingen"
+      },
+      {
+        "what": "blocker: ไทเกอร์ วูดส์ ลูกกอล์ฟลอยลงหลุมถูกลดทอนเงียบ"
+      },
+      {
+        "what": "การซิงโครไนซ์กลับทิศ · ความโลภกับความปรารถนา → ตัณหา/ฉันทะ · dfn สนามพลังงานทางจิต"
+      }
+    ],
+    "deferred": [],
+    "verifiedPassing": [],
+    "gates": "terms/wordcount/copyscan ทุกเล่ม/glossdiff --strict (11)/normalize/validate 163 ไฟล์/build 143 หน้า ผ่านครบ"
+  }
 }

@@ -63,5 +63,31 @@
     "normalize": "แก้ 0 จุด ✓",
     "validate": "157 ไฟล์ ผ่าน ✓"
   },
-  "statusChange": "draft -> ready (reviewedBy=opus-5-agent)"
+  "statusChange": "draft -> ready (reviewedBy=opus-5-agent)",
+  "independentReview": {
+    "reviewedBy": "opus-5-subagent (ผู้ตรวจอิสระ ไม่ได้เขียนบทนี้)",
+    "reviewedAt": "2026-09-30",
+    "findingsRaised": 5,
+    "findingsConfirmed": 5,
+    "fixes": [
+      {
+        "what": "blocker: การฆ่าตัวตาย — คำอธิบายพี่ชายน้องสาวไม่ถูกปฏิเสธ + ห้ามพูดคำว่าฆ่าตัวตาย + แบบฝึกห้ามพูด 'ไม่ต้องคิดสั้น' → ถามตรงๆ ได้, 1323, 1669"
+      },
+      {
+        "what": "blocker: สุขภาพ — เกราะกันไวรัส, มะเร็ง 'เป็นไปได้สูง', เลิกเหล้า, bullets ลดน้ำหนักถึงกำหนดอายุขัย"
+      },
+      {
+        "what": "blocker: อุบัติเหตุและความคิดลบเป็นเหตุ"
+      },
+      {
+        "what": "blocker: ฟิสิกส์เสียงคู่มือ + รังสีทะลุตะกั่วขัดกับเป็นแม่เหล็กไฟฟ้า"
+      },
+      {
+        "what": "ตัวเลขไวรัส/โคโรนา · EEG แบนราบ · Ted Serios · นิพพานไม่ใช่บรมสุขขัดธรรมบท"
+      }
+    ],
+    "deferred": [],
+    "verifiedPassing": [],
+    "gates": "terms/wordcount/copyscan ทุกเล่ม/glossdiff --strict (11)/normalize/validate 163 ไฟล์/build 143 หน้า ผ่านครบ"
+  }
 }

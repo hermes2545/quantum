@@ -42,5 +42,28 @@
     "normalize": "แก้ 0 จุด ✓",
     "validate": "157 ไฟล์ ผ่าน ✓"
   },
-  "statusChange": "draft -> ready (reviewedBy=opus-5-agent)"
+  "statusChange": "draft -> ready (reviewedBy=opus-5-agent)",
+  "independentReview": {
+    "reviewedBy": "opus-5-subagent (ผู้ตรวจอิสระ ไม่ได้เขียนบทนี้)",
+    "reviewedAt": "2026-09-30",
+    "findingsRaised": 4,
+    "findingsConfirmed": 4,
+    "fixes": [
+      {
+        "what": "blocker: 'อาชญากรที่ขาดฐานนี้ตั้งแต่ต้น' ตัดสินคนจากสมอง ขัด raw ที่ว่าแก้ไขได้"
+      },
+      {
+        "what": "callout อะมิกดาลาใหญ่/เล็ก (Hölzel 2010)"
+      },
+      {
+        "what": "เผชิญความกลัว 'หายถาวร' + ราวกันตก · quote label"
+      },
+      {
+        "what": "เลนส์คลื่นก่อนสมองประมวลผล · ธรรมค้ำจุน · ผู้ป่วยฮิปโปแคมปัส · สมองสามชั้น"
+      }
+    ],
+    "deferred": [],
+    "verifiedPassing": [],
+    "gates": "terms/wordcount/copyscan ทุกเล่ม/glossdiff --strict (11)/normalize/validate 163 ไฟล์/build 143 หน้า ผ่านครบ"
+  }
 }
