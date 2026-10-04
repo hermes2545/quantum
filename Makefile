@@ -127,7 +127,7 @@ clean-hard: clean
 # ========== Help ==========
 
 help:
-	@echo "ไตรลักษณ์ในควอนตัม — Development Commands"
+	@echo "ธรรมะกับควอนตัม — Development Commands"
 	@echo ""
 	@echo "Build & Deploy:"
 	@echo "  make build              Build static site (validate + generate)"

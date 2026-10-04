@@ -43,7 +43,7 @@ const API = STATIC_MODE
   ? { ask: null, feedback: null, source: STATIC_PDF_BASE, static: true }
   : { ask: '/api/ask', feedback: '/api/feedback', source: '/api/source/' };
 const LIMITS = { question: 1000, reflection: 2000 };
-const SERIES = { title: 'ไตรลักษณ์ในควอนตัม', author: 'สิรวิชญ์ รัตน์จินดา' };
+const SERIES = { title: 'ธรรมะกับควอนตัม', author: 'สิรวิชญ์ รัตน์จินดา' };
 const ALLOWED_INLINE_TAGS = new Set(['b', 'i', 'dfn']);
 // เขียนแยกเป็นชิ้นตั้งใจ ไม่ต่อกันเป็นสตริงเต็มในซอร์สโค้ด — มิฉะนั้น checklist §11 และ
 // Makefile target `check` (§I) ที่ grep หาคำนำหน้า API key ของ Anthropic ทั่วทั้ง web/ จะเจอ

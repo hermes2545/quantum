@@ -17,7 +17,7 @@
       "additionalProperties": false,
       "required": ["title", "author"],
       "properties": {
-        "title": { "type": "string", "const": "ไตรลักษณ์ในควอนตัม" },
+        "title": { "type": "string", "const": "ธรรมะกับควอนตัม" },
         "author": { "type": "string", "const": "สิรวิชญ์ รัตน์จินดา" }
       }
     },
