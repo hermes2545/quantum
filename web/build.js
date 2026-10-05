@@ -366,11 +366,26 @@ function renderMapRows(book) {
 // สามเล่มแรกโหลดทันที (อยู่เหนือขอบจอ) ที่เหลือ lazy
 function renderCover(meta, idx) {
   const num = `<span class="n">${toThaiDigits(meta.order)}</span>`;
-  const file = path.join(__dirname, 'src', 'static', 'covers', `${meta.slug}.jpg`);
-  if (!fs.existsSync(file)) return `<span class="bc-cover">${num}</span>`;
+  if (!hasCover(meta)) return `<span class="bc-cover">${num}</span>`;
   const loading = idx < 3 ? 'eager' : 'lazy';
   // ไม่วางเลขเล่มทับปก (ปกเล่ม 3, 5 มีชื่อเล่มอยู่มุมบนซ้าย) — เลขเล่มย้ายไปอยู่ในบรรทัด bc-meta แทน
   return `<span class="bc-cover has-img"><img src="${BASE}/covers/${meta.slug}.jpg" alt="" width="480" height="696" loading="${loading}" decoding="async"></span>`;
+}
+
+function hasCover(meta) {
+  return fs.existsSync(path.join(__dirname, 'src', 'static', 'covers', `${meta.slug}.jpg`));
+}
+
+function sourcePdfHref(meta) {
+  return STATIC_MODE ? `${BASE}/pdf/${meta.slug}.pdf` : `/api/source/${meta.slug}.pdf`;
+}
+
+// ปกบนหน้าเล่ม — กดแล้วเปิด PDF ต้นฉบับ (A-01) ถ้าเล่มนั้นมีไฟล์ ไม่งั้นเป็นภาพเฉยๆ
+function renderBookHeroCover(meta) {
+  if (!hasCover(meta)) return '';
+  const img = `<img src="${BASE}/covers/${meta.slug}.jpg" alt="ปกหนังสือ ${escapeAttr(meta.title)}" width="480" height="696" decoding="async">`;
+  if (!(meta.sourcePdf && meta.sourcePdf.file)) return `    <div class="hero-cover">${img}</div>`;
+  return `    <a class="hero-cover" href="${sourcePdfHref(meta)}" target="_blank" rel="noopener">${img}<span class="hc-cap">เปิด PDF ต้นฉบับ</span></a>`;
 }
 
 function renderBookCards(books) {
@@ -579,7 +594,7 @@ function renderSourceFooterItems(books, currentBookSlug) {
         const mb = (meta.sourcePdf.bytes / 1e6).toFixed(1) + ' MB';
         const liOpen = isCurrent ? '<li class="sf-current">' : '<li>';
         const ariaCurrent = isCurrent ? ' aria-current="true"' : '';
-        const pdfHref = STATIC_MODE ? `${BASE}/pdf/${meta.slug}.pdf` : `/api/source/${meta.slug}.pdf`;
+        const pdfHref = sourcePdfHref(meta);
         return `    ${liOpen}<a class="sf-item" href="${pdfHref}" target="_blank" rel="noopener" data-book="${escapeAttr(
           meta.slug
         )}"${ariaCurrent}><span class="sf-num">${thaiOrder}</span><span class="sf-title">${escapeText(
@@ -775,6 +790,8 @@ function renderShelfPage(outDir, templates, books) {
 function renderBookPage(outDir, templates, allBooks, bookRecord) {
   const book = bookRecord.meta;
   const article = renderTemplate(templates.book, {
+    HERO_CLS: hasCover(book) ? ' has-cover' : '',
+    COVER: renderBookHeroCover(book),
     THAI_ORDER: toThaiDigits(book.order),
     TITLE: escapeText(book.title),
     AUTHOR: escapeText(book.author),
