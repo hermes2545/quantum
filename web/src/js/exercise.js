@@ -5,6 +5,7 @@
  */
 
 import { getPageData, streamSSE, formatThousands } from './components.js';
+import * as byok from './byok.js';
 
 let pageData = null;
 let exercise = null;
@@ -79,8 +80,14 @@ async function handleFeedback(btn) {
 
   let finalText = '';
   try {
-    await streamSSE(
-      pageData.api.feedback,
+    const useByok = !pageData.api.feedback && pageData.api.data;
+    if (useByok && !byok.getKey()) {
+      out.textContent = 'ใส่ API key ของคุณที่ปุ่ม "ถามตรงนี้" ก่อน แล้วค่อยกดให้ช่วยดูอีกครั้ง';
+      feedbackBusy = false;
+      btn.disabled = false;
+      return;
+    }
+    await (useByok ? byok.stream.bind(null, 'feedback') : streamSSE.bind(null, pageData.api.feedback))(
       {
         bookSlug: pageData.book ? pageData.book.slug : null,
         chapterSlug: pageData.chapter ? pageData.chapter.slug : null,

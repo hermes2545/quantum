@@ -5,6 +5,7 @@
  */
 
 import { getPageData, readJSON, writeJSON, turnsKey, streamSSE, formatThousands } from './components.js';
+import * as byok from './byok.js';
 
 /* คำถามแนะนำเมื่ออยู่หน้าที่ไม่มีบทเฉพาะ (shelf/book/glossary) — คัดลอกจาก SUGG.home ของ prototype-artifact.html
    เนื่องจาก PageData (§D.7) มี suggestions ให้เฉพาะ page=chapter|soon เท่านั้น หน้าอื่นสัญญาระบุให้ใช้ชุดนี้ตรงๆ */
@@ -74,6 +75,102 @@ function setBusy(v) {
   if (elSubmitBtn) elSubmitBtn.disabled = v;
 }
 
+function isByok() {
+  return !!(pageData.api && !pageData.api.ask && pageData.api.data);
+}
+
+/** ฟอร์มใส่ API key ของผู้อ่าน — สร้างด้วย DOM ล้วน ไม่ใช้ innerHTML */
+function showKeyForm(pendingQuestion) {
+  const old = document.getElementById('keyform');
+  if (old) old.remove();
+  const box = document.createElement('form');
+  box.className = 'msg a keyform';
+  box.id = 'keyform';
+
+  const p1 = document.createElement('p');
+  p1.textContent =
+    'ผู้ช่วยนี้ใช้ API key ของ Anthropic ของคุณเอง ค่าใช้งานเรียกเก็บจากบัญชีของคุณ ' +
+    'ประมาณ 0.1–0.3 ดอลลาร์ต่อคำถามแรกของแต่ละหน้า คำถามต่อเนื่องถูกกว่ามาก';
+  const p2 = document.createElement('p');
+  p2.textContent =
+    'key เก็บไว้ในเบราว์เซอร์นี้เท่านั้น และส่งตรงไปที่ api.anthropic.com ไม่ผ่านเซิร์ฟเวอร์ของเว็บนี้ ' +
+    'แนะนำให้สร้าง key แยกไว้ใช้กับเว็บนี้และตั้งวงเงินไว้';
+  const link = document.createElement('a');
+  link.href = 'https://console.anthropic.com/settings/keys';
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.textContent = 'สร้าง key ที่ console.anthropic.com';
+
+  const input = document.createElement('input');
+  input.type = 'password';
+  input.placeholder = 'วาง API key ที่นี่';
+  input.autocomplete = 'off';
+  input.required = true;
+  input.setAttribute('aria-label', 'API key ของ Anthropic');
+
+  const model = document.createElement('select');
+  model.setAttribute('aria-label', 'โมเดล');
+  byok.MODELS.forEach((m) => {
+    const o = document.createElement('option');
+    o.value = m.id;
+    o.textContent = m.label;
+    if (m.id === byok.getModel()) o.selected = true;
+    model.appendChild(o);
+  });
+
+  const rememberLabel = document.createElement('label');
+  const remember = document.createElement('input');
+  remember.type = 'checkbox';
+  rememberLabel.appendChild(remember);
+  rememberLabel.appendChild(document.createTextNode(' จำไว้ในเครื่องนี้ (ไม่ติ๊ก = ลืมเมื่อปิดแท็บ)'));
+
+  const save = document.createElement('button');
+  save.type = 'submit';
+  save.textContent = 'บันทึกแล้วถาม';
+
+  [p1, p2, link, input, model, rememberLabel, save].forEach((el) => box.appendChild(el));
+  box.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const key = input.value.trim();
+    if (!key) return;
+    byok.setKey(key, remember.checked);
+    byok.setModel(model.value);
+    box.remove();
+    renderKeyNote();
+    if (pendingQuestion) {
+      // คำถามถูกแสดงไปแล้วตอนกดส่ง ลบบับเบิลเดิมออกก่อนส่งใหม่ จะได้ไม่ซ้ำ
+      const last = elLog.querySelector('.msg.u:last-of-type');
+      if (last && last.textContent === pendingQuestion) last.remove();
+      send(pendingQuestion);
+    }
+  });
+  elLog.appendChild(box);
+  // เลื่อนให้เห็นหัวฟอร์ม (ย่อหน้าค่าใช้จ่าย) ก่อน ไม่ใช่ท้ายฟอร์ม — ผู้อ่านต้องรู้ว่าใครจ่ายก่อนใส่ key
+  elLog.scrollTop = box.offsetTop - elLog.offsetTop - 8;
+  input.focus({ preventScroll: true });
+}
+
+/** แถบหมายเหตุใต้แชต: โหมด byok บอกว่าใช้ key ของใคร พร้อมปุ่มเปลี่ยน/ลบ key */
+function renderKeyNote() {
+  const note = elAsk.querySelector('.note');
+  if (!note || !isByok()) return;
+  note.textContent = 'ผู้ช่วยตอบจากเนื้อหาในหนังสือ โดยใช้ API key ของคุณเอง · ';
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'linkbtn';
+  if (byok.getKey()) {
+    btn.textContent = 'ลบ key ออกจากเครื่องนี้';
+    btn.addEventListener('click', () => {
+      byok.clearKey();
+      renderKeyNote();
+    });
+  } else {
+    btn.textContent = 'ใส่ key';
+    btn.addEventListener('click', () => showKeyForm(null));
+  }
+  note.appendChild(btn);
+}
+
 export function open(prefill) {
   if (!elAsk) return;
   elAsk.hidden = false;
@@ -105,10 +202,10 @@ export async function send(question) {
 
   addMsg('u', q);
 
-  // build แบบ static (GitHub Pages) ไม่มี proxy — pageData.api.ask เป็น null
-  // ตอบด้วยข้อความอธิบายแทนการยิง request ไปที่ URL ที่ไม่มีอยู่ (กฎ 7: ห้าม retry/ยิงมั่ว)
-  if (!pageData.api || !pageData.api.ask) {
-    addMsg('a err', 'หน้านี้เป็นเว็บอ่านอย่างเดียว ผู้ช่วย AI ใช้ได้เมื่อเปิดจากเซิร์ฟเวอร์ที่ตั้งค่าไว้แล้ว');
+  // build แบบ static (GitHub Pages) ไม่มี proxy — ผู้อ่านใช้ API key ของตัวเอง (byok.js)
+  // ยังไม่มี key: แสดงฟอร์มใส่ key แล้วส่งคำถามนี้ต่อให้เองเมื่อบันทึก
+  if (isByok() && !byok.getKey()) {
+    showKeyForm(q);
     return;
   }
 
@@ -120,9 +217,9 @@ export async function send(question) {
   let streamOk = true;
 
   try {
-    await streamSSE(
-      pageData.api.ask,
-      { bookSlug, chapterSlug, turns: requestTurns },
+    const body = { bookSlug, chapterSlug, turns: requestTurns };
+    await (isByok() ? byok.stream.bind(null, 'ask') : streamSSE.bind(null, pageData.api.ask))(
+      body,
       {
         onEvent(name, data) {
           if (name === 'delta' && data && typeof data.text === 'string') {
@@ -186,6 +283,7 @@ export function init() {
   if (!Array.isArray(turns)) turns = [];
   renderHistory();
   renderSuggestions();
+  renderKeyNote();
 
   elFab.addEventListener('click', () => open());
   if (elClose) elClose.addEventListener('click', () => close());

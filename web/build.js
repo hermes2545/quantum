@@ -40,7 +40,7 @@ const STATIC_PDF_BASE =
   process.env.STATIC_PDF_BASE || 'https://github.com/hermes2545/quantum/blob/main/content/source/';
 const PAGE_BASE = BASE;
 const API = STATIC_MODE
-  ? { ask: null, feedback: null, source: STATIC_PDF_BASE, static: true }
+  ? { ask: null, feedback: null, source: STATIC_PDF_BASE, static: true, data: `${BASE}/assets/data` }
   : { ask: '/api/ask', feedback: '/api/feedback', source: '/api/source/' };
 const LIMITS = { question: 1000, reflection: 2000 };
 const SERIES = { title: 'ธรรมะกับควอนตัม', author: 'สิรวิชญ์ รัตน์จินดา' };
@@ -988,6 +988,8 @@ function copyAssets(srcDir, outDir) {
   const jsSrc = path.join(srcDir, 'js');
   if (fs.existsSync(jsSrc) && fs.readdirSync(jsSrc).length > 0) {
     fs.cpSync(jsSrc, path.join(outDir, 'assets', 'js'), { recursive: true });
+    // ask.js import byok.js ซึ่ง import context.js — ต้องมีทุกโหมด ไม่งั้นโมดูลผู้ช่วยโหลดไม่ขึ้นทั้งก้อน
+    fs.copyFileSync(path.join(__dirname, '..', 'proxy', 'src', 'context.js'), path.join(outDir, 'assets', 'js', 'context.js'));
   } else {
     console.warn('[build] คำเตือน: ไม่พบไฟล์ใน web/src/js — P5 ยังไม่ส่งมอบ JS หน้าเว็บจะยังไม่มี interactivity จนกว่าจะมีไฟล์');
   }
@@ -996,6 +998,44 @@ function copyAssets(srcDir, outDir) {
   if (fs.existsSync(staticSrc) && fs.readdirSync(staticSrc).length > 0) {
     fs.cpSync(staticSrc, outDir, { recursive: true });
   }
+}
+
+/* ============================================================ */
+/* ข้อมูลสำหรับผู้ช่วยแบบใช้ key ของผู้อ่านเอง (โหมด static เท่านั้น)  */
+/* ============================================================ */
+// GitHub Pages ไม่มี proxy เบราว์เซอร์จึงประกอบ context เองด้วย context.js ตัวเดียวกับ proxy
+// แล้วเรียก api.anthropic.com ตรงด้วย key ที่ผู้อ่านใส่ (web/src/js/byok.js)
+//   index.json = เหมือน content/index.json (สารบัญ + summary ทุกบท)
+//   lite.json  = ข้อมูลย่อของทุกบท พอสำหรับบทก่อน/ถัดไปและการค้นด้วย keyword โดยไม่ต้องโหลด 143 ไฟล์
+//   ch/<เล่ม>/<บท>.json = บทเต็ม โหลดเฉพาะบทที่ผู้ถามกำลังอ่าน
+function writeAskData(outDir, books, indexJson) {
+  const dataDir = path.join(outDir, 'assets', 'data');
+  fs.mkdirSync(dataDir, { recursive: true });
+  fs.writeFileSync(path.join(dataDir, 'index.json'), JSON.stringify(indexJson), 'utf8');
+  const lite = {};
+  for (const b of books) {
+    const slug = b.meta.slug;
+    lite[slug] = {
+      slug,
+      order: b.meta.order,
+      title: b.meta.title,
+      chapters: b.chapters.map((ch) => ({
+        slug: ch.slug,
+        thaiNum: ch.thaiNum,
+        title: ch.title,
+        status: ch.status,
+        summary: ch.summary,
+        keyPoints: ch.keyPoints,
+        keywords: ch.keywords,
+      })),
+    };
+    const chDir = path.join(dataDir, 'ch', slug);
+    fs.mkdirSync(chDir, { recursive: true });
+    for (const ch of b.chapters) {
+      fs.writeFileSync(path.join(chDir, `${ch.slug}.json`), JSON.stringify(ch), 'utf8');
+    }
+  }
+  fs.writeFileSync(path.join(dataDir, 'lite.json'), JSON.stringify(lite), 'utf8');
 }
 
 /* ============================================================ */
@@ -1104,6 +1144,7 @@ function main() {
   render404Page(outDir, templates);
 
   copyAssets(srcDir, outDir);
+  if (STATIC_MODE) writeAskData(outDir, books, indexJson);
   assertOutputIsSafe(outDir);
 
   console.log(

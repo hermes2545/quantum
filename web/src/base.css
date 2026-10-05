@@ -272,6 +272,14 @@ a.sf-item:hover .sf-title,.sf-current .sf-title{color:var(--gold)}
 .ask input{flex:1;font:inherit;font-size:.95rem;padding:9px 12px;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--paper-2);color:var(--ink);min-height:44px}
 .ask form button{background:var(--ink);color:var(--paper);border:0;border-radius:var(--r-sm);padding:0 16px;min-height:44px;min-width:44px}
 .ask .note{font-size:.75rem;color:var(--ink-3);padding:0 14px 8px}
+.ask form.keyform{flex-direction:column;align-items:stretch;gap:8px;padding:12px 13px;border-top:0;white-space:normal;align-self:stretch;max-width:100%;min-width:0;box-sizing:border-box}
+.ask form.keyform>*{min-width:0;max-width:100%;box-sizing:border-box}
+.ask form.keyform input[type=checkbox]{flex:none;width:20px;height:20px;min-height:0;padding:0;margin:0}
+.ask form.keyform p{margin:0}
+.ask form.keyform a{color:var(--teal)}
+.ask form.keyform select{font:inherit;font-size:.9rem;padding:8px 10px;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--paper);color:var(--ink);min-height:44px}
+.ask form.keyform label{font-size:.85rem;color:var(--ink-2);display:flex;align-items:center;gap:6px;min-height:44px}
+.ask .note .linkbtn{background:none;border:0;padding:0;color:var(--teal);font:inherit;text-decoration:underline;cursor:pointer;min-height:24px}
 
 /* หน้า 404 */
 .notfound-page{text-align:center;padding-top:80px}
