@@ -68,6 +68,9 @@ body{overflow-x:hidden}
 .bookcard:hover{background:var(--gold-soft)}
 .bookcard .bc-cover{display:flex;align-items:center;justify-content:center;height:64px;border-radius:var(--r-sm);background:var(--paper);border:1px solid var(--line);margin-bottom:4px}
 .bookcard .bc-cover .n{font-family:var(--font-mono);color:var(--ink-3);font-size:1.4rem}
+.bookcard .bc-cover.has-img{display:block;height:auto;aspect-ratio:480/696;padding:0;border:0;overflow:hidden;background:var(--night);box-shadow:var(--shadow-night);transition:transform .2s ease}
+.bookcard .bc-cover.has-img img{display:block;width:100%;height:100%;object-fit:cover}
+.bookcard:hover .bc-cover.has-img{transform:translateY(-3px)}
 .bookcard .bc-title{font-family:var(--font-head);font-size:1.05rem;overflow-wrap:anywhere}
 .bookcard .bc-meta{font-size:.82rem;color:var(--ink-3)}
 .bookcard .bc-status{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--teal)}
@@ -319,6 +322,7 @@ a.sf-item:hover .sf-title,.sf-current .sf-title{color:var(--gold)}
    กฎ CSS นี้ปิดเฉพาะ transition/animation แบบ CSS ทั่วไป ไม่ครอบคลุม requestAnimationFrame ใน JS */
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+  .bookcard:hover .bc-cover.has-img{transform:none}
 }
 
 /* §5 กฎข้อ 8 — ผู้อ่านหลายคนอายุ 50+: ข้อความที่ "อ่านเป็นเนื้อหา" ต้อง ≥16px/1.7 ทุกจอ

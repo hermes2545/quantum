@@ -361,9 +361,21 @@ function renderMapRows(book) {
     .join('\n');
 }
 
+// ปกจริงจากหน้าแรกของ PDF (สร้างด้วย pipeline/covers.py เก็บใน web/src/static/covers/) — เล่มที่ไม่มีไฟล์ปก
+// ยังแสดงกรอบเลขเล่มแบบเดิม · alt ว่างเพราะชื่อเล่มอยู่ใต้ปกเป็นข้อความอยู่แล้ว ไม่ให้ screen reader อ่านซ้ำ
+// สามเล่มแรกโหลดทันที (อยู่เหนือขอบจอ) ที่เหลือ lazy
+function renderCover(meta, idx) {
+  const num = `<span class="n">${toThaiDigits(meta.order)}</span>`;
+  const file = path.join(__dirname, 'src', 'static', 'covers', `${meta.slug}.jpg`);
+  if (!fs.existsSync(file)) return `<span class="bc-cover">${num}</span>`;
+  const loading = idx < 3 ? 'eager' : 'lazy';
+  // ไม่วางเลขเล่มทับปก (ปกเล่ม 3, 5 มีชื่อเล่มอยู่มุมบนซ้าย) — เลขเล่มย้ายไปอยู่ในบรรทัด bc-meta แทน
+  return `<span class="bc-cover has-img"><img src="${BASE}/covers/${meta.slug}.jpg" alt="" width="480" height="696" loading="${loading}" decoding="async"></span>`;
+}
+
 function renderBookCards(books) {
   return books
-    .map((b) => {
+    .map((b, idx) => {
       const meta = b.meta;
       const totalReady = meta.chapters.filter((c) => c.status === 'ready').length;
       const statusCls = meta.status === 'building' ? 'building' : 'ready';
@@ -371,9 +383,9 @@ function renderBookCards(books) {
       return `    <a class="bookcard ${statusCls}" href="${BASE}/b/${meta.slug}" data-book="${escapeAttr(
         meta.slug
       )}" data-total="${totalReady}">
-      <span class="bc-cover"><span class="n">${toThaiDigits(meta.order)}</span></span>
+      ${renderCover(meta, idx)}
       <span class="bc-title">${escapeText(meta.title)}</span>
-      <span class="bc-meta">${meta.chapters.length} บท</span>
+      <span class="bc-meta">เล่ม ${toThaiDigits(meta.order)} · ${meta.chapters.length} บท</span>
       <span class="bc-status">${statusLabel}</span>
       <span class="bc-progress" data-progress></span>
     </a>`;
