@@ -27,20 +27,15 @@ class BuildError extends Error {}
 /* ============================================================ */
 // โหมด static (BUILD_STATIC=1 หรือ --static) = deploy ขึ้น GitHub Pages ที่ไม่มี proxy:
 //   - ไม่มี /api/ask, /api/feedback  → pageData.api.* = null (ask.js ตอบว่าเป็นเว็บอ่านอย่างเดียว)
-//   - PDF ต้นฉบับ (A-01) ชี้ไปที่ไฟล์จริงใน repo สาธารณะแทน /api/source/ — ไม่ก็อป PDF เข้า web/public
-//     (กฎเหล็ก #2 ห้าม .pdf ใน web/public ยังบังคับใช้อยู่)
+//   - PDF ต้นฉบับ (A-01) ก็อปไปไว้ที่ web/public/pdf/<เล่ม>.pdf ให้ Pages เสิร์ฟเป็น application/pdf
+//     เบราว์เซอร์เปิดอ่านได้ทันทีโดยไม่ต้องผ่านหน้า GitHub (A-02 ยกเลิกข้อห้าม #2 แล้ว จึงอนุญาตเฉพาะโฟลเดอร์ pdf/ ของโหมดนี้)
 const STATIC_MODE = process.env.BUILD_STATIC === '1' || process.argv.includes('--static');
 // BASE_PATH = โฟลเดอร์ย่อยที่เว็บถูกเสิร์ฟอยู่ (GitHub Pages ของ repo = "/quantum") — ว่างไว้เมื่อเสิร์ฟที่ราก
 // ทุกลิงก์ภายในและ asset ต้องมี prefix นี้ ไม่งั้นหน้า /quantum/b/... จะไปเรียก /assets/... ที่ไม่มีอยู่
 const BASE = (process.env.BASE_PATH || '').replace(/\/+$/, '');
-// ใช้หน้า blob ของ GitHub ไม่ใช่ raw.githubusercontent เพราะ raw ส่ง Content-Type: application/octet-stream
-// เบราว์เซอร์จึง "ดาวน์โหลด" ไฟล์ 3–10 MB แทนที่จะ "เปิด" ให้อ่าน ซึ่งขัดเจตนาของ A-01 (เมนูเปิด PDF ต้นฉบับ)
-// หน้า blob แสดง PDF ในตัวอ่านของ GitHub ได้ทันทีและยังมีปุ่มดาวน์โหลดให้อยู่
-const STATIC_PDF_BASE =
-  process.env.STATIC_PDF_BASE || 'https://github.com/hermes2545/quantum/blob/main/content/source/';
 const PAGE_BASE = BASE;
 const API = STATIC_MODE
-  ? { ask: null, feedback: null, source: STATIC_PDF_BASE, static: true, data: `${BASE}/assets/data` }
+  ? { ask: null, feedback: null, source: `${BASE}/pdf/`, static: true, data: `${BASE}/assets/data` }
   : { ask: '/api/ask', feedback: '/api/feedback', source: '/api/source/' };
 const LIMITS = { question: 1000, reflection: 2000 };
 const SERIES = { title: 'ธรรมะกับควอนตัม', author: 'สิรวิชญ์ รัตน์จินดา' };
@@ -572,9 +567,7 @@ function renderSourceFooterItems(books, currentBookSlug) {
         const mb = (meta.sourcePdf.bytes / 1e6).toFixed(1) + ' MB';
         const liOpen = isCurrent ? '<li class="sf-current">' : '<li>';
         const ariaCurrent = isCurrent ? ' aria-current="true"' : '';
-        const pdfHref = STATIC_MODE
-          ? STATIC_PDF_BASE + encodeURIComponent(meta.sourcePdf.file)
-          : `/api/source/${meta.slug}.pdf`;
+        const pdfHref = STATIC_MODE ? `${BASE}/pdf/${meta.slug}.pdf` : `/api/source/${meta.slug}.pdf`;
         return `    ${liOpen}<a class="sf-item" href="${pdfHref}" target="_blank" rel="noopener" data-book="${escapeAttr(
           meta.slug
         )}"${ariaCurrent}><span class="sf-num">${thaiOrder}</span><span class="sf-title">${escapeText(
@@ -1050,10 +1043,23 @@ function walkFiles(dir, cb) {
   }
 }
 
+function copySourcePdfs(contentDir, outDir, books) {
+  const pdfDir = path.join(outDir, 'pdf');
+  fs.mkdirSync(pdfDir, { recursive: true });
+  for (const b of books) {
+    const file = b.meta.sourcePdf && b.meta.sourcePdf.file;
+    if (!file) continue;
+    const src = path.join(contentDir, 'source', file);
+    if (!fs.existsSync(src)) throw new BuildError(`ไม่พบ PDF ต้นฉบับ: ${src}`);
+    fs.copyFileSync(src, path.join(pdfDir, `${b.meta.slug}.pdf`));
+  }
+}
+
 function assertOutputIsSafe(outDir) {
   const offenders = [];
   walkFiles(outDir, (filePath) => {
-    if (/\.pdf$/i.test(filePath)) {
+    const inStaticPdfDir = STATIC_MODE && path.dirname(filePath) === path.join(outDir, 'pdf');
+    if (/\.pdf$/i.test(filePath) && !inStaticPdfDir) {
       offenders.push(`พบไฟล์ .pdf หลุดเข้ามาใน web/public: ${filePath} (ห้ามวาง PDF ใน web/public/ ตามกฎเหล็ก #2)`);
       return;
     }
@@ -1144,7 +1150,10 @@ function main() {
   render404Page(outDir, templates);
 
   copyAssets(srcDir, outDir);
-  if (STATIC_MODE) writeAskData(outDir, books, indexJson);
+  if (STATIC_MODE) {
+    writeAskData(outDir, books, indexJson);
+    copySourcePdfs(contentDir, outDir, books);
+  }
   assertOutputIsSafe(outDir);
 
   console.log(
